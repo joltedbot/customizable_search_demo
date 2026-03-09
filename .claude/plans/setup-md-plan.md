@@ -4,7 +4,7 @@
 - [x] README.md — written
 - [x] image-library.md — 80+ curated Unsplash URLs by category
 - [x] template/index.html — complete base demo (~1100 lines, fully functional with 4 search modes + persona switcher)
-- [ ] SETUP.md — **remaining work, described below**
+- [x] SETUP.md — written
 
 ---
 
@@ -163,4 +163,4 @@ An Elastic SA team needs a repeatable, cloneable repo that any SA can use to bui
 ## Phase Status
 - Research: COMPLETE — accepted
 - Plan: COMPLETE — accepted
-- Implementation: PENDING — awaiting user approval to start
+- Implementation: COMPLETE — SETUP.md written, all repo files present
