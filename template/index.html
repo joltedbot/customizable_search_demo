@@ -2083,20 +2083,20 @@ function openScenario(mode, query) {
 
   if (mode === 'lexical') {
     injectBadge('<span class="scenario-badge badge-lexical">⚠ Lexical B25</span>');
-    note.innerHTML = '<div class="srm-note">⚠ No spell correction or semantic understanding — showing literal keyword matches only. Results are off-target.</div>';
+    note.innerHTML = '';
     filters.style.opacity = '0.35';
     filters.style.pointerEvents = 'none';
     grid.innerHTML = products.map(renderProduct).join('');
   } else if (mode === 'hybrid') {
     injectBadge('<span class="scenario-badge badge-hybrid">🔀 Hybrid Search</span>');
-    note.innerHTML = '<div class="srm-info">✓ Semantic + keyword matching — showing <strong>relevant results</strong> even for imprecise queries.</div>';
+    note.innerHTML = '';
     filters.style.opacity = '';
     filters.style.pointerEvents = '';
     grid.innerHTML = products.map(renderProduct).join('');
     wireFilterChips(products, query);
   } else if (mode === 'ltr') {
     injectBadge('<span class="scenario-badge badge-ltr">⭐ Hybrid + LTR</span>');
-    note.innerHTML = `<div class="srm-info">✓ Personalized results for <strong>${activePersona.name}</strong> — ranked by past purchases, brand preferences, and click history.</div>`;
+    note.innerHTML = '';
     filters.style.opacity = '';
     filters.style.pointerEvents = '';
     const xsellHtml = xsell.length

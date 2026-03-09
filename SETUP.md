@@ -42,18 +42,72 @@ DEMO_NARRATIVE:
 
 ## Step 1 — Gather Info
 
-Read the `## Customer Config` block above. For every field that is blank or missing, ask the SA for the value conversationally. Ask all missing fields in one message — do not ask one field at a time.
+Read the `## Customer Config` block above. Use any pre-filled values without asking. For missing fields, gather information **conversationally** — ask one topic at a time in the order below. Do not present a table of questions all at once.
 
-**Defaults you may offer if the SA has no preference:**
-- `CUSTOMER_SLUG`: derive from `CUSTOMER_NAME` (lowercase, hyphens, no spaces)
-- `SECONDARY_COLOR`: a warm gold or amber that complements the primary color
-- `PERSONA_1/2/3`: generate 2–3 personas appropriate to the industry (mix of genders, distinct buyer profiles)
-- `CHARACTER_NAME`: use the name from Persona 1
-- `DEMO_NARRATIVE`: derive from the character's persona profile and industry
+---
 
-For `LOGO`:
-- If the SA provides a URL or SVG code, use it as-is
-- If the SA says `"generate wordmark"` or provides no logo, generate a simple inline SVG: the company name in a bold sans-serif font, colored in `PRIMARY_COLOR`, optionally with a minimal geometric mark to the left
+### 1a — Customer Name and Industry
+
+If `CUSTOMER_NAME` is blank, ask:
+> "Which customer is this demo for? Just the company name is fine."
+
+Once you have the name, derive `CUSTOMER_SLUG` automatically (lowercase, hyphens). Confirm it only if it's ambiguous.
+
+Then ask:
+> "What does [CUSTOMER_NAME] sell? A sentence or two about their products is enough."
+
+Use the answer to fill both `INDUSTRY` and `PRODUCT_FOCUS`.
+
+---
+
+### 1b — Brand Colors
+
+**Try to fetch colors automatically before asking.** Once you know the customer name, attempt to fetch their website (e.g., `https://www.[brand].com`) and extract CSS color values (hex codes, CSS custom properties, button/background/link colors).
+
+- **If successful:** Present the colors you found and ask the SA to confirm or adjust before using them.
+- **If the site blocks the fetch or times out:** Do not ask for hex codes directly — most SAs won't know them. Instead offer these practical options:
+
+  > "I wasn't able to read their website directly. Here are a few easy ways to grab the brand colors — whichever is easiest for you:
+  >
+  > 1. **Screenshot** — take a screenshot of their homepage or any branded page and share the file path. I can read images and identify the colors visually.
+  > 2. **macOS Color Picker** — open **Digital Color Meter** (Applications → Utilities), browse their site, and hover over any brand element. It shows the hex value live.
+  > 3. **Browser DevTools** — right-click any colored element on their site → Inspect → look in the Styles panel for `color`, `background-color`, or CSS variables like `--primary`.
+  > 4. **Brand press page** — their investor or press page (e.g., `corporate.[brand].com`) often loads faster and may mention brand colors.
+  >
+  > If none of these work, just describe the brand vibe (e.g., 'dark green and gold', 'black and white with a red accent') and I'll suggest hex values for your approval."
+
+- **If the SA provides a description** (not a hex code): suggest 2–3 plausible hex options with a recommendation and ask them to pick.
+- **If a logo file is already in the repo:** inspect it for color values and use those as the primary color candidate.
+
+---
+
+### 1c — Logo
+
+Ask:
+> "Do you have a logo file? You can drop an SVG file into the repo folder, paste a URL, or paste SVG code directly. If not, I can generate a simple text wordmark."
+
+- If the SA provides a file path, URL, or SVG code: use it as-is.
+- If no logo is available: generate a simple inline SVG wordmark — the company name in a bold sans-serif font, colored in `PRIMARY_COLOR`, optionally with a minimal geometric mark to the left.
+
+---
+
+### 1d — Personas
+
+Ask:
+> "Do you want me to generate default personas based on the industry, or do you have specific people in mind? If you have preferences — genders, buyer types, how experienced they are — share them and I'll build from there."
+
+- If the SA says generate defaults: create 2–3 personas with distinct genders and buyer motivations appropriate to the industry.
+- If the SA gives partial guidance: build on it and fill gaps.
+
+From the personas, derive `CHARACTER_NAME` (the name used in the LTR "Shopping as" banner — typically the most interesting persona for the personalization story) and `DEMO_NARRATIVE` automatically. Only ask about these if the SA wants to customize them.
+
+---
+
+**General defaults (apply silently unless the SA asks):**
+- `CUSTOMER_SLUG`: derived from `CUSTOMER_NAME`
+- `SECONDARY_COLOR`: a warm gold, amber, or contrasting accent that complements the primary
+- `CHARACTER_NAME`: the persona most central to the LTR demo narrative
+- `DEMO_NARRATIVE`: derived from that persona's profile and the industry
 
 ---
 
@@ -80,17 +134,29 @@ Wait for the SA to confirm before proceeding to Step 3.
 
 ## Step 3 — Generate the Demo
 
-Create the directory `output/[CUSTOMER_SLUG]/` and write `demo.html` there. Do this by reading `template/index.html` in full, then producing a complete customized copy. Do not modify the template — write a new file.
+**Do not generate the file from scratch.** Use the copy-then-edit approach below to stay well within output token limits and avoid truncation.
 
-Also read `image-library.md` to select image URLs appropriate to the customer's industry and products.
+### Setup: Copy the template and read reference files
 
-Apply every customization listed below.
+1. Create the output directory and copy the template:
+   ```bash
+   mkdir -p output/[CUSTOMER_SLUG]
+   cp template/index.html output/[CUSTOMER_SLUG]/demo.html
+   ```
+
+2. Read `image-library.md` to select image URLs for the customer's industry and products. Do this before making any edits.
+
+3. Read `output/[CUSTOMER_SLUG]/demo.html` to confirm the copy succeeded before editing.
+
+Now apply each customization below as a **targeted Edit** to the copied file. Each section is an independent edit — complete them in order.
 
 ---
 
 ### 3a — Brand Colors
 
-In the `:root` CSS block, replace the color values:
+**Edit target:** the `:root { }` block near the top of the `<style>` section.
+
+Replace the five color custom property values:
 
 ```css
 --primary:       [PRIMARY_COLOR];
@@ -104,6 +170,8 @@ In the `:root` CSS block, replace the color values:
 
 ### 3b — Page Title and Header
 
+**Edit target:** three separate edits — `<title>`, the `<!-- CUSTOMIZE: Logo -->` block, and the `<!-- CUSTOMIZE: promo message -->` span.
+
 - `<title>`: `[CUSTOMER_NAME] | Find Everything You Need`
 - Logo: Replace the placeholder SVG/text in the `<!-- CUSTOMIZE: Logo -->` section with either:
   - The provided SVG or URL, **or**
@@ -114,13 +182,17 @@ In the `:root` CSS block, replace the color values:
 
 ### 3c — Navigation
 
-Replace the `<!-- CUSTOMIZE: navigation categories -->` nav items with 5–7 categories appropriate to the customer's industry and product focus. Examples for sporting goods: `Men's`, `Women's`, `Footwear`, `Apparel`, `Equipment`, `Sale`.
+**Edit target:** the `<!-- CUSTOMIZE: navigation categories -->` nav block.
+
+Replace the nav items with 5–7 categories appropriate to the customer's industry and product focus. Examples for sporting goods: `Men's`, `Women's`, `Footwear`, `Apparel`, `Equipment`, `Sale`.
 
 ---
 
 ### 3d — Hero Slides
 
-Replace the `<!-- CUSTOMIZE: hero slides -->` section with 2–3 slides. Each slide should:
+**Edit target:** the `<!-- CUSTOMIZE: hero slides -->` section and the `/* CUSTOMIZE: Hero slide backgrounds */` CSS rule block.
+
+Replace with 2–3 slides. Each slide should:
 - Have a compelling headline relevant to the industry and season (summer)
 - Have 1–2 lines of supporting copy
 - Have a CTA button label (e.g., "Shop Now", "Explore Collection")
@@ -130,13 +202,17 @@ Replace the `<!-- CUSTOMIZE: hero slides -->` section with 2–3 slides. Each sl
 
 ### 3e — Trending Search Terms
 
+**Edit target:** the `<!-- CUSTOMIZE: trending search terms -->` strip in the HTML, and the `const SUGGESTIONS` object in the JS.
+
 Replace `SUGGESTIONS.trending` with 7 search terms appropriate to the industry and season. Replace `SUGGESTIONS.categories` with 6–7 category shortcuts appropriate to the nav structure.
 
 ---
 
 ### 3f — Personas
 
-Replace the `PERSONAS` object with 3 personas based on the SA's input (or generated defaults). Each persona must have:
+**Edit target:** the `const PERSONAS` object and the `let activePersona` initialisation line in the JS.
+
+Replace with 3 personas based on the SA's input (or generated defaults). Each persona must have:
 
 ```js
 {
@@ -158,7 +234,9 @@ Make personas distinct: different genders, different buying motivations, and dif
 
 ### 3g — Product Catalog (Homepage Grid)
 
-Replace `PRODUCTS` with 12–15 products appropriate to the industry. Requirements:
+**Edit target:** the `const PRODUCTS` array in the JS (between its opening `[` and closing `];`).
+
+Replace with 12–15 products appropriate to the industry. Requirements:
 - Mix of genders: roughly ⅓ women's, ⅓ men's, ⅓ unisex
 - Mix of price points: entry-level, mid-range, and premium
 - Varied categories: not all the same product type
@@ -170,6 +248,8 @@ Replace `PRODUCTS` with 12–15 products appropriate to the industry. Requiremen
 ---
 
 ### 3h — Lexical Mode Products
+
+**Edit target:** the `const PRODUCTS_LEXICAL` array and the `DEMO_QUERIES.lexical` value in `const DEMO_QUERIES`.
 
 Replace `PRODUCTS_LEXICAL` with 6 intentionally wrong/irrelevant products. These demonstrate keyword-matching failure when the SA types a misspelled or ambiguous search query.
 
@@ -184,6 +264,8 @@ Set `DEMO_QUERIES.lexical` to a misspelled or ambiguous version of a common prod
 
 ### 3i — Hybrid Mode Products
 
+**Edit target:** the `const PRODUCTS_HYBRID` array and the `DEMO_QUERIES.hybrid` value.
+
 Replace `PRODUCTS_HYBRID` with 6 relevant, high-quality results. These demonstrate semantic search understanding — the results are correct and relevant even when the query is natural language.
 
 Rules:
@@ -197,6 +279,8 @@ Set `DEMO_QUERIES.hybrid` to a natural language query appropriate to the industr
 ---
 
 ### 3j — LTR Mode Products (Personalized)
+
+**Edit target:** the `const PRODUCTS_LTR` object and the `DEMO_QUERIES.ltr` value.
 
 Replace `PRODUCTS_LTR` with persona-specific results for each of the 3 personas. Each persona entry needs:
 
@@ -216,6 +300,8 @@ The LTR overlay displays the character name in a "Shopping as [CHARACTER_NAME]" 
 ---
 
 ### 3k — GenAI Kit
+
+**Edit target:** the `const GENAI_KITS` object and the `DEMO_QUERIES.genai` value.
 
 Replace `GENAI_KITS` with persona-specific curated kits. Each persona entry needs:
 
@@ -240,15 +326,46 @@ Set `DEMO_QUERIES.genai` to a natural language "curated kit" query (e.g., `'comp
 
 ### 3l — Mid-Page Promo Banner
 
-Update the `<!-- CUSTOMIZE: mid-page promo banner -->` section with a short promotional message appropriate to the industry (e.g., "Summer Essentials — Shop the Collection").
+**Edit target:** the `<!-- CUSTOMIZE: mid-page promo banner -->` div.
+
+Update with a short promotional message appropriate to the industry (e.g., "Summer Essentials — Shop the Collection").
 
 ---
 
 ### 3m — Footer
 
-Update the `<!-- CUSTOMIZE: footer links and copyright -->` section:
+**Edit target:** the `<!-- CUSTOMIZE: footer links and copyright -->` footer block.
+
 - Replace brand name in copyright with `CUSTOMER_NAME`
 - Update footer nav links to match the nav categories from 3c
+
+---
+
+### 3n — Search Routing Keywords
+
+**Edit target:** the `doSearch()` function's `if` conditions in the JS.
+
+Update the lexical and GenAI keyword triggers to match the customer's specific demo queries set in 3h and 3k. The LTR trigger (`'for me'`, `'my '`) is generic and rarely needs changing.
+
+### 3o — Console Cheat Sheet
+
+**Edit target:** the `console.log` calls at the very end of the `<script>` block.
+
+Update the background color in the first `console.log` to `PRIMARY_COLOR` and update the query strings to match `DEMO_QUERIES`.
+
+---
+
+## Step 3 Validation
+
+After completing all edits, read back `output/[CUSTOMER_SLUG]/demo.html` and verify:
+- The `:root` colors are updated (not still `#1a6b4a`)
+- The `<title>` contains the customer name
+- `const PERSONAS` uses the correct persona names/IDs
+- `const PRODUCTS` contains customer-specific products (not the template's trail running defaults)
+- `DEMO_QUERIES` contains all four customized query strings
+- No references to the template brand names (e.g., "On Running", "Salomon") remain unless intentional
+
+If any section was missed or still contains template defaults, apply the missing edit before proceeding.
 
 ---
 
