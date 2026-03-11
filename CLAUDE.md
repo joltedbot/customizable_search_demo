@@ -71,11 +71,11 @@ Track each RPI project in a single `.md` file stored in `.claude/plans/` within 
 - For non-RPI changes, the same applies — confirm approach before writing code
 
 ### Three-Strike Rule
-When changes result in compilation errors, test failures, or other blocking issues:
-1. **First attempt**: Try a straightforward fix
+When an approach is repeatedly blocked — whether by compilation errors, test failures, tool rejections, user interruptions, or any other blocker — count each failed or rejected attempt as a strike:
+1. **First attempt**: Try a straightforward approach
 2. **Second attempt**: Try one alternative approach
-3. **Third attempt**: Try one more focused solution
-4. **After three failures**: STOP, revert changes, reassess, and ask the user how to proceed
+3. **Third attempt**: Try one more focused variation
+4. **After three failures**: STOP, revert any changes, reassess, and ask the user how to proceed — do not keep retrying the same pattern
 
 ## Build Commands
 
