@@ -59,8 +59,8 @@ Fill in `.env`:
 - `ES_API_KEY` — write API key (used once by `npm run setup` to seed the index)
 - `ES_INDEX` — leave as `demo-products` or choose your own name
 - `ES_API_KEY_READONLY` — read-only API key scoped to `ES_INDEX` (baked into the demo HTML)
-- `AGENT_BUILDER_URL` — your Elastic inference endpoint URL, e.g. `{ES_URL}/_inference/completion/{inference_id}`
-- `AGENT_BUILDER_API_KEY` — API key for the inference endpoint
+- `ES_INFERENCE_URL` — your Elastic inference endpoint URL, e.g. `{ES_URL}/_inference/completion/{inference_id}`
+- `ES_INFERENCE_API_KEY` — API key for the inference endpoint
 
 ### v2-B — Seed the index
 
@@ -84,7 +84,7 @@ http.cors.allow-headers: "X-Requested-With, Content-Type, Content-Length, Author
 ### v2-D — Note for Step 3
 
 During Step 3, you (the AI agent) will inject the v2 credentials into the output file. Before proceeding to Step 1, read `.env` and store the following values for use in step 3p:
-- `ES_URL`, `ES_API_KEY_READONLY`, `ES_INDEX`, `AGENT_BUILDER_URL`, `AGENT_BUILDER_API_KEY`
+- `ES_URL`, `ES_API_KEY_READONLY`, `ES_INDEX`, `ES_INFERENCE_URL`, `ES_INFERENCE_API_KEY`
 
 If `.env` does not exist or is not filled in, set `V2_ENABLED = false` and leave the credential tokens as empty strings.
 
@@ -412,13 +412,13 @@ const ES_CONFIG = {
   url:                '[ES_URL]',
   apiKey:             '[ES_API_KEY_READONLY]',
   index:              '[ES_INDEX]',
-  agentBuilderUrl:    '[AGENT_BUILDER_URL]',
-  agentBuilderApiKey: '[AGENT_BUILDER_API_KEY]'
+  inferenceUrl:    '[ES_INFERENCE_URL]',
+  inferenceApiKey: '[ES_INFERENCE_API_KEY]'
 };
 const V2_ENABLED = true;
 ```
 
-If any optional credential (e.g. `AGENT_BUILDER_URL`) is blank, leave it as an empty string — the code falls back to mock gracefully.
+If any optional credential (e.g. `ES_INFERENCE_URL`) is blank, leave it as an empty string — the code falls back to mock gracefully.
 
 ---
 

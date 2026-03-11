@@ -1255,8 +1255,8 @@ const ES_CONFIG = {
   url:                '{{ES_URL}}',
   apiKey:             '{{ES_API_KEY_READONLY}}',
   index:              '{{ES_INDEX}}',
-  agentBuilderUrl:    '{{AGENT_BUILDER_URL}}',
-  agentBuilderApiKey: '{{AGENT_BUILDER_API_KEY}}'
+  inferenceUrl:    '{{ES_INFERENCE_URL}}',
+  inferenceApiKey: '{{ES_INFERENCE_API_KEY}}'
 };
 const V2_ENABLED = {{V2_ENABLED}};
 
@@ -2158,13 +2158,13 @@ function searchProductsMock(query, mode, persona) {
 }
 
 async function askAgent(question, persona) {
-  if (!V2_ENABLED || !ES_CONFIG.agentBuilderUrl || ES_CONFIG.agentBuilderUrl === '{{AGENT_BUILDER_URL}}') {
+  if (!V2_ENABLED || !ES_CONFIG.inferenceUrl || ES_CONFIG.inferenceUrl === '{{ES_INFERENCE_URL}}') {
     return askAgentMock(question, persona);
   }
   try {
-    return await callAgentBuilder(question, persona);
+    return await callInferenceApi(question, persona);
   } catch (err) {
-    console.error('[ES v2] Agent Builder failed, using mock:', err);
+    console.error('[ES v2] Inference API failed, using mock:', err);
     return askAgentMock(question, persona);
   }
 }
@@ -2174,19 +2174,19 @@ function askAgentMock(question, persona) {
   return kit.chatResponse(question);
 }
 
-async function callAgentBuilder(question, persona) {
+async function callInferenceApi(question, persona) {
   const systemPrompt = `You are a helpful shopping assistant for an athletic/outdoor retailer. The user is ${persona.name} — ${persona.tagline}. Their preferred brands are ${(persona.preferredBrands || []).join(', ')}. Answer concisely in 2-4 sentences and recommend specific products when relevant.`;
-  const resp = await fetch(ES_CONFIG.agentBuilderUrl, {
+  const resp = await fetch(ES_CONFIG.inferenceUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `ApiKey ${ES_CONFIG.agentBuilderApiKey}`
+      'Authorization': `ApiKey ${ES_CONFIG.inferenceApiKey}`
     },
     body: JSON.stringify({
       input: `${systemPrompt}\n\nUser: ${question}`
     })
   });
-  if (!resp.ok) throw new Error(`Agent Builder ${resp.status}`);
+  if (!resp.ok) throw new Error(`Inference API ${resp.status}`);
   const data = await resp.json();
   return data.completion?.[0]?.result
     ?? data.message?.content
@@ -2365,7 +2365,7 @@ async function sendGenAIMessage() {
       </div>
       <div class="genai-msg" id="genai-ai-turn0">
         <div class="genai-msg-ai-wrap">
-          <div class="genai-msg-ai-label">🤖 AI Assistant (powered by Elastic Agent Builder)</div>
+          <div class="genai-msg-ai-label">🤖 AI Assistant (powered by Elastic Inference)</div>
           <div class="genai-msg-ai">…</div>
         </div>
       </div>`;

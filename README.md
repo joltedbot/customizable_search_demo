@@ -1,6 +1,6 @@
 # Elastic Search Demo Builder
 
-A cloneable repo for Elastic SAs to quickly build a branded, interactive search demo for any customer — no Elasticsearch infrastructure required.
+A cloneable repo for Elastic SAs to quickly build a branded, interactive search demo for any customer — in mock mode (no Elasticsearch required) or backed by a live Elastic cluster.
 
 ## What You'll Get
 
@@ -11,7 +11,7 @@ A single-page HTML demo that looks like the customer's own website and walks thr
 3. **Hybrid + LTR** — Personalized, reranked results with cross-sell surfacing
 4. **GenAI Search** — Curated "kit" + conversational AI follow-up
 
-The demo works entirely offline, requires no server, and is shareable as a single `.html` file.
+In mock mode, the demo works entirely offline and is shareable as a single `.html` file. In v2 mode, it connects to a live Elasticsearch cluster for real semantic search and AI chat.
 
 ---
 
@@ -45,7 +45,7 @@ open output/<customer-slug>/demo.html
 
 ```bash
 # 1. Seed the index
-cp .env.template .env   # fill in ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, AGENT_BUILDER_URL, AGENT_BUILDER_API_KEY
+cp .env.template .env   # fill in ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, ES_INFERENCE_URL, ES_INFERENCE_API_KEY
 npm install
 npm run setup
 

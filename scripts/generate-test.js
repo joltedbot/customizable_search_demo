@@ -36,8 +36,8 @@ let html = fs.readFileSync(templatePath, 'utf8');
 html = html.replace('{{ES_URL}}',                  env.ES_URL);
 html = html.replace('{{ES_API_KEY_READONLY}}',     env.ES_API_KEY_READONLY);
 html = html.replace('{{ES_INDEX}}',                env.ES_INDEX || 'demo-products');
-html = html.replace('{{AGENT_BUILDER_URL}}',       env.AGENT_BUILDER_URL || '');
-html = html.replace('{{AGENT_BUILDER_API_KEY}}',   env.AGENT_BUILDER_API_KEY || '');
+html = html.replace('{{ES_INFERENCE_URL}}',       env.ES_INFERENCE_URL || '');
+html = html.replace('{{ES_INFERENCE_API_KEY}}',   env.ES_INFERENCE_API_KEY || '');
 html = html.replace('{{V2_ENABLED}}',              'true');
 
 const outDir = path.join(__dirname, '..', 'output', 'test');

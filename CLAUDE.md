@@ -2,8 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-> **Template:** Before first use, fill in [Build Commands](#build-commands) and [Architecture Overview](#architecture-overview).
-
 ## Table of Contents
 1. [Critical Rules](#critical-rules)
 2. [RPI Framework](#rpi-framework-research--plan--implement)
@@ -81,25 +79,78 @@ When changes result in compilation errors, test failures, or other blocking issu
 
 ## Build Commands
 
-<!-- TODO: Add commands for build, lint, test, and how to run a single test. Example:
-- Build: `npm run build`
-- Test: `npm test`
-- Single test: `npm test -- --testNamePattern="test name"`
-- Lint: `npm run lint`
--->
+- **Serve demo locally:** `npm run dev` — serves `output/` at `http://localhost:3000`
+- **Seed ES index:** `npm run setup` — creates index, deploys ELSER, loads 75 products (requires `.env`)
+- **Reset ES index:** `npm run reset` — wipes and reseeds (requires `.env`)
+- **Generate test build:** `npm run generate-test` — injects `.env` credentials into template → `output/test/demo.html` with `V2_ENABLED=true`
+
+No build step for mock mode — open `output/{slug}/demo.html` directly in a browser.
 
 ## Architecture Overview
 
-<!-- TODO: Describe the high-level architecture — key layers, data flow, and non-obvious design decisions that require reading multiple files to understand. Omit what can be easily discovered by browsing files. -->
+**Purpose:** SAs clone this repo, run `SETUP.md` with an AI agent, and get a branded single-page search demo customised for their customer.
+
+**Two modes — same codebase:**
+- **Mock** (`V2_ENABLED = false`, default): fully offline, no ES, opens as `file://`
+- **v2** (`V2_ENABLED = true`): live Elasticsearch, requires `npm run dev` for CORS
+
+**Key files:**
+- `template/index.html` — ~2600-line single-file demo with `{{TOKEN}}` placeholders; AI replaces these during SETUP.md execution
+- `SETUP.md` — AI execution script; the SA runs this with Claude Code or Gemini CLI
+- `scripts/setup-index.js` — seeds the ES index (run once via `npm run setup`)
+- `scripts/data/products.json` — canonical 75-product athletic/retail dataset
+- `scripts/generate-test.js` — dev helper: injects `.env` → `output/test/demo.html`
+- `.env.template` — credentials template; copy to `.env` before running v2 setup
+- `output/{customer-slug}/demo.html` — generated output, gitignored
+
+**Search modes (4):**
+1. Lexical — BM25 on `name`/`brand`, filtered to noise products (guaranteed bad results)
+2. Hybrid — ELSER semantic + BM25, filtered to real products
+3. Hybrid + LTR — Hybrid base + `function_score` boosting on persona `preferredBrands`, `gender`, `purchaseHistory`
+4. GenAI — Curated product kit + live chat via Elastic inference API
+
+**Personas (3):** Alex, Marcus, Sam — switcher in header; affect LTR and GenAI responses
+
+**ES stack:** Cloud Hosted 9.x, `semantic_text` field + ELSER v2 (`.elser-2-elasticsearch`), index `demo-products`
+
+**Inference API:** `POST {ES_URL}/_inference/completion/{id}` — body: `{ input: "..." }`, response: `completion[0].result`. Uses `completion` task type (not `chat_completion`).
+
+**Credentials in output HTML:**
+- `ES_API_KEY_READONLY` — baked into demo.html for browser queries (read-only, scoped to index)
+- `ES_API_KEY` — write key used only by `npm run setup`, never in output HTML
+
+**CORS:** Configured in Kibana with regex `/https?:\/\/localhost(:[0-9]+)?/`
+
+**Dataset:** 75 products — 65 real athletic/retail + 10 noise (`is_noise: true`) for lexical failure demo. Lexical mode filters TO noise; all other modes filter AWAY from noise.
+
+**RPI plans:** stored in `.claude/plans/` within the repo.
 
 ## Testing Guidelines
 
-<!-- TODO: Add project-specific testing approach — what to test, what not to test, how to structure tests, and any testing frameworks or conventions in use. -->
+No automated test suite. Manual testing only:
+
+**Mock mode:**
+1. Have the AI agent run SETUP.md to generate `output/{slug}/demo.html`
+2. Open directly in browser (`file://`) — no server needed
+3. Verify all 4 search modes return results, persona switcher works, GenAI chat shows mock response
+
+**v2 mode:**
+1. Ensure `.env` is filled in and `npm run setup` has been run successfully (look for `✓ All 75 products indexed successfully`)
+2. Run `npm run generate-test` → then `npm run dev`
+3. Open `http://localhost:3000/test/demo.html`
+4. Verify: Lexical returns noise/irrelevant products; Hybrid/LTR return real products; GenAI chat returns live inference response
+5. Switch personas and confirm LTR results change
 
 
 ## Code Style Guidelines
 
-<!-- TODO: Add project-specific conventions — naming patterns, formatting rules, patterns to avoid, etc. -->
+- **Vanilla JS/HTML/CSS only** — no frameworks, no TypeScript, no build step
+- **Single-file output** — all JS and CSS must remain inline in `template/index.html`
+- **Token format:** `{{ALL_CAPS}}` for credential/config placeholders in `template/index.html`; `[BRACKET_STYLE]` in SETUP.md code examples shown to the AI agent
+- **Env vars:** `ALL_CAPS_WITH_UNDERSCORES` (e.g. `ES_INFERENCE_URL`)
+- **JS config keys:** camelCase (e.g. `inferenceUrl`, `apiKey`)
+- **No new dependencies** without discussion — the project intentionally has minimal deps (`@elastic/elasticsearch`, `serve`)
+- **Mock fallback pattern:** all v2 ES calls must fall back to mock silently on failure; never let a failed ES call break the demo
 
 
 ## Communication Style
