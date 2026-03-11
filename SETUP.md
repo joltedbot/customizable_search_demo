@@ -40,6 +40,56 @@ DEMO_NARRATIVE:
 
 ---
 
+## v2 Mode: Real Elasticsearch (Optional)
+
+Skip this section for a fully mocked demo — jump straight to Step 1.
+
+To run the demo against a real Elasticsearch cluster with semantic search and live AI responses, complete these pre-steps first.
+
+**Prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), an Elastic inference endpoint configured for an LLM.
+
+### v2-A — Configure credentials
+
+```bash
+cp .env.template .env
+```
+
+Fill in `.env`:
+- `ES_URL` — your Cloud deployment URL
+- `ES_API_KEY` — write API key (used once by `npm run setup` to seed the index)
+- `ES_INDEX` — leave as `demo-products` or choose your own name
+- `ES_API_KEY_READONLY` — read-only API key scoped to `ES_INDEX` (baked into the demo HTML)
+- `AGENT_BUILDER_URL` — your Elastic inference endpoint URL, e.g. `{ES_URL}/_inference/completion/{inference_id}`
+- `AGENT_BUILDER_API_KEY` — API key for the inference endpoint
+
+### v2-B — Seed the index
+
+```bash
+npm install
+npm run setup
+```
+
+This creates the index, enables ELSER semantic embeddings, and bulk-loads 75 athletic/retail products. Confirm the output shows `✓ All 75 products indexed successfully`. Run `npm run setup -- --reset` to wipe and reseed.
+
+### v2-C — Configure CORS
+
+In Kibana: **Stack Management → Elasticsearch → Edit deployment settings**, add:
+
+```yaml
+http.cors.enabled: true
+http.cors.allow-origin: ["/https?:\\/\\/localhost(:[0-9]+)?/"]
+http.cors.allow-headers: "X-Requested-With, Content-Type, Content-Length, Authorization"
+```
+
+### v2-D — Note for Step 3
+
+During Step 3, you (the AI agent) will inject the v2 credentials into the output file. Before proceeding to Step 1, read `.env` and store the following values for use in step 3p:
+- `ES_URL`, `ES_API_KEY_READONLY`, `ES_INDEX`, `AGENT_BUILDER_URL`, `AGENT_BUILDER_API_KEY`
+
+If `.env` does not exist or is not filled in, set `V2_ENABLED = false` and leave the credential tokens as empty strings.
+
+---
+
 ## Step 1 — Gather Info
 
 Read the `## Customer Config` block above. Use any pre-filled values without asking. For missing fields, gather information **conversationally** — ask one topic at a time in the order below. Do not present a table of questions all at once.
@@ -234,6 +284,8 @@ Make personas distinct: different genders, different buying motivations, and dif
 
 ### 3g — Product Catalog (Homepage Grid)
 
+> **v2 mode:** This array powers the homepage grid only — search results come from Elasticsearch. Still fill it in for a complete-looking homepage.
+
 **Edit target:** the `const PRODUCTS` array in the JS (between its opening `[` and closing `];`).
 
 Replace with 12–15 products appropriate to the industry. Requirements:
@@ -248,6 +300,8 @@ Replace with 12–15 products appropriate to the industry. Requirements:
 ---
 
 ### 3h — Lexical Mode Products
+
+> **v2 mode:** `PRODUCTS_LEXICAL` is bypassed — lexical results come from Elasticsearch (filtered to `is_noise: true` products in the seeded dataset). You may skip this array. Still set `DEMO_QUERIES.lexical` to the appropriate misspelled query.
 
 **Edit target:** the `const PRODUCTS_LEXICAL` array and the `DEMO_QUERIES.lexical` value in `const DEMO_QUERIES`.
 
@@ -264,6 +318,8 @@ Set `DEMO_QUERIES.lexical` to a misspelled or ambiguous version of a common prod
 
 ### 3i — Hybrid Mode Products
 
+> **v2 mode:** `PRODUCTS_HYBRID` is bypassed — hybrid results come from Elasticsearch (semantic + BM25 on the seeded dataset). You may skip this array. Still set `DEMO_QUERIES.hybrid`.
+
 **Edit target:** the `const PRODUCTS_HYBRID` array and the `DEMO_QUERIES.hybrid` value.
 
 Replace `PRODUCTS_HYBRID` with 6 relevant, high-quality results. These demonstrate semantic search understanding — the results are correct and relevant even when the query is natural language.
@@ -279,6 +335,8 @@ Set `DEMO_QUERIES.hybrid` to a natural language query appropriate to the industr
 ---
 
 ### 3j — LTR Mode Products (Personalized)
+
+> **v2 mode:** `PRODUCTS_LTR` is bypassed — personalized results come from Elasticsearch using `function_score` boosting on the persona's `preferredBrands`, `gender`, and `purchaseHistory`. You may skip this array. Still set `DEMO_QUERIES.ltr`.
 
 **Edit target:** the `const PRODUCTS_LTR` object and the `DEMO_QUERIES.ltr` value.
 
@@ -341,6 +399,29 @@ Update with a short promotional message appropriate to the industry (e.g., "Summ
 
 ---
 
+### 3p — v2 Credential Injection
+
+**Skip this step if not running v2 mode.**
+
+**Edit target:** the `ES_CONFIG` and `V2_ENABLED` block near the top of the `<script>` section in `output/[CUSTOMER_SLUG]/demo.html`.
+
+Replace each `{{token}}` with the value read from `.env` in step v2-D:
+
+```js
+const ES_CONFIG = {
+  url:                '[ES_URL]',
+  apiKey:             '[ES_API_KEY_READONLY]',
+  index:              '[ES_INDEX]',
+  agentBuilderUrl:    '[AGENT_BUILDER_URL]',
+  agentBuilderApiKey: '[AGENT_BUILDER_API_KEY]'
+};
+const V2_ENABLED = true;
+```
+
+If any optional credential (e.g. `AGENT_BUILDER_URL`) is blank, leave it as an empty string — the code falls back to mock gracefully.
+
+---
+
 ### 3n — Search Routing Keywords
 
 **Edit target:** the `doSearch()` function's `if` conditions in the JS.
@@ -397,5 +478,5 @@ For the LTR/GenAI modes, switch personas and re-run the same query to show perso
 - **Keep all JavaScript logic intact** — only replace the data constants (`PERSONAS`, `PRODUCTS`, `PRODUCTS_LEXICAL`, `PRODUCTS_HYBRID`, `PRODUCTS_LTR`, `GENAI_KITS`, `DEMO_QUERIES`, `SUGGESTIONS`)
 - **Keep all CSS intact** — only change the `:root` color values and hero slide background gradients
 - **Keep all HTML structure intact** — only replace text content and the logo element
-- The demo must work when opened from `file://` with no server and no internet-dependent assets (fonts load from Google Fonts; if offline, they degrade gracefully to system sans-serif)
-- No credentials, API keys, or build tools required
+- **Mock mode** (default): the demo works when opened from `file://` with no server, no credentials, and no internet-dependent assets beyond Google Fonts
+- **v2 mode**: the demo must be served via `npm run dev` (localhost:3000) — direct `file://` opening will cause CORS errors on ES queries

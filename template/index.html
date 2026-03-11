@@ -4,7 +4,7 @@
   ELASTIC SEARCH DEMO TEMPLATE
   ============================================================
   This template is customized by SETUP.md via an AI agent.
-  Sections marked <!-- CUSTOMIZE: ... --> are the primary
+  Sections marked CUSTOMIZE: are the primary
   customization points.
 
   DEMO QUERIES (tell the SA what to type during the presentation):
@@ -649,6 +649,33 @@
       gap: 16px;
     }
     @media (max-width: 700px) { .search-results-grid { grid-template-columns: 1fr 1fr; } }
+
+    /* ===================== LOADING SKELETON ===================== */
+    .skeleton-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .skeleton-img {
+      width: 100%;
+      aspect-ratio: 400 / 480;
+      background: var(--gray-200);
+      animation: skeletonPulse 1.4s ease-in-out infinite;
+    }
+    .skeleton-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .skeleton-line {
+      border-radius: 4px;
+      background: var(--gray-200);
+      animation: skeletonPulse 1.4s ease-in-out infinite;
+    }
+    .skeleton-line.wide  { height: 12px; width: 80%; }
+    .skeleton-line.med   { height: 11px; width: 55%; }
+    .skeleton-line.short { height: 18px; width: 40%; }
+    @keyframes skeletonPulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
     .ltr-xsell-header {
       grid-column: 1 / -1;
       font-size: 14px;
@@ -1219,6 +1246,20 @@
 
 <!-- ===================== JAVASCRIPT ===================== -->
 <script>
+// ============================================================
+// v2 ELASTICSEARCH CONFIG
+// Tokens replaced by SETUP.md — leave as-is in the template.
+// Set V2_ENABLED = false to use mock data (default for template).
+// ============================================================
+const ES_CONFIG = {
+  url:                '{{ES_URL}}',
+  apiKey:             '{{ES_API_KEY_READONLY}}',
+  index:              '{{ES_INDEX}}',
+  agentBuilderUrl:    '{{AGENT_BUILDER_URL}}',
+  agentBuilderApiKey: '{{AGENT_BUILDER_API_KEY}}'
+};
+const V2_ENABLED = {{V2_ENABLED}};
+
 // ============================================================
 // CONFIGURATION — CUSTOMIZE THIS ENTIRE SECTION
 // When running SETUP.md, the AI agent replaces all data below
@@ -2011,11 +2052,96 @@ function renderGenAIProduct(p) {
 
 // ============================================================
 // SEARCH API INTERFACE
-// v2 upgrade: replace these functions with real API calls
 // ============================================================
 
-function searchProducts(query, mode, persona) {
-  // Mock dispatch — replace with real Elasticsearch calls in v2
+// ── v2 Elasticsearch helpers ──────────────────────────────────
+
+async function esSearch(body) {
+  const resp = await fetch(`${ES_CONFIG.url}/${ES_CONFIG.index}/_search`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `ApiKey ${ES_CONFIG.apiKey}`
+    },
+    body: JSON.stringify(body)
+  });
+  if (!resp.ok) throw new Error(`ES ${resp.status}: ${await resp.text()}`);
+  return resp.json();
+}
+
+function buildEsQuery(query, mode, persona) {
+  if (mode === 'lexical') {
+    return {
+      query: {
+        bool: {
+          must: { multi_match: { query, fields: ['name^3', 'brand^2'], operator: 'and' } },
+          filter: { term: { is_noise: true } }
+        }
+      },
+      size: 6
+    };
+  }
+
+  const hybridBool = {
+    bool: {
+      should: [
+        { semantic: { field: 'description.semantic', query, boost: 0.6 } },
+        { multi_match: { query, fields: ['name^3', 'brand^2', 'tags'], boost: 0.4 } }
+      ],
+      must_not: { term: { is_noise: true } }
+    }
+  };
+
+  if (mode === 'hybrid') {
+    return { query: hybridBool, size: 6 };
+  }
+
+  if (mode === 'ltr') {
+    const functions = [];
+    (persona.preferredBrands || []).forEach((brand, i) => {
+      functions.push({ filter: { term: { 'brand.keyword': brand } }, weight: Math.max(3 - (i * 0.4), 1) });
+    });
+    const genderMap = { female: "Women's", male: "Men's" };
+    const genderVal = genderMap[persona.gender];
+    if (genderVal) functions.push({ filter: { term: { gender: genderVal } }, weight: 2 });
+    (persona.purchaseHistory || []).slice(0, 3).forEach(tag => {
+      functions.push({ filter: { match: { tags: tag } }, weight: 1.5 });
+    });
+    return {
+      query: {
+        function_score: { query: hybridBool, functions, score_mode: 'sum', boost_mode: 'multiply' }
+      },
+      size: 8
+    };
+  }
+
+  return { query: hybridBool, size: 6 };
+}
+
+function parseEsResponse(resp, mode) {
+  const hits = (resp.hits && resp.hits.hits) || [];
+  const products = hits.map(hit => hit._source);
+  if (mode === 'ltr') {
+    return { products: products.slice(0, 6), xsell: products.slice(6) };
+  }
+  return { products, xsell: [] };
+}
+
+// ── Public search interface ───────────────────────────────────
+
+async function searchProducts(query, mode, persona) {
+  if (!V2_ENABLED) return searchProductsMock(query, mode, persona);
+  try {
+    const esQuery = buildEsQuery(query, mode, persona);
+    const resp = await esSearch(esQuery);
+    return parseEsResponse(resp, mode);
+  } catch (err) {
+    console.error('[ES v2] Search failed, using mock:', err);
+    return searchProductsMock(query, mode, persona);
+  }
+}
+
+function searchProductsMock(query, mode, persona) {
   switch (mode) {
     case 'lexical': return { products: PRODUCTS_LEXICAL, xsell: [] };
     case 'hybrid':  return { products: PRODUCTS_HYBRID, xsell: [] };
@@ -2031,10 +2157,41 @@ function searchProducts(query, mode, persona) {
   }
 }
 
-// v2 upgrade: replace with real Agent Builder API call
-function askAgent(question, persona) {
+async function askAgent(question, persona) {
+  if (!V2_ENABLED || !ES_CONFIG.agentBuilderUrl || ES_CONFIG.agentBuilderUrl === '{{AGENT_BUILDER_URL}}') {
+    return askAgentMock(question, persona);
+  }
+  try {
+    return await callAgentBuilder(question, persona);
+  } catch (err) {
+    console.error('[ES v2] Agent Builder failed, using mock:', err);
+    return askAgentMock(question, persona);
+  }
+}
+
+function askAgentMock(question, persona) {
   const kit = GENAI_KITS[persona.id] || GENAI_KITS.sam;
   return kit.chatResponse(question);
+}
+
+async function callAgentBuilder(question, persona) {
+  const systemPrompt = `You are a helpful shopping assistant for an athletic/outdoor retailer. The user is ${persona.name} — ${persona.tagline}. Their preferred brands are ${(persona.preferredBrands || []).join(', ')}. Answer concisely in 2-4 sentences and recommend specific products when relevant.`;
+  const resp = await fetch(ES_CONFIG.agentBuilderUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `ApiKey ${ES_CONFIG.agentBuilderApiKey}`
+    },
+    body: JSON.stringify({
+      input: `${systemPrompt}\n\nUser: ${question}`
+    })
+  });
+  if (!resp.ok) throw new Error(`Agent Builder ${resp.status}`);
+  const data = await resp.json();
+  return data.completion?.[0]?.result
+    ?? data.message?.content
+    ?? data.choices?.[0]?.message?.content
+    ?? 'Sorry, I could not get a response.';
 }
 
 // ============================================================
@@ -2042,7 +2199,7 @@ function askAgent(question, persona) {
 // Keyword matching routes to the appropriate demo scenario
 // ============================================================
 
-function doSearch(query) {
+async function doSearch(query) {
   const q = (query || '').toLowerCase().trim();
   if (!q) return;
   document.getElementById('searchInput').value = query;
@@ -2072,41 +2229,58 @@ function injectBadge(badgeHtml) {
   document.querySelector('#searchQueryLabel').insertAdjacentHTML('afterend', badgeHtml);
 }
 
-function openScenario(mode, query) {
+function skeletonCard() {
+  return `<div class="skeleton-card">
+    <div class="skeleton-img"></div>
+    <div class="skeleton-body">
+      <div class="skeleton-line wide"></div>
+      <div class="skeleton-line med"></div>
+      <div class="skeleton-line short"></div>
+    </div>
+  </div>`;
+}
+
+async function openScenario(mode, query) {
   if (mode === 'genai') return openGenAI(query);
 
   document.getElementById('searchQueryLabel').textContent = `"${query}"`;
-  const { products, xsell } = searchProducts(query, mode, activePersona);
   const grid = document.getElementById('searchResultsGrid');
   const note = document.getElementById('scenarioNote');
   const filters = document.getElementById('srmFilters');
 
+  // Show skeleton and open overlay immediately while fetch is in-flight
+  grid.innerHTML = Array(6).fill(skeletonCard()).join('');
+  note.innerHTML = '';
+  document.getElementById('searchOverlay').classList.add('open');
+
   if (mode === 'lexical') {
     injectBadge('<span class="scenario-badge badge-lexical">⚠ Lexical B25</span>');
-    note.innerHTML = '';
     filters.style.opacity = '0.35';
     filters.style.pointerEvents = 'none';
-    grid.innerHTML = products.map(renderProduct).join('');
   } else if (mode === 'hybrid') {
     injectBadge('<span class="scenario-badge badge-hybrid">🔀 Hybrid Search</span>');
-    note.innerHTML = '';
     filters.style.opacity = '';
     filters.style.pointerEvents = '';
+  } else if (mode === 'ltr') {
+    injectBadge('<span class="scenario-badge badge-ltr">⭐ Hybrid + LTR</span>');
+    filters.style.opacity = '';
+    filters.style.pointerEvents = '';
+  }
+
+  const { products, xsell } = await searchProducts(query, mode, activePersona);
+
+  if (mode === 'lexical') {
+    grid.innerHTML = products.map(renderProduct).join('');
+  } else if (mode === 'hybrid') {
     grid.innerHTML = products.map(renderProduct).join('');
     wireFilterChips(products, query);
   } else if (mode === 'ltr') {
-    injectBadge('<span class="scenario-badge badge-ltr">⭐ Hybrid + LTR</span>');
-    note.innerHTML = '';
-    filters.style.opacity = '';
-    filters.style.pointerEvents = '';
     const xsellHtml = xsell.length
       ? `<div class="ltr-xsell-header">Based on ${activePersona.name}'s profile — you might also need: <span class="ltr-persona-tag">(cross-sell via LTR signals)</span></div>` + xsell.map(renderProduct).join('')
       : '';
     grid.innerHTML = products.map(renderProduct).join('') + xsellHtml;
     wireFilterChips(products, query);
   }
-
-  document.getElementById('searchOverlay').classList.add('open');
 }
 
 function wireFilterChips(dataset, query) {
@@ -2176,7 +2350,7 @@ document.getElementById('genaiChatInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') sendGenAIMessage();
 });
 
-function sendGenAIMessage() {
+async function sendGenAIMessage() {
   const input = document.getElementById('genaiChatInput');
   const q = input.value.trim();
   if (!q) return;
@@ -2189,10 +2363,10 @@ function sendGenAIMessage() {
       <div class="genai-msg">
         <div class="genai-msg-user">${q}</div>
       </div>
-      <div class="genai-msg">
+      <div class="genai-msg" id="genai-ai-turn0">
         <div class="genai-msg-ai-wrap">
           <div class="genai-msg-ai-label">🤖 AI Assistant (powered by Elastic Agent Builder)</div>
-          <div class="genai-msg-ai">${formatAIResponse(askAgent(q, activePersona))}</div>
+          <div class="genai-msg-ai">…</div>
         </div>
       </div>`;
 
@@ -2202,6 +2376,11 @@ function sendGenAIMessage() {
     document.getElementById('genaiDrawerToggle').textContent = '▼';
     genaiTurn = 1;
     input.placeholder = 'Reply…';
+    body.scrollTop = body.scrollHeight;
+
+    const answer = await askAgent(q, activePersona);
+    const aiEl = document.getElementById('genai-ai-turn0');
+    if (aiEl) aiEl.querySelector('.genai-msg-ai').innerHTML = formatAIResponse(answer);
     body.scrollTop = body.scrollHeight;
 
   } else if (genaiTurn === 1) {

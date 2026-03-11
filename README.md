@@ -15,36 +15,50 @@ The demo works entirely offline, requires no server, and is shareable as a singl
 
 ---
 
-## Quickstart (Under 30 Minutes)
+## Quickstart
 
-### Prerequisites
-- Git
-- Claude Code (`claude`) or Gemini CLI — any AI agent that can read files and edit code
+### Mock mode (no Elasticsearch required — under 30 minutes)
 
-### Steps
+**Prerequisites:** Git, Claude Code (`claude`) or Gemini CLI
 
-**1. Clone this repo**
 ```bash
 git clone <repo-url> my-customer-demo
 cd my-customer-demo
-```
-
-**2. Open your AI agent in this directory**
-```bash
 claude   # or: gemini
 ```
 
-**3. Run the setup script**
+Then tell the agent:
 ```
 Please read SETUP.md and follow the instructions.
 ```
 
-**4. Answer the questions** (or pre-fill `SETUP.md` first — see below)
-
-**5. Open your demo**
+Answer the questions, then open the generated file:
 ```bash
-open output/demo.html   # or just double-click it
+open output/<customer-slug>/demo.html
 ```
+
+---
+
+### v2 mode (live Elasticsearch + AI chat)
+
+**Additional prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), an Elastic inference endpoint
+
+```bash
+# 1. Seed the index
+cp .env.template .env   # fill in ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, AGENT_BUILDER_URL, AGENT_BUILDER_API_KEY
+npm install
+npm run setup
+
+# 2. Generate the branded demo (via AI agent)
+claude
+# → "Please read SETUP.md and follow the instructions."
+
+# 3. Serve and open
+npm run dev
+open http://localhost:3000/<customer-slug>/demo.html
+```
+
+See `SETUP.md` → **v2 Mode** section for CORS configuration and API key setup details.
 
 ---
 
@@ -62,6 +76,10 @@ Open `SETUP.md` and fill in the `## Customer Config` section before running the 
 | `SETUP.md` | AI execution script — run this with your AI agent |
 | `template/index.html` | Base demo template the AI customizes |
 | `image-library.md` | Curated product image URLs organized by category |
+| `package.json` | npm scripts: `dev`, `setup`, `reset` (v2 mode) |
+| `.env.template` | Credentials template — copy to `.env` and fill in (v2 mode) |
+| `scripts/setup-index.js` | Creates the ES index, deploys ELSER, seeds 75 products (v2 mode) |
+| `scripts/data/products.json` | Canonical 75-product athletic/retail dataset (v2 mode) |
 
 ---
 
@@ -88,11 +106,16 @@ All queries are scripted and printed in the demo file's HTML comments so you can
 
 ---
 
-## Upgrading to Real Elasticsearch (v2)
+## v2: Real Elasticsearch
 
-The demo uses mock data behind a thin function interface. To swap in real Elasticsearch:
+The demo ships with a complete v2 Elasticsearch integration. Mock mode is the default — v2 is enabled by setting `V2_ENABLED = true` and injecting credentials into the output HTML.
 
-- `searchProducts(query, mode, persona)` → replace with Elasticsearch API calls
-- `askAgent(query, persona)` → replace with Elastic Agent Builder API endpoint
+**What v2 adds:**
+- Lexical mode → BM25 on `name`/`brand` fields, filtered to noise products (guaranteed wrong results)
+- Hybrid mode → ELSER semantic + BM25 combined, filtered to real products
+- LTR mode → Hybrid base + `function_score` boosting on persona `preferredBrands`, `gender`, and `purchaseHistory`
+- GenAI chat → Live responses via Elastic inference API (Claude, Bedrock, Azure OpenAI, etc.)
 
-No UI changes required.
+**Index:** 75 athletic/retail products — 65 real + 10 deliberately wrong-category noise products for the lexical failure demo. ELSER embeddings on the `description.semantic` field power hybrid and LTR modes.
+
+See `SETUP.md` → **v2 Mode** for full setup instructions.
