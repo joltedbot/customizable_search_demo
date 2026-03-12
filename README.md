@@ -44,9 +44,10 @@ open output/<customer-slug>/demo.html
 **Additional prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), an Elastic inference endpoint
 
 ```bash
-# 1. Seed the index
+# 1. Validate credentials, then seed the index
 cp .env.template .env   # fill in ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, ES_INFERENCE_URL, ES_INFERENCE_API_KEY
 npm install
+npm run validate        # pre-flight check — fix any ✗ failures before continuing
 npm run setup
 
 # 2. Generate the branded demo (via AI agent)
@@ -76,8 +77,9 @@ Open `SETUP.md` and fill in the `## Customer Config` section before running the 
 | `SETUP.md` | AI execution script — run this with your AI agent |
 | `template/index.html` | Base demo template the AI customizes |
 | `image-library.md` | Curated product image URLs organized by category |
-| `package.json` | npm scripts: `dev`, `setup`, `reset` (v2 mode) |
+| `package.json` | npm scripts: `validate`, `dev`, `setup`, `reset` (v2 mode) |
 | `.env.template` | Credentials template — copy to `.env` and fill in (v2 mode) |
+| `scripts/validate-env.js` | Pre-flight check: validates all `.env` credentials before setup (v2 mode) |
 | `scripts/setup-index.js` | Creates the ES index, deploys ELSER, seeds 75 products (v2 mode) |
 | `scripts/data/products.json` | Canonical 75-product athletic/retail dataset (v2 mode) |
 

@@ -303,6 +303,44 @@
       white-space: nowrap;
     }
 
+    /* ===================== MODE SWITCHER ===================== */
+    .mode-switcher {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      border-right: 1px solid var(--gray-200);
+      height: 100%;
+    }
+    .mode-switcher-label {
+      font-size: 11px;
+      color: var(--gray-600);
+      white-space: nowrap;
+    }
+    .mode-tabs {
+      display: flex;
+      gap: 4px;
+    }
+    .mode-tab {
+      height: 26px;
+      padding: 0 10px;
+      border-radius: 13px;
+      border: 1.5px solid var(--gray-200);
+      background: var(--gray-100);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-600);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .mode-tab:hover { border-color: var(--primary-light); color: var(--primary); }
+    .mode-tab.active {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: white;
+    }
+
     /* ===================== TRENDING NOW STRIP ===================== */
     .trending-strip {
       background: white;
@@ -597,10 +635,7 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .badge-lexical { background: var(--red); color: #fff; }
-    .badge-hybrid  { background: #0066cc; color: #fff; }
-    .badge-ltr     { background: var(--badge-ltr); color: #fff; }
-    .badge-genai   { background: var(--badge-genai); color: #fff; }
+    .badge-genai { background: var(--badge-genai); color: #fff; }
 
     .srm-body { padding: 16px 20px; }
     .srm-note {
@@ -995,6 +1030,17 @@
         <span class="persona-name-display" id="personaNameDisplay"></span>
       </div>
 
+      <!-- Mode Switcher -->
+      <div class="mode-switcher">
+        <span class="mode-switcher-label">Search mode:</span>
+        <div class="mode-tabs" id="modeTabs">
+          <button class="mode-tab active" data-mode="lexical">Lexical</button>
+          <button class="mode-tab" data-mode="hybrid">Hybrid</button>
+          <button class="mode-tab" data-mode="ltr">LTR</button>
+          <button class="mode-tab" data-mode="genai">GenAI</button>
+        </div>
+      </div>
+
       <!-- Header Actions -->
       <div class="header-actions">
         <div class="header-action">
@@ -1351,7 +1397,7 @@ const PRODUCTS = [
     rating: 4.8,
     reviews: 2341,
     gender: "Women's",
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/8373048/pexels-photo-8373048.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 2,
@@ -1363,7 +1409,7 @@ const PRODUCTS = [
     rating: 4.7,
     reviews: 1892,
     gender: "Men's",
-    image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/1456705/pexels-photo-1456705.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 3,
@@ -1375,7 +1421,7 @@ const PRODUCTS = [
     rating: 4.6,
     reviews: 876,
     gender: "Women's",
-    image: 'https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/19254709/pexels-photo-19254709.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 4,
@@ -1387,7 +1433,7 @@ const PRODUCTS = [
     rating: 4.5,
     reviews: 543,
     gender: "Men's",
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/4048182/pexels-photo-4048182.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 5,
@@ -1399,7 +1445,7 @@ const PRODUCTS = [
     rating: 4.9,
     reviews: 1102,
     gender: null,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/437038/pexels-photo-437038.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 6,
@@ -1411,7 +1457,7 @@ const PRODUCTS = [
     rating: 4.8,
     reviews: 672,
     gender: "Women's",
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/9190416/pexels-photo-9190416.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 7,
@@ -1423,7 +1469,7 @@ const PRODUCTS = [
     rating: 4.9,
     reviews: 5621,
     gender: null,
-    image: 'https://images.unsplash.com/photo-1556906781-9a4b6e16c33a?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/10611954/pexels-photo-10611954.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 8,
@@ -1435,7 +1481,7 @@ const PRODUCTS = [
     rating: 4.7,
     reviews: 421,
     gender: null,
-    image: 'https://images.unsplash.com/photo-1542827474-8bf1add1e49b?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/4920444/pexels-photo-4920444.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 9,
@@ -1447,7 +1493,7 @@ const PRODUCTS = [
     rating: 4.8,
     reviews: 3204,
     gender: null,
-    image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/11860562/pexels-photo-11860562.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 10,
@@ -1459,7 +1505,7 @@ const PRODUCTS = [
     rating: 4.7,
     reviews: 2204,
     gender: "Women's",
-    image: 'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/3763996/pexels-photo-3763996.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 11,
@@ -1471,7 +1517,7 @@ const PRODUCTS = [
     rating: 4.8,
     reviews: 1876,
     gender: null,
-    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/4397831/pexels-photo-4397831.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 12,
@@ -1483,7 +1529,7 @@ const PRODUCTS = [
     rating: 4.6,
     reviews: 3891,
     gender: null,
-    image: 'https://images.unsplash.com/photo-1595348020895-87bd9fc58fc5?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/10132278/pexels-photo-10132278.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
 ];
 
@@ -1502,7 +1548,7 @@ const PRODUCTS_LEXICAL = [
     rating: 3.8,
     reviews: 22,
     gender: null,
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/9633572/pexels-photo-9633572.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 102,
@@ -1514,7 +1560,7 @@ const PRODUCTS_LEXICAL = [
     rating: 3.5,
     reviews: 14,
     gender: null,
-    image: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/6540720/pexels-photo-6540720.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 103,
@@ -1526,7 +1572,7 @@ const PRODUCTS_LEXICAL = [
     rating: 3.9,
     reviews: 88,
     gender: "Men's",
-    image: 'https://images.unsplash.com/photo-1515703407324-5f753afd8be8?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/6540720/pexels-photo-6540720.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 104,
@@ -1538,7 +1584,7 @@ const PRODUCTS_LEXICAL = [
     rating: 3.6,
     reviews: 19,
     gender: null,
-    image: 'https://images.unsplash.com/photo-1547328028-0aee4b4a8ce4?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/9633572/pexels-photo-9633572.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 105,
@@ -1550,7 +1596,7 @@ const PRODUCTS_LEXICAL = [
     rating: 3.4,
     reviews: 7,
     gender: null,
-    image: 'https://images.unsplash.com/photo-1461896836374-f9c5d3ca99e2?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/6540720/pexels-photo-6540720.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 106,
@@ -1562,7 +1608,7 @@ const PRODUCTS_LEXICAL = [
     rating: 3.2,
     reviews: 31,
     gender: "Men's",
-    image: 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/6540720/pexels-photo-6540720.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
 ];
 
@@ -1578,7 +1624,7 @@ const PRODUCTS_HYBRID = [
     rating: 4.7,
     reviews: 1243,
     gender: "Women's",
-    image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/1456705/pexels-photo-1456705.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 202,
@@ -1590,7 +1636,7 @@ const PRODUCTS_HYBRID = [
     rating: 4.8,
     reviews: 934,
     gender: "Men's",
-    image: 'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/1027130/pexels-photo-1027130.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 203,
@@ -1602,7 +1648,7 @@ const PRODUCTS_HYBRID = [
     rating: 4.6,
     reviews: 712,
     gender: null,
-    image: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/1456705/pexels-photo-1456705.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 204,
@@ -1614,7 +1660,7 @@ const PRODUCTS_HYBRID = [
     rating: 4.7,
     reviews: 889,
     gender: "Women's",
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/8373048/pexels-photo-8373048.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 205,
@@ -1626,7 +1672,7 @@ const PRODUCTS_HYBRID = [
     rating: 4.5,
     reviews: 431,
     gender: null,
-    image: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/10611954/pexels-photo-10611954.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
   {
     id: 206,
@@ -1638,7 +1684,7 @@ const PRODUCTS_HYBRID = [
     rating: 4.6,
     reviews: 1102,
     gender: null,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=480&fit=crop&auto=format&q=75',
+    image: 'https://images.pexels.com/photos/437038/pexels-photo-437038.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
   },
 ];
 
@@ -1658,7 +1704,7 @@ const PRODUCTS_LTR = {
         rating: 4.9,
         reviews: 2341,
         gender: "Women's",
-        image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/8373048/pexels-photo-8373048.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 302,
@@ -1670,7 +1716,7 @@ const PRODUCTS_LTR = {
         rating: 4.9,
         reviews: 876,
         gender: "Women's",
-        image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/1456705/pexels-photo-1456705.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 303,
@@ -1682,7 +1728,7 @@ const PRODUCTS_LTR = {
         rating: 4.7,
         reviews: 2204,
         gender: "Women's",
-        image: 'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/3763996/pexels-photo-3763996.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 304,
@@ -1694,7 +1740,7 @@ const PRODUCTS_LTR = {
         rating: 4.6,
         reviews: 1122,
         gender: "Women's",
-        image: 'https://images.unsplash.com/photo-1518644730595-2ab9bb08e81d?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/3855612/pexels-photo-3855612.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 305,
@@ -1706,7 +1752,7 @@ const PRODUCTS_LTR = {
         rating: 4.9,
         reviews: 5621,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1556906781-9a4b6e16c33a?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/10611954/pexels-photo-10611954.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
     ],
     xsell: [
@@ -1720,7 +1766,7 @@ const PRODUCTS_LTR = {
         rating: 4.8,
         reviews: 3204,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/11860562/pexels-photo-11860562.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 307,
@@ -1732,7 +1778,7 @@ const PRODUCTS_LTR = {
         rating: 4.9,
         reviews: 7832,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1595348020895-87bd9fc58fc5?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/10132278/pexels-photo-10132278.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 308,
@@ -1744,7 +1790,7 @@ const PRODUCTS_LTR = {
         rating: 4.7,
         reviews: 3204,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1595348020895-87bd9fc58fc5?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/10132278/pexels-photo-10132278.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
     ],
   },
@@ -1761,7 +1807,7 @@ const PRODUCTS_LTR = {
         rating: 4.8,
         reviews: 934,
         gender: "Men's",
-        image: 'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/1027130/pexels-photo-1027130.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 312,
@@ -1773,7 +1819,7 @@ const PRODUCTS_LTR = {
         rating: 4.7,
         reviews: 672,
         gender: "Men's",
-        image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/9190416/pexels-photo-9190416.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 313,
@@ -1785,7 +1831,7 @@ const PRODUCTS_LTR = {
         rating: 4.6,
         reviews: 389,
         gender: "Men's",
-        image: 'https://images.unsplash.com/photo-1539710463739-5c00b5df92e3?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/19254709/pexels-photo-19254709.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 314,
@@ -1797,7 +1843,7 @@ const PRODUCTS_LTR = {
         rating: 4.9,
         reviews: 1102,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/437038/pexels-photo-437038.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 315,
@@ -1809,7 +1855,7 @@ const PRODUCTS_LTR = {
         rating: 4.8,
         reviews: 2109,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/10611954/pexels-photo-10611954.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
     ],
     xsell: [
@@ -1823,7 +1869,7 @@ const PRODUCTS_LTR = {
         rating: 4.8,
         reviews: 876,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/9633572/pexels-photo-9633572.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 317,
@@ -1835,7 +1881,7 @@ const PRODUCTS_LTR = {
         rating: 4.7,
         reviews: 4521,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1559163535-06989c9e6e03?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/11860562/pexels-photo-11860562.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
     ],
   },
@@ -1852,7 +1898,7 @@ const PRODUCTS_LTR = {
         rating: 4.8,
         reviews: 2341,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/8373048/pexels-photo-8373048.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 322,
@@ -1864,7 +1910,7 @@ const PRODUCTS_LTR = {
         rating: 4.7,
         reviews: 1892,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/1027130/pexels-photo-1027130.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 323,
@@ -1876,7 +1922,7 @@ const PRODUCTS_LTR = {
         rating: 4.5,
         reviews: 1122,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1539710463739-5c00b5df92e3?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/19254709/pexels-photo-19254709.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 324,
@@ -1888,7 +1934,7 @@ const PRODUCTS_LTR = {
         rating: 4.5,
         reviews: 876,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/4048182/pexels-photo-4048182.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 325,
@@ -1900,7 +1946,7 @@ const PRODUCTS_LTR = {
         rating: 4.4,
         reviews: 543,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/437038/pexels-photo-437038.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
     ],
     xsell: [
@@ -1914,7 +1960,7 @@ const PRODUCTS_LTR = {
         rating: 4.6,
         reviews: 1203,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1518611012144-b986f3f0b30d?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/4397831/pexels-photo-4397831.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
       {
         id: 327,
@@ -1926,7 +1972,7 @@ const PRODUCTS_LTR = {
         rating: 4.5,
         reviews: 2341,
         gender: null,
-        image: 'https://images.unsplash.com/photo-1563115298-dafd596b02a2?w=400&h=480&fit=crop&auto=format&q=75',
+        image: 'https://images.pexels.com/photos/18060166/pexels-photo-18060166.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
       },
     ],
   },
@@ -1939,12 +1985,12 @@ const GENAI_KITS = {
     intro: 'Based on your race prep goal and your profile, here\'s Alex\'s complete race day kit:',
     sub: 'Curated for competitive runners — lightweight, fast, and summer-ready.',
     products: [
-      { id: 401, brand: 'Nike', name: 'Vaporfly 3 Racing Shoe', price: 259.99, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 402, brand: 'Nike', name: 'Aeroswift Singlet', price: 55.00, image: 'https://images.unsplash.com/photo-1518644730595-2ab9bb08e81d?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 403, brand: 'Lululemon', name: 'Fast and Free 5" Shorts', price: 68.00, image: 'https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 404, brand: 'Balega', name: 'Hidden Comfort Socks', price: 17.99, image: 'https://images.unsplash.com/photo-1556906781-9a4b6e16c33a?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 405, brand: 'Garmin', name: 'Forerunner 265 GPS Watch', price: 349.99, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 406, brand: 'Nuun', name: 'Sport Electrolyte 4-Pack', price: 28.00, image: 'https://images.unsplash.com/photo-1595348020895-87bd9fc58fc5?w=300&h=300&fit=crop&auto=format&q=75' },
+      { id: 401, brand: 'Nike', name: 'Vaporfly 3 Racing Shoe', price: 259.99, image: 'https://images.pexels.com/photos/8373048/pexels-photo-8373048.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 402, brand: 'Nike', name: 'Aeroswift Singlet', price: 55.00, image: 'https://images.pexels.com/photos/3855612/pexels-photo-3855612.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 403, brand: 'Lululemon', name: 'Fast and Free 5" Shorts', price: 68.00, image: 'https://images.pexels.com/photos/19254709/pexels-photo-19254709.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 404, brand: 'Balega', name: 'Hidden Comfort Socks', price: 17.99, image: 'https://images.pexels.com/photos/10611954/pexels-photo-10611954.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 405, brand: 'Garmin', name: 'Forerunner 265 GPS Watch', price: 349.99, image: 'https://images.pexels.com/photos/437038/pexels-photo-437038.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 406, brand: 'Nuun', name: 'Sport Electrolyte 4-Pack', price: 28.00, image: 'https://images.pexels.com/photos/10132278/pexels-photo-10132278.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
     ],
     chatResponse: (q) => `Great question! ${q.toLowerCase().includes('flat') || q.toLowerCase().includes('shoe')
       ? 'For race day, racing flats like the Vaporfly 3 are perfect — maximum energy return, minimal weight. ' +
@@ -1952,19 +1998,19 @@ const GENAI_KITS = {
       : 'Based on your profile and past purchases, I\'d prioritize the Vaporfly 3 and Balega socks first — these are the highest-impact upgrades for race day performance. ' +
         'The Nuun electrolytes are also essential for summer racing. Want me to adjust the kit for a specific distance? 🏅'
     }`,
-    altProduct: { id: 407, brand: 'On Running', name: 'Cloudboom Echo 3', price: 189.99, image: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=300&h=300&fit=crop&auto=format&q=75' },
+    altProduct: { id: 407, brand: 'On Running', name: 'Cloudboom Echo 3', price: 189.99, image: 'https://images.pexels.com/photos/1027130/pexels-photo-1027130.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
   },
 
   marcus: {
     intro: 'Based on Marcus\'s trail running profile, here\'s the complete ultratrail kit:',
     sub: 'Optimized for technical terrain, all-day efforts, and summer heat.',
     products: [
-      { id: 411, brand: 'Salomon', name: 'Speedcross 6 Trail Shoe', price: 149.99, image: 'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 412, brand: 'Salomon', name: 'Active Skin 8 Run Vest', price: 140.00, image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 413, brand: 'Arc\'teryx', name: 'Norvan SL Shorts', price: 95.00, image: 'https://images.unsplash.com/photo-1539710463739-5c00b5df92e3?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 414, brand: 'Garmin', name: 'Forerunner 265 GPS Watch', price: 349.99, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 415, brand: 'Sawyer', name: 'Squeeze Water Filter', price: 29.99, image: 'https://images.unsplash.com/photo-1559163535-06989c9e6e03?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 416, brand: 'Darn Tough', name: 'Trail Running Crew Socks', price: 24.00, image: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=300&h=300&fit=crop&auto=format&q=75' },
+      { id: 411, brand: 'Salomon', name: 'Speedcross 6 Trail Shoe', price: 149.99, image: 'https://images.pexels.com/photos/1027130/pexels-photo-1027130.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 412, brand: 'Salomon', name: 'Active Skin 8 Run Vest', price: 140.00, image: 'https://images.pexels.com/photos/9190416/pexels-photo-9190416.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 413, brand: 'Arc\'teryx', name: 'Norvan SL Shorts', price: 95.00, image: 'https://images.pexels.com/photos/19254709/pexels-photo-19254709.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 414, brand: 'Garmin', name: 'Forerunner 265 GPS Watch', price: 349.99, image: 'https://images.pexels.com/photos/437038/pexels-photo-437038.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 415, brand: 'Sawyer', name: 'Squeeze Water Filter', price: 29.99, image: 'https://images.pexels.com/photos/11860562/pexels-photo-11860562.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 416, brand: 'Darn Tough', name: 'Trail Running Crew Socks', price: 24.00, image: 'https://images.pexels.com/photos/10611954/pexels-photo-10611954.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
     ],
     chatResponse: (q) => `Great question! ${q.toLowerCase().includes('pole') || q.toLowerCase().includes('stick')
       ? 'Trekking poles are worth it for technical trail races with significant elevation gain. ' +
@@ -1974,19 +2020,19 @@ const GENAI_KITS = {
         'The Run Vest gives you enough capacity for a half-day effort without the weight of a full pack. ' +
         'Anything else you want optimized for the race? 🏔️'
     }`,
-    altProduct: { id: 417, brand: 'Black Diamond', name: 'Distance Carbon Z Poles', price: 159.95, image: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=300&h=300&fit=crop&auto=format&q=75' },
+    altProduct: { id: 417, brand: 'Black Diamond', name: 'Distance Carbon Z Poles', price: 159.95, image: 'https://images.pexels.com/photos/9633572/pexels-photo-9633572.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
   },
 
   sam: {
     intro: 'Based on Sam\'s general fitness goals, here\'s the essential starter kit:',
     sub: 'Everything you need to get started — from your first run to the gym.',
     products: [
-      { id: 421, brand: 'Nike', name: 'Air Zoom Pegasus 41', price: 130.00, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 422, brand: 'Under Armour', name: 'UA Tech Training Shorts', price: 30.00, image: 'https://images.unsplash.com/photo-1539710463739-5c00b5df92e3?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 423, brand: 'Nike', name: 'Dri-FIT Training Tee', price: 35.00, image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 424, brand: 'Nike', name: 'Brasilia 9.5 Gym Bag', price: 55.00, image: 'https://images.unsplash.com/photo-1563115298-dafd596b02a2?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 425, brand: 'TRX', name: 'GO Suspension Trainer Kit', price: 79.95, image: 'https://images.unsplash.com/photo-1518611012144-b986f3f0b30d?w=300&h=300&fit=crop&auto=format&q=75' },
-      { id: 426, brand: 'Hydro Flask', name: '24oz Sport Water Bottle', price: 44.95, image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&h=300&fit=crop&auto=format&q=75' },
+      { id: 421, brand: 'Nike', name: 'Air Zoom Pegasus 41', price: 130.00, image: 'https://images.pexels.com/photos/8373048/pexels-photo-8373048.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 422, brand: 'Under Armour', name: 'UA Tech Training Shorts', price: 30.00, image: 'https://images.pexels.com/photos/19254709/pexels-photo-19254709.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 423, brand: 'Nike', name: 'Dri-FIT Training Tee', price: 35.00, image: 'https://images.pexels.com/photos/4048182/pexels-photo-4048182.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 424, brand: 'Nike', name: 'Brasilia 9.5 Gym Bag', price: 55.00, image: 'https://images.pexels.com/photos/18060166/pexels-photo-18060166.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 425, brand: 'TRX', name: 'GO Suspension Trainer Kit', price: 79.95, image: 'https://images.pexels.com/photos/4397831/pexels-photo-4397831.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
+      { id: 426, brand: 'Hydro Flask', name: '24oz Sport Water Bottle', price: 44.95, image: 'https://images.pexels.com/photos/11860562/pexels-photo-11860562.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
     ],
     chatResponse: (q) => `Good question! ${q.toLowerCase().includes('weight') || q.toLowerCase().includes('strength')
       ? 'For strength training, I\'d add a set of adjustable dumbbells or a kettlebell to your kit. ' +
@@ -1995,7 +2041,7 @@ const GENAI_KITS = {
       : 'Based on your fitness goals, start with 3 runs per week in the Pegasus 41 — they\'re versatile enough for the track, road, and light trails. ' +
         'The TRX kit rounds out your strength work on rest days. Want recommendations for a beginner training plan? 🏃'
     }`,
-    altProduct: { id: 427, brand: 'Adidas', name: 'Ultraboost 22', price: 180.00, image: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=300&h=300&fit=crop&auto=format&q=75' },
+    altProduct: { id: 427, brand: 'Adidas', name: 'Ultraboost 22', price: 180.00, image: 'https://images.pexels.com/photos/1027130/pexels-photo-1027130.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
   },
 };
 
@@ -2003,6 +2049,7 @@ const GENAI_KITS = {
 // APPLICATION STATE
 // ============================================================
 let activePersona = PERSONAS.alex;
+let activeMode = 'lexical';
 let cartCount = 0;
 let genaiTurn = 0;
 
@@ -2204,30 +2251,12 @@ async function doSearch(query) {
   if (!q) return;
   document.getElementById('searchInput').value = query;
   document.getElementById('autocompletePanel').classList.remove('open');
-
-  // Demo keyword routing — triggers each search scenario
-  if (q.includes(DEMO_QUERIES.lexical.split(' ')[0]) || q.includes('lexical') || q.includes('footware') || q.includes('runing')) {
-    return openScenario('lexical', query);
-  }
-  if (q.includes('for me') || q.includes('personalized') || q.includes('ltr') || q.includes('my ')) {
-    return openScenario('ltr', query);
-  }
-  if (q.includes('complete') || q.includes('everything') || q.includes('kit') || q.includes('what do i need') || q.includes('genai') || q.includes('race day')) {
-    return openScenario('genai', query);
-  }
-  // Default: hybrid
-  return openScenario('hybrid', query);
+  return openScenario(activeMode, query);
 }
 
 // ============================================================
 // SCENARIO HANDLERS
 // ============================================================
-
-function injectBadge(badgeHtml) {
-  const existing = document.querySelector('.srm-header .scenario-badge');
-  if (existing) existing.remove();
-  document.querySelector('#searchQueryLabel').insertAdjacentHTML('afterend', badgeHtml);
-}
 
 function skeletonCard() {
   return `<div class="skeleton-card">
@@ -2254,15 +2283,9 @@ async function openScenario(mode, query) {
   document.getElementById('searchOverlay').classList.add('open');
 
   if (mode === 'lexical') {
-    injectBadge('<span class="scenario-badge badge-lexical">⚠ Lexical B25</span>');
     filters.style.opacity = '0.35';
     filters.style.pointerEvents = 'none';
-  } else if (mode === 'hybrid') {
-    injectBadge('<span class="scenario-badge badge-hybrid">🔀 Hybrid Search</span>');
-    filters.style.opacity = '';
-    filters.style.pointerEvents = '';
-  } else if (mode === 'ltr') {
-    injectBadge('<span class="scenario-badge badge-ltr">⭐ Hybrid + LTR</span>');
+  } else {
     filters.style.opacity = '';
     filters.style.pointerEvents = '';
   }
@@ -2481,6 +2504,17 @@ function buildPersonaTabs() {
     });
   });
 }
+
+// ============================================================
+// MODE SWITCHER
+// ============================================================
+
+document.getElementById('modeTabs').addEventListener('click', e => {
+  const btn = e.target.closest('.mode-tab');
+  if (!btn) return;
+  activeMode = btn.dataset.mode;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t === btn));
+});
 
 // ============================================================
 // CART

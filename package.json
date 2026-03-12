@@ -4,6 +4,7 @@
   "description": "Cloneable Elastic search demo for SA customer presentations",
   "scripts": {
     "dev": "npx serve output -p 3000",
+    "validate": "node scripts/validate-env.js",
     "setup": "node scripts/setup-index.js",
     "reset": "node scripts/setup-index.js --reset",
     "generate-test": "node scripts/generate-test.js"

@@ -62,10 +62,16 @@ Fill in `.env`:
 - `ES_INFERENCE_URL` — your Elastic inference endpoint URL, e.g. `{ES_URL}/_inference/completion/{inference_id}`
 - `ES_INFERENCE_API_KEY` — API key for the inference endpoint
 
-### v2-B — Seed the index
+### v2-B — Validate credentials and seed the index
 
 ```bash
 npm install
+npm run validate
+```
+
+This checks that all `.env` values are set, the cluster is reachable, both API keys work, and the inference endpoint responds. Fix any `✗` failures before continuing.
+
+```bash
 npm run setup
 ```
 
@@ -474,6 +480,7 @@ For the LTR/GenAI modes, switch personas and re-run the same query to show perso
 ## Notes for the AI Agent
 
 - **Do not modify `template/index.html`** — always write to `output/[CUSTOMER_SLUG]/demo.html`
+- **Images use Pexels only — never Unsplash** — Unsplash URLs go stale and 404. All image URLs in `image-library.md` use the Pexels CDN format: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`
 - **Do not invent image URLs** — use only URLs from `image-library.md`. If no image matches well, reuse the closest category match
 - **Keep all JavaScript logic intact** — only replace the data constants (`PERSONAS`, `PRODUCTS`, `PRODUCTS_LEXICAL`, `PRODUCTS_HYBRID`, `PRODUCTS_LTR`, `GENAI_KITS`, `DEMO_QUERIES`, `SUGGESTIONS`)
 - **Keep all CSS intact** — only change the `:root` color values and hero slide background gradients

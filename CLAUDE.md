@@ -151,6 +151,7 @@ No automated test suite. Manual testing only:
 - **JS config keys:** camelCase (e.g. `inferenceUrl`, `apiKey`)
 - **No new dependencies** without discussion — the project intentionally has minimal deps (`@elastic/elasticsearch`, `serve`)
 - **Mock fallback pattern:** all v2 ES calls must fall back to mock silently on failure; never let a failed ES call break the demo
+- **Images — Pexels only:** All product images use Pexels CDN. **Never use Unsplash** — their URLs go stale/404. Format: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`. Use IDs from `image-library.md`. Verify new IDs with `curl -I` before committing.
 
 
 ## Communication Style
