@@ -233,7 +233,7 @@
     .header-action .action-label { font-size: 11px; font-weight: 700; color: var(--black); }
     .header-action .action-sub { font-size: 10px; color: var(--gray-600); font-weight: 400; }
 
-    .cart-badge { position: relative; }
+    .cart-badge { position: relative; cursor: pointer; }
     .cart-badge .badge {
       position: absolute;
       top: 2px; right: 6px;
@@ -247,6 +247,102 @@
       text-align: center;
       transition: transform 0.15s, background 0.3s;
     }
+
+    /* ===================== CART DRAWER ===================== */
+    .cart-backdrop {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 4999;
+    }
+    .cart-backdrop.open { display: block; }
+    .cart-drawer {
+      position: fixed;
+      top: 0; right: 0;
+      width: 380px; max-width: 95vw;
+      height: 100%;
+      background: var(--white);
+      z-index: 5000;
+      box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    }
+    .cart-drawer.open { transform: translateX(0); }
+    .cart-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--gray-200);
+      flex-shrink: 0;
+    }
+    .cart-drawer-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--black);
+    }
+    .cart-drawer-close {
+      background: none; border: none; cursor: pointer;
+      font-size: 20px; color: var(--gray-600); padding: 4px;
+      line-height: 1;
+    }
+    .cart-drawer-close:hover { color: var(--black); }
+    .cart-drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+    }
+    .cart-empty-msg {
+      text-align: center;
+      color: var(--gray-400);
+      font-size: 14px;
+      margin-top: 48px;
+    }
+    .cart-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .cart-item-img {
+      width: 64px; height: 64px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: var(--gray-100);
+      flex-shrink: 0;
+    }
+    .cart-item-info { flex: 1; min-width: 0; }
+    .cart-item-brand { font-size: 10px; font-weight: 700; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.5px; }
+    .cart-item-name  { font-size: 13px; font-weight: 600; color: var(--black); margin: 2px 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cart-item-price { font-size: 13px; font-weight: 700; color: var(--primary); }
+    .cart-drawer-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--gray-200);
+      flex-shrink: 0;
+    }
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--black);
+      margin-bottom: 12px;
+    }
+    .cart-empty-btn {
+      width: 100%;
+      padding: 11px;
+      background: none;
+      border: 1.5px solid var(--gray-400);
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .cart-empty-btn:hover { border-color: var(--red); color: var(--red); }
 
     /* ===================== PERSONA SWITCHER ===================== */
     .persona-switcher {
@@ -579,6 +675,21 @@
     .product-rating { display: flex; align-items: center; gap: 5px; margin-top: 6px; }
     .stars { color: var(--accent); font-size: 12px; letter-spacing: -1px; }
     .rating-count { font-size: 11px; color: var(--gray-400); }
+    .add-to-cart-btn {
+      margin-top: 10px;
+      width: 100%;
+      padding: 8px 0;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .add-to-cart-btn:hover { background: var(--primary-dark); }
+    .add-to-cart-btn.added { background: var(--primary-dark); }
 
     /* ===================== SEARCH RESULTS MODAL ===================== */
     .search-overlay {
@@ -1047,7 +1158,7 @@
           <span class="icon">📍</span>
           <span class="action-label">Find a Store</span>
         </div>
-        <div class="header-action cart-badge">
+        <div class="header-action cart-badge" id="cartBtn" onclick="openCart()">
           <span class="icon">🛒</span>
           <span class="badge" id="cartCount">0</span>
           <span class="action-label">Cart</span>
@@ -1287,6 +1398,25 @@
       <div class="genai-drawer-body" id="genaiDrawerBody"></div>
     </div>
 
+  </div>
+</div>
+
+<!-- ===================== CART DRAWER ===================== -->
+<div class="cart-backdrop" id="cartBackdrop" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-drawer-header">
+    <span class="cart-drawer-title">Your Cart</span>
+    <button class="cart-drawer-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-drawer-body" id="cartDrawerBody">
+    <div class="cart-empty-msg">Your cart is empty</div>
+  </div>
+  <div class="cart-drawer-footer" id="cartDrawerFooter" style="display:none">
+    <div class="cart-total">
+      <span>Total</span>
+      <span id="cartTotal">$0.00</span>
+    </div>
+    <button class="cart-empty-btn" onclick="emptyCart()">Empty Cart</button>
   </div>
 </div>
 
@@ -2050,7 +2180,7 @@ const GENAI_KITS = {
 // ============================================================
 let activePersona = PERSONAS.alex;
 let activeMode = 'lexical';
-let cartCount = 0;
+let cartItems = [];
 let genaiTurn = 0;
 
 // ============================================================
@@ -2060,12 +2190,14 @@ let genaiTurn = 0;
 
 function renderProduct(p) {
   const hasSale = p.sale != null;
+  const displayPrice = hasSale ? p.sale : p.price;
   const badgeHtml = p.badge
     ? `<div class="product-badge ${p.badge === 'New' ? 'new' : p.badge === 'Bestseller' ? 'bestseller' : ''}">${p.badge}</div>`
     : '';
   const imgSrc = p.image || '';
+  const productData = encodeURIComponent(JSON.stringify({ name: p.name, brand: p.brand, price: displayPrice, image: imgSrc }));
   return `
-    <div class="product-card" onclick="addToCart('${p.name}')">
+    <div class="product-card">
       <div class="product-img">
         <img src="${imgSrc}" alt="${p.name}" loading="lazy"
              onerror="this.parentElement.style.background='var(--gray-200)';this.style.display='none'">
@@ -2075,13 +2207,14 @@ function renderProduct(p) {
         <div class="product-brand">${p.brand}</div>
         <div class="product-name">${p.name}</div>
         <div class="product-price">
-          <span class="price-current">$${hasSale ? p.sale.toFixed(2) : p.price.toFixed(2)}</span>
+          <span class="price-current">$${displayPrice.toFixed(2)}</span>
           ${hasSale ? `<span class="price-original">$${p.price.toFixed(2)}</span><span class="price-sale">Save $${(p.price - p.sale).toFixed(2)}</span>` : ''}
         </div>
         <div class="product-rating">
           <span class="stars">${'★'.repeat(Math.round(p.rating))}${'☆'.repeat(5 - Math.round(p.rating))}</span>
           <span class="rating-count">(${p.reviews.toLocaleString()})</span>
         </div>
+        <button class="add-to-cart-btn" onclick="addToCart(decodeURIComponent('${productData}'), this)">Add to Cart</button>
       </div>
     </div>`;
 }
@@ -2360,7 +2493,7 @@ function openGenAI(query) {
 // Add All to Cart
 document.getElementById('genaiAddAll').addEventListener('click', function() {
   const kit = GENAI_KITS[activePersona.id] || GENAI_KITS.sam;
-  cartCount += kit.products.length;
+  kit.products.forEach(p => cartItems.push({ name: p.name, brand: p.brand, price: p.price, image: p.image }));
   updateCartBadge();
   this.textContent = `✓ ${kit.products.length} items added to cart!`;
   this.style.background = 'var(--primary-dark)';
@@ -2440,7 +2573,7 @@ async function sendGenAIMessage() {
             cards[0].innerHTML = renderGenAIProduct(altProduct).replace('<div class="genai-product-card">', '').replace('</div>', '');
           }, 270);
         }
-        cartCount++;
+        cartItems.push({ name: altProduct.name, brand: altProduct.brand, price: altProduct.price, image: altProduct.image });
         updateCartBadge();
       }, 700);
     }
@@ -2521,7 +2654,7 @@ document.getElementById('modeTabs').addEventListener('click', e => {
 // ============================================================
 
 function updateCartBadge() {
-  document.getElementById('cartCount').textContent = cartCount;
+  document.getElementById('cartCount').textContent = cartItems.length;
   const badge = document.querySelector('.cart-badge .badge');
   badge.style.transform = 'scale(1.5)';
   badge.style.background = 'var(--primary)';
@@ -2531,9 +2664,55 @@ function updateCartBadge() {
   }, 300);
 }
 
-function addToCart(name) {
-  cartCount++;
+function addToCart(productJson, btn) {
+  const p = typeof productJson === 'string' ? JSON.parse(productJson) : productJson;
+  cartItems.push(p);
   updateCartBadge();
+  if (btn) {
+    btn.textContent = '✓ Added';
+    btn.classList.add('added');
+    setTimeout(() => { btn.textContent = 'Add to Cart'; btn.classList.remove('added'); }, 1500);
+  }
+}
+
+function openCart() {
+  renderCartDrawer();
+  document.getElementById('cartDrawer').classList.add('open');
+  document.getElementById('cartBackdrop').classList.add('open');
+}
+
+function closeCart() {
+  document.getElementById('cartDrawer').classList.remove('open');
+  document.getElementById('cartBackdrop').classList.remove('open');
+}
+
+function emptyCart() {
+  cartItems = [];
+  updateCartBadge();
+  renderCartDrawer();
+}
+
+function renderCartDrawer() {
+  const body = document.getElementById('cartDrawerBody');
+  const footer = document.getElementById('cartDrawerFooter');
+  if (cartItems.length === 0) {
+    body.innerHTML = '<div class="cart-empty-msg">Your cart is empty</div>';
+    footer.style.display = 'none';
+    return;
+  }
+  body.innerHTML = cartItems.map(p => `
+    <div class="cart-item">
+      <img class="cart-item-img" src="${p.image}" alt="${p.name}"
+           onerror="this.style.background='var(--gray-200)';this.style.display='none'">
+      <div class="cart-item-info">
+        <div class="cart-item-brand">${p.brand}</div>
+        <div class="cart-item-name">${p.name}</div>
+        <div class="cart-item-price">$${Number(p.price).toFixed(2)}</div>
+      </div>
+    </div>`).join('');
+  const total = cartItems.reduce((sum, p) => sum + Number(p.price), 0);
+  document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+  footer.style.display = 'block';
 }
 
 // ============================================================

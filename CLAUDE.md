@@ -80,11 +80,14 @@ When an approach is repeatedly blocked — whether by compilation errors, test f
 ## Build Commands
 
 - **Serve demo locally:** `npm run dev` — serves `output/` at `http://localhost:3000`
+- **Validate credentials:** `npm run validate` — pre-flight check before seeding (requires `.env`)
 - **Seed ES index:** `npm run setup` — creates index, deploys ELSER, loads 75 products (requires `.env`)
 - **Reset ES index:** `npm run reset` — wipes and reseeds (requires `.env`)
 - **Generate test build:** `npm run generate-test` — injects `.env` credentials into template → `output/test/demo.html` with `V2_ENABLED=true`
 
 No build step for mock mode — open `output/{slug}/demo.html` directly in a browser.
+
+**After changing `products.json`:** run `npm run reset` to push new data to the ES index, then `npm run generate-test` to rebuild the test file. Changes to `products.json` are not reflected in v2 mode until the index is reseeded.
 
 ## Architecture Overview
 
@@ -125,6 +128,14 @@ No build step for mock mode — open `output/{slug}/demo.html` directly in a bro
 
 **RPI plans:** stored in `.claude/plans/` within the repo.
 
+**Key JS state variables in `template/index.html`:**
+- `activePersona` — current persona object (alex/marcus/sam); set by persona switcher
+- `activeMode` — current search mode string (`'lexical'|'hybrid'|'ltr'|'genai'`); set by mode switcher pills
+- `cartCount` — integer item count (no item data stored yet); drives header badge
+
+**Z-index layer stack (`template/index.html`):**
+header=1000 → autocomplete=2000 → search overlay=3000 → genai overlay=4000. New overlays/drawers should use z-index ≥ 5000.
+
 ## Testing Guidelines
 
 No automated test suite. Manual testing only:
@@ -141,6 +152,8 @@ No automated test suite. Manual testing only:
 4. Verify: Lexical returns noise/irrelevant products; Hybrid/LTR return real products; GenAI chat returns live inference response
 5. Switch personas and confirm LTR results change
 
+**Note — v2 products come from ES, not the template:** In v2 mode, product data (including image URLs) is served from the Elasticsearch index. Fixing `products.json` or `template/index.html` alone won't be reflected in v2 until `npm run reset` reseeds the index.
+
 
 ## Code Style Guidelines
 
@@ -151,7 +164,9 @@ No automated test suite. Manual testing only:
 - **JS config keys:** camelCase (e.g. `inferenceUrl`, `apiKey`)
 - **No new dependencies** without discussion — the project intentionally has minimal deps (`@elastic/elasticsearch`, `serve`)
 - **Mock fallback pattern:** all v2 ES calls must fall back to mock silently on failure; never let a failed ES call break the demo
-- **Images — Pexels only:** All product images use Pexels CDN. **Never use Unsplash** — their URLs go stale/404. Format: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`. Use IDs from `image-library.md`. Verify new IDs with `curl -I` before committing.
+- **Images — Pexels only:** All product images use Pexels CDN. **Never use Unsplash** — their URLs go stale/404. Format: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`. Use IDs from `image-library.md`. Verify new IDs with `curl -s -o /dev/null -w "%{http_code}" https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg` before committing.
+- **Pexels search pages block automation** — `pexels.com/search/*` returns 403 to headless fetches. Find IDs by browsing manually, using the Pexels API (free key at pexels.com/api/), or verifying candidate IDs with curl as above.
+- **Bash variable naming in zsh:** `status` is read-only in zsh — use `code`, `result`, or similar instead. Relevant when writing `curl` status-checking loops.
 
 
 ## Communication Style
