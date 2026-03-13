@@ -101,7 +101,7 @@ No build step for mock mode — open `output/{slug}/demo.html` directly in a bro
 **Key files:**
 - `template/index.html` — ~2100-line single-file demo with `{{TOKEN}}` placeholders; AI replaces these during SETUP.md execution
 - `SETUP.md` — AI execution script; the SA runs this with Claude Code or Gemini CLI
-- `image-library/` — pre-curated Pexels image sets (one JSON per industry: consumer-electronics, sporting-goods, clothing-fashion, groceries-food)
+- `image-library/` — pre-curated Pexels image sets (one JSON per industry: consumer-electronics, sporting-goods, clothing-fashion, groceries-food, outdoor-camping)
 - `scripts/setup-index.js` — seeds the ES index (run once via `npm run setup`)
 - `scripts/data/products.json` — 46-product sporting goods dataset (default for testing)
 - `scripts/generate-test.js` — dev helper: injects `.env` → `output/test/demo.html`
@@ -128,7 +128,7 @@ No build step for mock mode — open `output/{slug}/demo.html` directly in a bro
 
 **Dataset:** 46 products — 36 real sporting goods + 10 noise (`is_noise: true`). Lexical mode searches all products (noise surfaces naturally for broad queries); all other modes filter AWAY from noise. SAs generate custom datasets during SETUP.md from the `image-library/` JSON files.
 
-**Image library:** 4 pre-curated category sets in `image-library/` (~50 images each). SAs pick a set matching their customer's industry. Images are Pexels CDN links — no local storage, no API keys needed. Extensible: add a new industry by adding a new JSON file.
+**Image library:** 5 pre-curated category sets in `image-library/` (~50 images each). SAs pick a set matching their customer's industry. Images are Pexels CDN links — no local storage, no API keys needed. Extensible: add a new industry by adding a new JSON file.
 
 **RPI plans:** stored in `.claude/plans/` within the repo.
 

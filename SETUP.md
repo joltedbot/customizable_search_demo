@@ -205,6 +205,7 @@ Wait for the SA to confirm before proceeding to Step 3.
    - `sporting-goods.json` — running shoes, dumbbells, tennis rackets, cycling helmets, boxing gloves, etc.
    - `clothing-fashion.json` — shirts, tops, sneakers, jackets, dresses, sunglasses, etc.
    - `groceries-food.json` — coffee, bread, cheese, chocolate, pasta, craft beverages, etc.
+   - `outdoor-camping.json` — tents, sleeping bags, hiking boots, backpacks, camp stoves, lanterns, etc.
 
    Each file contains ~50 pre-curated image entries with Pexels CDN URLs, suggested product names, brands, and tags. Ask the SA which set best matches their customer, or recommend the closest one. The SA can mix images across sets if needed.
 
@@ -303,8 +304,8 @@ Before building product data, the SA must review and approve the images that wil
    - The Pexels CDN URL (SA can open in browser to preview)
    - The suggested product name and category
    - Whether it's a noise product (`isNoise: true`)
-3. Ask the SA:
-   > "Please review these images. Open any URLs you'd like to check in your browser. Let me know which to keep, skip, or if you'd like to pull images from a different category set."
+3. Ask the SA to review. Tell them the image URLs are in the JSON file at `image-library/[selected-set].json` — they can open the file, browse the URLs in their browser, and verify each image visually:
+   > "Please review the images before I use them. You can find all the URLs in `image-library/[selected-set].json` — open any in your browser to preview. Let me know which to keep, skip, or if you'd like to pull images from a different category set."
 4. **Content safety reminder:**
    > "Please verify all images are appropriate for a customer-facing demo. Flag any that should be removed."
 5. The SA can:
