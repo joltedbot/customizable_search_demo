@@ -43,7 +43,8 @@ Track each RPI project in a single `.md` file stored in `.claude/plans/` within 
 - Understand the request and analyze current codebase state
 - Ask clarifying questions iteratively to define scope and desired outcomes
 - Document key decisions, constraints, and critical context for later phases
-- **STOP:** Present research findings and get user confirmation before proceeding to Plan
+- Define **acceptance criteria** — measurable conditions that the final implementation must satisfy. These criteria inform the Plan phase (what stages are needed) and validate the Implement phase (did we succeed). Collaborate with the user to refine criteria before finalizing.
+- **STOP:** Present research findings and acceptance criteria, get user confirmation before proceeding to Plan
 
 ### Phase 2: Plan (How should it be done)
 - Design implementation approach based on Research phase findings
