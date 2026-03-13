@@ -1,6 +1,6 @@
 # Elastic Search Demo Builder
 
-A cloneable repo for Elastic SAs to quickly build a branded, interactive search demo for any customer — in mock mode (no Elasticsearch required) or backed by a live Elastic cluster.
+A cloneable repo for Elastic SAs to quickly build a branded, interactive search demo for any customer — backed by a live Elastic cluster by default, with a mock fallback for offline use.
 
 ## What You'll Get
 
@@ -11,15 +11,44 @@ A single-page HTML demo that looks like the customer's own website and walks thr
 3. **Hybrid + LTR** — Personalized, reranked results with cross-sell surfacing
 4. **GenAI Search** — Curated "kit" + conversational AI follow-up
 
-In mock mode, the demo works entirely offline and is shareable as a single `.html` file. In v2 mode, it connects to a live Elasticsearch cluster for real semantic search and AI chat.
+By default, the demo connects to a live Elasticsearch cluster for real semantic search and AI chat. If no `.env` credentials are configured, it falls back to mock mode — fully offline and shareable as a single `.html` file.
 
 ---
 
 ## Quickstart
 
-### Mock mode (no Elasticsearch required — under 30 minutes)
+### v2 mode (live Elasticsearch + AI chat — recommended)
+
+**Prerequisites:** Git, Node.js 18+, Claude Code (`claude`) or Gemini CLI, Elastic Cloud deployment (ES 9.x with ML), an Elastic inference endpoint
+
+```bash
+git clone <repo-url> my-customer-demo
+cd my-customer-demo
+
+# 1. Configure credentials and seed the index
+cp .env.template .env   # fill in ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, ES_INFERENCE_URL, ES_INFERENCE_API_KEY
+npm install
+npm run validate        # pre-flight check — fix any ✗ failures before continuing
+npm run setup
+
+# 2. Generate the branded demo (via AI agent)
+claude   # or: gemini
+# → "Please read SETUP.md and follow the instructions."
+
+# 3. Serve and open
+npm run dev
+open http://localhost:3000/<customer-slug>/demo.html
+```
+
+See `SETUP.md` → **Elasticsearch Setup** section for CORS configuration and API key setup details.
+
+---
+
+### Mock mode (no Elasticsearch required — offline fallback)
 
 **Prerequisites:** Git, Claude Code (`claude`) or Gemini CLI
+
+Skip the `.env` setup — just clone and run the agent:
 
 ```bash
 git clone <repo-url> my-customer-demo
@@ -32,34 +61,10 @@ Then tell the agent:
 Please read SETUP.md and follow the instructions.
 ```
 
-Answer the questions, then open the generated file:
+Answer the questions, then open the generated file directly:
 ```bash
 open output/<customer-slug>/demo.html
 ```
-
----
-
-### v2 mode (live Elasticsearch + AI chat)
-
-**Additional prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), an Elastic inference endpoint
-
-```bash
-# 1. Validate credentials, then seed the index
-cp .env.template .env   # fill in ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, ES_INFERENCE_URL, ES_INFERENCE_API_KEY
-npm install
-npm run validate        # pre-flight check — fix any ✗ failures before continuing
-npm run setup
-
-# 2. Generate the branded demo (via AI agent)
-claude
-# → "Please read SETUP.md and follow the instructions."
-
-# 3. Serve and open
-npm run dev
-open http://localhost:3000/<customer-slug>/demo.html
-```
-
-See `SETUP.md` → **v2 Mode** section for CORS configuration and API key setup details.
 
 ---
 
@@ -136,7 +141,7 @@ When the audience asks "what else can I search for?", these work well for live d
 
 ## v2: Real Elasticsearch
 
-The demo ships with a complete v2 Elasticsearch integration. Mock mode is the default — v2 is enabled by setting `V2_ENABLED = true` and injecting credentials into the output HTML.
+The demo ships with a complete v2 Elasticsearch integration. v2 is the default — enabled by configuring `.env` credentials before running SETUP.md. If `.env` is missing, the agent falls back to mock mode (`V2_ENABLED = false`).
 
 **What v2 adds:**
 - Lexical mode → BM25 on `name`/`brand` fields, no filtering (noise surfaces naturally for broad queries)

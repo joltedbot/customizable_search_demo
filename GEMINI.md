@@ -95,8 +95,8 @@ No build step for mock mode — open `output/{slug}/demo.html` directly in a bro
 **Purpose:** SAs clone this repo, run `SETUP.md` with an AI agent, and get a branded single-page search demo customised for their customer.
 
 **Two modes — same codebase:**
-- **Mock** (`V2_ENABLED = false`, default): fully offline, no ES, opens as `file://`
-- **v2** (`V2_ENABLED = true`): live Elasticsearch, requires `npm run dev` for CORS
+- **v2** (`V2_ENABLED = true`, default): live Elasticsearch, requires `npm run dev` for CORS
+- **Mock** (`V2_ENABLED = false`, fallback): fully offline, no ES, opens as `file://`. Used when `.env` is not configured.
 
 **Key files:**
 - `template/index.html` — ~2100-line single-file demo with `{{TOKEN}}` placeholders; AI replaces these during SETUP.md execution

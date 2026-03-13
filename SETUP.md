@@ -40,11 +40,11 @@ DEMO_NARRATIVE:
 
 ---
 
-## v2 Mode: Real Elasticsearch (Optional)
+## Elasticsearch Setup (Default)
 
-Skip this section for a fully mocked demo — jump straight to Step 1.
+The demo runs against a real Elasticsearch cluster with semantic search and live AI responses. Complete these pre-steps before proceeding to Step 1.
 
-To run the demo against a real Elasticsearch cluster with semantic search and live AI responses, complete these pre-steps first.
+**To skip this and generate a mock-only demo instead**, jump straight to Step 1. The agent will set `V2_ENABLED = false` and skip steps 3o and 3p automatically if `.env` does not exist or is not filled in.
 
 **Prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), an Elastic inference endpoint configured for an LLM.
 
@@ -87,12 +87,12 @@ http.cors.allow-origin: ["/https?:\\/\\/localhost(:[0-9]+)?/"]
 http.cors.allow-headers: "X-Requested-With, Content-Type, Content-Length, Authorization"
 ```
 
-### v2-D — Note for Step 3
+### Pre-step D — Note for Step 3
 
-During Step 3, you (the AI agent) will inject the v2 credentials into the output file. Before proceeding to Step 1, read `.env` and store the following values for use in step 3p:
+During Step 3, you (the AI agent) will inject the credentials into the output file. Before proceeding to Step 1, read `.env` and store the following values for use in step 3p:
 - `ES_URL`, `ES_API_KEY_READONLY`, `ES_INDEX`, `ES_INFERENCE_URL`, `ES_INFERENCE_API_KEY`
 
-If `.env` does not exist or is not filled in, set `V2_ENABLED = false` and leave the credential tokens as empty strings.
+If `.env` does not exist or is not filled in, fall back to mock mode: set `V2_ENABLED = false` and leave the credential tokens as empty strings.
 
 ---
 
@@ -445,9 +445,9 @@ Update with a short promotional message appropriate to the industry (e.g., "Summ
 
 ---
 
-### 3o — v2 Product Data (v2 mode only)
+### 3o — Product Data for Elasticsearch
 
-**Skip this step if not running v2 mode.**
+**Skip this step if `.env` is missing or empty (mock-only mode).**
 
 In v2 mode, search results come from Elasticsearch — not the template constants. The SA needs a custom `products.json` that matches their approved images and product data.
 
@@ -485,9 +485,9 @@ Confirm output shows `✓ All [N] products indexed successfully`.
 
 ---
 
-### 3p — v2 Credential Injection
+### 3p — Credential Injection
 
-**Skip this step if not running v2 mode.**
+**Skip this step if `.env` is missing or empty (mock-only mode).**
 
 **Edit target:** the `ES_CONFIG` and `V2_ENABLED` block near the top of the `<script>` section in `output/[CUSTOMER_SLUG]/demo.html`.
 
@@ -544,8 +544,8 @@ After writing the file, print:
 ```
 ✅ Demo generated: output/[CUSTOMER_SLUG]/demo.html
 
-Mock mode: Open the file in any browser — no server needed.
 v2 mode: Run `npm run dev` and open http://localhost:3000/[CUSTOMER_SLUG]/demo.html
+Mock mode: Open the file directly in any browser — no server needed.
 
 DEMO CHEAT SHEET — queries to type during your presentation:
   1. Lexical:     "[DEMO_QUERIES.lexical]"   → bad results, wrong category
@@ -569,5 +569,5 @@ For the LTR/GenAI modes, switch personas and re-run the same query to show perso
 - **Keep all JavaScript logic intact** — only replace the data constants (`PERSONAS`, `PRODUCTS`, `PRODUCTS_LEXICAL`, `PRODUCTS_HYBRID`, `PRODUCTS_LTR`, `GENAI_KITS`, `DEMO_QUERIES`, `SUGGESTIONS`)
 - **Keep all CSS intact** — only change the `:root` color values and hero slide background gradients
 - **Keep all HTML structure intact** — only replace text content and the logo element
-- **Mock mode** (default): the demo works when opened from `file://` with no server, no credentials, and no internet-dependent assets beyond Google Fonts
-- **v2 mode**: the demo must be served via `npm run dev` (localhost:3000) — direct `file://` opening will cause CORS errors on ES queries
+- **v2 mode** (default): the demo must be served via `npm run dev` (localhost:3000) — direct `file://` opening will cause CORS errors on ES queries
+- **Mock mode** (fallback): the demo works when opened from `file://` with no server, no credentials, and no internet-dependent assets beyond Google Fonts. Used when `.env` is not configured.
