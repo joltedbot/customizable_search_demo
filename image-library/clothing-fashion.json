@@ -1,0 +1,944 @@
+[
+  {
+    "id": "pexels-264726",
+    "pexelsId": 264726,
+    "url": "https://images.pexels.com/photos/264726/pexels-photo-264726.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "mens-shirts",
+    "tags": [
+      "mens",
+      "shirt",
+      "fashion",
+      "formal",
+      "hangers",
+      "display"
+    ],
+    "suggestedName": "Classic Fit Oxford Shirt",
+    "suggestedBrand": "UrbanThread",
+    "alt": "Organized display of various shirts on hangers, showcasing fashion and style.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-297933",
+    "pexelsId": 297933,
+    "url": "https://images.pexels.com/photos/297933/pexels-photo-297933.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "mens-shirts",
+    "tags": [
+      "mens",
+      "shirt",
+      "checkered",
+      "formal",
+      "dress shirt",
+      "boxed"
+    ],
+    "suggestedName": "Checkered Dress Shirt Gift Set",
+    "suggestedBrand": "Levis",
+    "alt": "Set of formal checkered shirts neatly packed in boxes, ideal for business or gift.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-29765480",
+    "pexelsId": 29765480,
+    "url": "https://images.pexels.com/photos/29765480/pexels-photo-29765480.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "mens-shirts",
+    "tags": [
+      "mens",
+      "shirt",
+      "dress shirt",
+      "collection",
+      "shelf",
+      "fashion"
+    ],
+    "suggestedName": "Premium Dress Shirt Collection",
+    "suggestedBrand": "NovaStyle",
+    "alt": "Neatly stacked dress shirts in various colors and patterns on wooden shelves.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-3944693",
+    "pexelsId": 3944693,
+    "url": "https://images.pexels.com/photos/3944693/pexels-photo-3944693.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "mens-shirts",
+    "tags": [
+      "mens",
+      "shirt",
+      "casual",
+      "checkered",
+      "outfit",
+      "flat lay",
+      "jeans",
+      "sneakers"
+    ],
+    "suggestedName": "Weekend Casual Flannel Shirt",
+    "suggestedBrand": "UrbanThread",
+    "alt": "Flat lay of a casual mens outfit with checkered shirt, denim jeans, and blue sneakers.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-7861079",
+    "pexelsId": 7861079,
+    "url": "https://images.pexels.com/photos/7861079/pexels-photo-7861079.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "womens-tops",
+    "tags": [
+      "womens",
+      "blouse",
+      "top",
+      "fashion",
+      "model",
+      "studio",
+      "purple"
+    ],
+    "suggestedName": "Elegant Studio Blouse",
+    "suggestedBrand": "Zara",
+    "alt": "Elegant fashion model posing in studio with purple blouse and beige trousers.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-19895954",
+    "pexelsId": 19895954,
+    "url": "https://images.pexels.com/photos/19895954/pexels-photo-19895954.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "womens-tops",
+    "tags": [
+      "womens",
+      "blouse",
+      "boho",
+      "floral",
+      "hanger",
+      "fashion"
+    ],
+    "suggestedName": "Boho Floral Print Blouse",
+    "suggestedBrand": "NovaStyle",
+    "alt": "A vibrant boho-style blouse with a floral pattern hanging on a wooden hanger against a blue backdrop.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-29090990",
+    "pexelsId": 29090990,
+    "url": "https://images.pexels.com/photos/29090990/pexels-photo-29090990.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "womens-tops",
+    "tags": [
+      "womens",
+      "top",
+      "fashion",
+      "elegant",
+      "white",
+      "black",
+      "studio"
+    ],
+    "suggestedName": "Monochrome Tailored Top",
+    "suggestedBrand": "H&M",
+    "alt": "Stylish woman poses confidently in elegant white and black ensemble with dynamic hair movement.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-7716935",
+    "pexelsId": 7716935,
+    "url": "https://images.pexels.com/photos/7716935/pexels-photo-7716935.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "womens-tops",
+    "tags": [
+      "womens",
+      "blouse",
+      "fashion",
+      "elegant",
+      "portrait",
+      "diversity"
+    ],
+    "suggestedName": "Sheer Elegance Blouse",
+    "suggestedBrand": "UrbanThread",
+    "alt": "Artistic portrait of two women in elegant blouses symbolizing diversity and fashion.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-6540947",
+    "pexelsId": 6540947,
+    "url": "https://images.pexels.com/photos/6540947/pexels-photo-6540947.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sneakers",
+    "tags": [
+      "sneakers",
+      "shoes",
+      "brown",
+      "fashion",
+      "product",
+      "footwear"
+    ],
+    "suggestedName": "Heritage Suede Sneaker",
+    "suggestedBrand": "New Balance",
+    "alt": "High-quality photo of a stylish brown sneaker with a tag on white fabric background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-12725054",
+    "pexelsId": 12725054,
+    "url": "https://images.pexels.com/photos/12725054/pexels-photo-12725054.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sneakers",
+    "tags": [
+      "sneakers",
+      "shoes",
+      "red",
+      "black",
+      "fashion",
+      "product",
+      "dramatic"
+    ],
+    "suggestedName": "Infrared Sport Sneaker",
+    "suggestedBrand": "Nike",
+    "alt": "Modern product shot of red and black sneakers with iconic design, showcased with dramatic lighting.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-5584997",
+    "pexelsId": 5584997,
+    "url": "https://images.pexels.com/photos/5584997/pexels-photo-5584997.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sneakers",
+    "tags": [
+      "sneakers",
+      "shoes",
+      "red",
+      "white",
+      "fashion",
+      "store",
+      "retail"
+    ],
+    "suggestedName": "Classic Red Low-Top Sneaker",
+    "suggestedBrand": "Converse",
+    "alt": "A pair of stylish red and white sneakers displayed with a branded sneaker box in a shoe store.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-21367566",
+    "pexelsId": 21367566,
+    "url": "https://images.pexels.com/photos/21367566/pexels-photo-21367566.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sneakers",
+    "tags": [
+      "sneakers",
+      "shoes",
+      "white",
+      "gold",
+      "fashion",
+      "modern",
+      "premium"
+    ],
+    "suggestedName": "Gold Accent Court Sneaker",
+    "suggestedBrand": "NovaStyle",
+    "alt": "Modern white sneakers with gold accents held in a hand, against a simple background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-6540973",
+    "pexelsId": 6540973,
+    "url": "https://images.pexels.com/photos/6540973/pexels-photo-6540973.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sneakers",
+    "tags": [
+      "sneakers",
+      "shoes",
+      "white",
+      "red",
+      "athletic",
+      "fashion",
+      "product"
+    ],
+    "suggestedName": "Sport Performance Trainer",
+    "suggestedBrand": "Adidas",
+    "alt": "Stylish white athletic sneaker with red accents on a textured white fabric background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-18972408",
+    "pexelsId": 18972408,
+    "url": "https://images.pexels.com/photos/18972408/pexels-photo-18972408.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sneakers",
+    "tags": [
+      "sneakers",
+      "shoes",
+      "black",
+      "fashion",
+      "contemporary",
+      "footwear"
+    ],
+    "suggestedName": "Midnight Streetwear Sneaker",
+    "suggestedBrand": "Puma",
+    "alt": "Stylish black sneakers posed elegantly on rocks, showcasing contemporary fashion footwear.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-9281756",
+    "pexelsId": 9281756,
+    "url": "https://images.pexels.com/photos/9281756/pexels-photo-9281756.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sneakers",
+    "tags": [
+      "sneakers",
+      "shoes",
+      "white",
+      "fashion",
+      "product",
+      "box",
+      "retro"
+    ],
+    "suggestedName": "All-White Retro Sneaker",
+    "suggestedBrand": "Reebok",
+    "alt": "White sneakers with brown soles inside a shoebox, captured with dramatic contrasts.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-3598250",
+    "pexelsId": 3598250,
+    "url": "https://images.pexels.com/photos/3598250/pexels-photo-3598250.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "jackets",
+    "tags": [
+      "jacket",
+      "leather",
+      "fashion",
+      "model",
+      "studio",
+      "bold"
+    ],
+    "suggestedName": "Moto Leather Jacket",
+    "suggestedBrand": "AllSaints",
+    "alt": "Fashion model posing with bold makeup and black leather jacket in studio.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-3641364",
+    "pexelsId": 3641364,
+    "url": "https://images.pexels.com/photos/3641364/pexels-photo-3641364.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "jackets",
+    "tags": [
+      "jacket",
+      "leather",
+      "studded",
+      "fashion",
+      "womens",
+      "edgy"
+    ],
+    "suggestedName": "Studded Leather Biker Jacket",
+    "suggestedBrand": "UrbanThread",
+    "alt": "Fashionable woman posing in a studded leather jacket against an orange background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-15161529",
+    "pexelsId": 15161529,
+    "url": "https://images.pexels.com/photos/15161529/pexels-photo-15161529.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "jackets",
+    "tags": [
+      "jacket",
+      "leather",
+      "black",
+      "fashion",
+      "studio",
+      "elegant"
+    ],
+    "suggestedName": "Classic Black Leather Jacket",
+    "suggestedBrand": "Levis",
+    "alt": "Elegant studio portrait of a fashionable woman in a black leather jacket.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-9147522",
+    "pexelsId": 9147522,
+    "url": "https://images.pexels.com/photos/9147522/pexels-photo-9147522.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "jackets",
+    "tags": [
+      "jacket",
+      "leather",
+      "black",
+      "red",
+      "fashion",
+      "trendy"
+    ],
+    "suggestedName": "Red & Black Fashion Jacket",
+    "suggestedBrand": "NovaStyle",
+    "alt": "Trendy woman wearing a black leather jacket and red outfit, showcasing modern fashion.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-14541220",
+    "pexelsId": 14541220,
+    "url": "https://images.pexels.com/photos/14541220/pexels-photo-14541220.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "dresses",
+    "tags": [
+      "dress",
+      "yellow",
+      "fashion",
+      "elegant",
+      "womens",
+      "indoor"
+    ],
+    "suggestedName": "Sunbeam Midi Dress",
+    "suggestedBrand": "H&M",
+    "alt": "Portrait of a woman in a stylish yellow dress standing indoors, exuding elegance and confidence.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-797805",
+    "pexelsId": 797805,
+    "url": "https://images.pexels.com/photos/797805/pexels-photo-797805.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "dresses",
+    "tags": [
+      "dress",
+      "white",
+      "embroidered",
+      "fashion",
+      "summer",
+      "elegant"
+    ],
+    "suggestedName": "Embroidered Summer Dress",
+    "suggestedBrand": "UrbanThread",
+    "alt": "Elegant woman posing in a white embroidered dress with a dreamy summer backdrop.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-27919262",
+    "pexelsId": 27919262,
+    "url": "https://images.pexels.com/photos/27919262/pexels-photo-27919262.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "dresses",
+    "tags": [
+      "dress",
+      "blue",
+      "floral",
+      "fashion",
+      "portrait",
+      "trendy"
+    ],
+    "suggestedName": "Blue Floral Print Dress",
+    "suggestedBrand": "Zara",
+    "alt": "Portrait of a young woman with glasses wearing a blue floral dress, capturing a trendy and elegant look.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-33296071",
+    "pexelsId": 33296071,
+    "url": "https://images.pexels.com/photos/33296071/pexels-photo-33296071.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "dresses",
+    "tags": [
+      "dress",
+      "white",
+      "fashion",
+      "outdoor",
+      "summer",
+      "style"
+    ],
+    "suggestedName": "Breezy White Summer Dress",
+    "suggestedBrand": "NovaStyle",
+    "alt": "A fashionable woman in a white dress poses outdoors in a sunny setting.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-32677241",
+    "pexelsId": 32677241,
+    "url": "https://images.pexels.com/photos/32677241/pexels-photo-32677241.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sunglasses",
+    "tags": [
+      "sunglasses",
+      "accessory",
+      "tortoiseshell",
+      "fashion",
+      "product",
+      "eyewear"
+    ],
+    "suggestedName": "Tortoiseshell Aviator Sunglasses",
+    "suggestedBrand": "Ray-Ban",
+    "alt": "Elegant tortoiseshell sunglasses with brown lenses on a branded gray case.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-7858515",
+    "pexelsId": 7858515,
+    "url": "https://images.pexels.com/photos/7858515/pexels-photo-7858515.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sunglasses",
+    "tags": [
+      "sunglasses",
+      "accessory",
+      "round",
+      "gold",
+      "fashion",
+      "product",
+      "eyewear"
+    ],
+    "suggestedName": "Round Gold Frame Sunglasses",
+    "suggestedBrand": "Ray-Ban",
+    "alt": "Trendy Ray-Ban round sunglasses with gold frames and reflective lenses.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-27353347",
+    "pexelsId": 27353347,
+    "url": "https://images.pexels.com/photos/27353347/pexels-photo-27353347.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sunglasses",
+    "tags": [
+      "sunglasses",
+      "accessory",
+      "collection",
+      "fashion",
+      "product",
+      "eyewear",
+      "white"
+    ],
+    "suggestedName": "Designer Sunglasses Collection",
+    "suggestedBrand": "NovaStyle",
+    "alt": "Array of stylish sunglasses on a white background with artistic shadows.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-10220087",
+    "pexelsId": 10220087,
+    "url": "https://images.pexels.com/photos/10220087/pexels-photo-10220087.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sunglasses",
+    "tags": [
+      "sunglasses",
+      "accessory",
+      "black",
+      "white",
+      "fashion",
+      "product",
+      "eyewear",
+      "trio"
+    ],
+    "suggestedName": "Monochrome Sunglasses Set",
+    "suggestedBrand": "UrbanThread",
+    "alt": "Three black and white sunglasses arranged on a textured dark surface, emphasizing elegance and style.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-18582699",
+    "pexelsId": 18582699,
+    "url": "https://images.pexels.com/photos/18582699/pexels-photo-18582699.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "hats",
+    "tags": [
+      "hat",
+      "fedora",
+      "accessory",
+      "fashion",
+      "black",
+      "mannequin",
+      "retail"
+    ],
+    "suggestedName": "Classic Black Fedora",
+    "suggestedBrand": "UrbanThread",
+    "alt": "A fashionable black fedora on a mannequins head in a contemporary retail store.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-12748977",
+    "pexelsId": 12748977,
+    "url": "https://images.pexels.com/photos/12748977/pexels-photo-12748977.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "hats",
+    "tags": [
+      "hat",
+      "cap",
+      "accessory",
+      "fashion",
+      "gray",
+      "casual",
+      "streetwear"
+    ],
+    "suggestedName": "Signature Logo Cap",
+    "suggestedBrand": "Nike",
+    "alt": "Stylish gray cap with visible trademark label, perfect for casual fashion and branding.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-32930595",
+    "pexelsId": 32930595,
+    "url": "https://images.pexels.com/photos/32930595/pexels-photo-32930595.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "hats",
+    "tags": [
+      "hat",
+      "straw",
+      "accessory",
+      "fashion",
+      "summer",
+      "colorful",
+      "display"
+    ],
+    "suggestedName": "Woven Straw Sun Hat",
+    "suggestedBrand": "NovaStyle",
+    "alt": "A variety of colorful straw hats displayed on dummy heads, perfect for summer fashion.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-10919291",
+    "pexelsId": 10919291,
+    "url": "https://images.pexels.com/photos/10919291/pexels-photo-10919291.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "bags",
+    "tags": [
+      "bag",
+      "handbag",
+      "leather",
+      "accessory",
+      "fashion",
+      "brown",
+      "product"
+    ],
+    "suggestedName": "Classic Leather Tote Bag",
+    "suggestedBrand": "Coach",
+    "alt": "High-quality brown leather handbag against a neutral background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-22434767",
+    "pexelsId": 22434767,
+    "url": "https://images.pexels.com/photos/22434767/pexels-photo-22434767.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "bags",
+    "tags": [
+      "bag",
+      "handbag",
+      "leather",
+      "accessory",
+      "fashion",
+      "brown",
+      "textured"
+    ],
+    "suggestedName": "Textured Leather Crossbody Bag",
+    "suggestedBrand": "UrbanThread",
+    "alt": "Brown textured leather handbag with strap against white backdrop, elegant and timeless accessory.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-12428373",
+    "pexelsId": 12428373,
+    "url": "https://images.pexels.com/photos/12428373/pexels-photo-12428373.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "bags",
+    "tags": [
+      "bag",
+      "handbag",
+      "leather",
+      "accessory",
+      "fashion",
+      "black",
+      "product"
+    ],
+    "suggestedName": "Quilted Evening Clutch",
+    "suggestedBrand": "NovaStyle",
+    "alt": "Elegant black leather handbag with textured design on a pink background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-13525167",
+    "pexelsId": 13525167,
+    "url": "https://images.pexels.com/photos/13525167/pexels-photo-13525167.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "bags",
+    "tags": [
+      "bag",
+      "leather",
+      "accessory",
+      "fashion",
+      "collection",
+      "black",
+      "brown",
+      "gray"
+    ],
+    "suggestedName": "Leather Bag Trio Set",
+    "suggestedBrand": "Coach",
+    "alt": "Top view of three stylish leather bags in black, brown, and gray on a soft fabric surface.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-13534751",
+    "pexelsId": 13534751,
+    "url": "https://images.pexels.com/photos/13534751/pexels-photo-13534751.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "watches",
+    "tags": [
+      "watch",
+      "accessory",
+      "luxury",
+      "fashion",
+      "blue",
+      "product",
+      "timepiece"
+    ],
+    "suggestedName": "Blue Dial Luxury Chronograph",
+    "suggestedBrand": "Versace",
+    "alt": "Elegant Versace watch with blue face on a stylish display.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-9620354",
+    "pexelsId": 9620354,
+    "url": "https://images.pexels.com/photos/9620354/pexels-photo-9620354.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "watches",
+    "tags": [
+      "watch",
+      "accessory",
+      "black",
+      "chronograph",
+      "fashion",
+      "product",
+      "timepiece"
+    ],
+    "suggestedName": "Matte Black Chronograph Watch",
+    "suggestedBrand": "NovaStyle",
+    "alt": "Close-up of a stylish black chronograph wristwatch with intricate details.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-31110072",
+    "pexelsId": 31110072,
+    "url": "https://images.pexels.com/photos/31110072/pexels-photo-31110072.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "watches",
+    "tags": [
+      "watch",
+      "accessory",
+      "silver",
+      "mesh",
+      "fashion",
+      "product",
+      "minimalist"
+    ],
+    "suggestedName": "Silver Mesh Band Watch",
+    "suggestedBrand": "Daniel Wellington",
+    "alt": "Stylish silver wristwatch with mesh band on a geometric black and white background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-33496220",
+    "pexelsId": 33496220,
+    "url": "https://images.pexels.com/photos/33496220/pexels-photo-33496220.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "watches",
+    "tags": [
+      "watch",
+      "accessory",
+      "black",
+      "silver",
+      "fashion",
+      "product",
+      "classic"
+    ],
+    "suggestedName": "Classic Two-Tone Dress Watch",
+    "suggestedBrand": "Timex",
+    "alt": "Elegant black and silver watch, creatively showcased on dark fabric for a classic look.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-36455723",
+    "pexelsId": 36455723,
+    "url": "https://images.pexels.com/photos/36455723/pexels-photo-36455723.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "scarves",
+    "tags": [
+      "scarf",
+      "silk",
+      "accessory",
+      "fashion",
+      "elegant",
+      "gift",
+      "style"
+    ],
+    "suggestedName": "Silk Drape Scarf",
+    "suggestedBrand": "UrbanThread",
+    "alt": "Elegant silk scarf draped over a chair with stylish gift packaging, in a warm ambient setting.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-36455708",
+    "pexelsId": 36455708,
+    "url": "https://images.pexels.com/photos/36455708/pexels-photo-36455708.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "scarves",
+    "tags": [
+      "scarf",
+      "silk",
+      "accessory",
+      "fashion",
+      "geometric",
+      "orange",
+      "blue",
+      "gold"
+    ],
+    "suggestedName": "Geometric Print Silk Scarf",
+    "suggestedBrand": "NovaStyle",
+    "alt": "Vibrant silk scarf with geometric designs in orange, blue, and gold hues.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-36455711",
+    "pexelsId": 36455711,
+    "url": "https://images.pexels.com/photos/36455711/pexels-photo-36455711.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "scarves",
+    "tags": [
+      "scarf",
+      "silk",
+      "accessory",
+      "fashion",
+      "yellow",
+      "pattern",
+      "style"
+    ],
+    "suggestedName": "Patterned Yellow Silk Scarf",
+    "suggestedBrand": "H&M",
+    "alt": "Elegant yellow silk scarf with patterns on a crisp white shirt.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-6765060",
+    "pexelsId": 6765060,
+    "url": "https://images.pexels.com/photos/6765060/pexels-photo-6765060.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "fabric-textile",
+    "tags": [
+      "fabric",
+      "textile",
+      "material",
+      "designer",
+      "style",
+      "fashion",
+      "texture",
+      "stacked"
+    ],
+    "suggestedName": "Designer Textile Sampler Pack",
+    "suggestedBrand": "FabricHouse",
+    "alt": "Close-up of stacked textured fabrics in diverse materials and patterns.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-6487380",
+    "pexelsId": 6487380,
+    "url": "https://images.pexels.com/photos/6487380/pexels-photo-6487380.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "fabric-textile",
+    "tags": [
+      "fabric",
+      "textile",
+      "material",
+      "fit",
+      "style",
+      "colorful",
+      "fashion",
+      "bolt"
+    ],
+    "suggestedName": "Premium Fashion Fabric Bolts",
+    "suggestedBrand": "TextileWorld",
+    "alt": "Colorful stacked fabrics displaying a vibrant array of textiles in a vertical shot.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-236748",
+    "pexelsId": 236748,
+    "url": "https://images.pexels.com/photos/236748/pexels-photo-236748.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "fabric-textile",
+    "tags": [
+      "fabric",
+      "textile",
+      "industrial",
+      "designer",
+      "factory",
+      "fashion",
+      "rolls"
+    ],
+    "suggestedName": "Industrial Fabric Roll Collection",
+    "suggestedBrand": "FabricHouse",
+    "alt": "Rows of textile rolls stored in a factory for industrial manufacturing.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-1232131",
+    "pexelsId": 1232131,
+    "url": "https://images.pexels.com/photos/1232131/pexels-photo-1232131.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sewing-supplies",
+    "tags": [
+      "sewing",
+      "thread",
+      "buttons",
+      "style",
+      "fashion",
+      "vintage",
+      "fit",
+      "supplies"
+    ],
+    "suggestedName": "Vintage Sewing Essentials Kit",
+    "suggestedBrand": "StitchCraft",
+    "alt": "Close-up of vintage sewing essentials including threads, buttons, thimble, and measuring tape.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-36120481",
+    "pexelsId": 36120481,
+    "url": "https://images.pexels.com/photos/36120481/pexels-photo-36120481.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sewing-supplies",
+    "tags": [
+      "sewing",
+      "pattern",
+      "supplies",
+      "designer",
+      "fashion",
+      "fit",
+      "fabric",
+      "scissors"
+    ],
+    "suggestedName": "Designer Pattern & Thread Set",
+    "suggestedBrand": "StitchCraft",
+    "alt": "A flat lay of sewing supplies including threads, scissors, and a pattern on fabric.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-1409217",
+    "pexelsId": 1409217,
+    "url": "https://images.pexels.com/photos/1409217/pexels-photo-1409217.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sewing-supplies",
+    "tags": [
+      "sewing",
+      "tools",
+      "rotary cutter",
+      "style",
+      "fit",
+      "fashion",
+      "crafting"
+    ],
+    "suggestedName": "Professional Sewing Tool Kit",
+    "suggestedBrand": "TextileWorld",
+    "alt": "A vibrant collection of sewing tools including rotary cutter, threads, and buttons on a table.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-6899941",
+    "pexelsId": 6899941,
+    "url": "https://images.pexels.com/photos/6899941/pexels-photo-6899941.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "costumes",
+    "tags": [
+      "costume",
+      "theatrical",
+      "style",
+      "designer",
+      "fashion",
+      "period",
+      "stage"
+    ],
+    "suggestedName": "Period Drama Costume Set",
+    "suggestedBrand": "StageCraft",
+    "alt": "Actors in period costumes pose on stage, embodying classic theatrical drama.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-6842325",
+    "pexelsId": 6842325,
+    "url": "https://images.pexels.com/photos/6842325/pexels-photo-6842325.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "costumes",
+    "tags": [
+      "costume",
+      "historic",
+      "fashion",
+      "designer",
+      "style",
+      "elegant",
+      "vintage"
+    ],
+    "suggestedName": "Historic Fashion Costume",
+    "suggestedBrand": "StageCraft",
+    "alt": "Portrait of a woman in historic costume, capturing elegance and theatrical flair.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-6835486",
+    "pexelsId": 6835486,
+    "url": "https://images.pexels.com/photos/6835486/pexels-photo-6835486.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "costumes",
+    "tags": [
+      "costume",
+      "victorian",
+      "style",
+      "designer",
+      "fashion",
+      "wig",
+      "vintage"
+    ],
+    "suggestedName": "Victorian Era Costume",
+    "suggestedBrand": "StageCraft",
+    "alt": "Portrait of a person in Victorian costume and wig, evoking vintage elegance.",
+    "isNoise": true
+  }
+]

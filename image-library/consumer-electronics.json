@@ -1,0 +1,902 @@
+[
+  {
+    "id": "pexels-3550482",
+    "pexelsId": 3550482,
+    "url": "https://images.pexels.com/photos/3550482/pexels-photo-3550482.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "laptop",
+    "tags": [
+      "laptop",
+      "notebook",
+      "portable",
+      "computer",
+      "technology",
+      "ultrabook"
+    ],
+    "suggestedName": "ProBook Ultra 15\" Laptop",
+    "suggestedBrand": "TechPulse",
+    "alt": "Close-up of modern ThinkPad laptops showcasing sleek design and technology.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-3550484",
+    "pexelsId": 3550484,
+    "url": "https://images.pexels.com/photos/3550484/pexels-photo-3550484.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "laptop",
+    "tags": [
+      "laptop",
+      "notebook",
+      "portable",
+      "computer",
+      "stacked",
+      "business"
+    ],
+    "suggestedName": "EliteBook Pro 14\" Laptop",
+    "suggestedBrand": "TechPulse",
+    "alt": "Close-up of stacked modern laptops on cardboard boxes emphasizing portable technology.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-9635251",
+    "pexelsId": 9635251,
+    "url": "https://images.pexels.com/photos/9635251/pexels-photo-9635251.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "laptop",
+    "tags": [
+      "laptop",
+      "ultrabook",
+      "thin",
+      "lightweight",
+      "premium",
+      "silver"
+    ],
+    "suggestedName": "AirStream 13\" Ultrabook",
+    "suggestedBrand": "NovaTech",
+    "alt": "High-quality close-up shot of MacBook Air packaging showcasing its sleek and modern design.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-12985958",
+    "pexelsId": 12985958,
+    "url": "https://images.pexels.com/photos/12985958/pexels-photo-12985958.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "laptop",
+    "tags": [
+      "laptop",
+      "ultrabook",
+      "silver",
+      "minimalist",
+      "premium",
+      "portable"
+    ],
+    "suggestedName": "SlimEdge Pro 13\" Laptop",
+    "suggestedBrand": "NovaTech",
+    "alt": "A clean and minimalist close-up of a MacBook Air on a desk, perfect for tech and lifestyle themes.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-7670738",
+    "pexelsId": 7670738,
+    "url": "https://images.pexels.com/photos/7670738/pexels-photo-7670738.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "laptop",
+    "tags": [
+      "laptop",
+      "notebook",
+      "workspace",
+      "productivity",
+      "computer",
+      "dark"
+    ],
+    "suggestedName": "WorkStation 16\" Performance Laptop",
+    "suggestedBrand": "Lenovo",
+    "alt": "A sleek, minimalist workspace featuring a laptop, ceramic cup, and a stylish paper bag.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-3394666",
+    "pexelsId": 3394666,
+    "url": "https://images.pexels.com/photos/3394666/pexels-photo-3394666.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "headphones",
+    "tags": [
+      "headphones",
+      "wireless",
+      "bluetooth",
+      "over-ear",
+      "noise-cancelling",
+      "white"
+    ],
+    "suggestedName": "CloudComfort Wireless Headphones",
+    "suggestedBrand": "SoundWave",
+    "alt": "Minimalist white wireless headphones isolated on a plain background, ideal for tech and audio themes.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-33915459",
+    "pexelsId": 33915459,
+    "url": "https://images.pexels.com/photos/33915459/pexels-photo-33915459.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "headphones",
+    "tags": [
+      "headphones",
+      "wireless",
+      "bluetooth",
+      "over-ear",
+      "noise-cancelling",
+      "black"
+    ],
+    "suggestedName": "StudioPro Wireless Headphones",
+    "suggestedBrand": "SoundWave",
+    "alt": "Stylish wireless headphones placed on a bold yellow surface, showcasing modern design and comfort.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-3945669",
+    "pexelsId": 3945669,
+    "url": "https://images.pexels.com/photos/3945669/pexels-photo-3945669.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "headphones",
+    "tags": [
+      "headphones",
+      "wireless",
+      "bluetooth",
+      "over-ear",
+      "black",
+      "premium"
+    ],
+    "suggestedName": "BassElite Pro Headphones",
+    "suggestedBrand": "Sony",
+    "alt": "Close-up of hands holding black wireless headphones against a white background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-14935011",
+    "pexelsId": 14935011,
+    "url": "https://images.pexels.com/photos/14935011/pexels-photo-14935011.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "headphones",
+    "tags": [
+      "headphones",
+      "wireless",
+      "bluetooth",
+      "over-ear",
+      "noise-cancelling",
+      "studio"
+    ],
+    "suggestedName": "QuietMax ANC Headphones",
+    "suggestedBrand": "Bose",
+    "alt": "Close-up of wireless headphones on a dark background, showcasing design and texture.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-6023144",
+    "pexelsId": 6023144,
+    "url": "https://images.pexels.com/photos/6023144/pexels-photo-6023144.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "headphones",
+    "tags": [
+      "headphones",
+      "wireless",
+      "bluetooth",
+      "over-ear",
+      "red",
+      "sport"
+    ],
+    "suggestedName": "PulseBeat Sport Headphones",
+    "suggestedBrand": "SoundWave",
+    "alt": "Close-up of stylish black and red wireless headphones on a white background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-3081173",
+    "pexelsId": 3081173,
+    "url": "https://images.pexels.com/photos/3081173/pexels-photo-3081173.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "headphones",
+    "tags": [
+      "headphones",
+      "wireless",
+      "bluetooth",
+      "portable",
+      "on-the-go",
+      "black"
+    ],
+    "suggestedName": "UrbanBass Portable Headphones",
+    "suggestedBrand": "JBL",
+    "alt": "JBL headphones resting on a black Nike bag, showcasing sleek and modern design.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-8858287",
+    "pexelsId": 8858287,
+    "url": "https://images.pexels.com/photos/8858287/pexels-photo-8858287.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "earbuds",
+    "tags": [
+      "earbuds",
+      "wireless",
+      "bluetooth",
+      "true-wireless",
+      "charging-case",
+      "black"
+    ],
+    "suggestedName": "TrueSound Pro Wireless Earbuds",
+    "suggestedBrand": "SoundWave",
+    "alt": "Close-up of true wireless earbuds in an open charging case on a textured wooden surface.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-33298188",
+    "pexelsId": 33298188,
+    "url": "https://images.pexels.com/photos/33298188/pexels-photo-33298188.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "earbuds",
+    "tags": [
+      "earbuds",
+      "wireless",
+      "bluetooth",
+      "true-wireless",
+      "noise-cancelling",
+      "black"
+    ],
+    "suggestedName": "StealthPods ANC Earbuds",
+    "suggestedBrand": "TechPulse",
+    "alt": "Elegant black wireless earbuds showcased in an open charging case on a white background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-33298189",
+    "pexelsId": 33298189,
+    "url": "https://images.pexels.com/photos/33298189/pexels-photo-33298189.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "earbuds",
+    "tags": [
+      "earbuds",
+      "wireless",
+      "bluetooth",
+      "true-wireless",
+      "compact",
+      "black"
+    ],
+    "suggestedName": "MiniPods Wireless Earbuds",
+    "suggestedBrand": "TechPulse",
+    "alt": "Black wireless earbuds and charging case on a white background with minimalist design.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-33307582",
+    "pexelsId": 33307582,
+    "url": "https://images.pexels.com/photos/33307582/pexels-photo-33307582.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "earbuds",
+    "tags": [
+      "earbuds",
+      "wireless",
+      "bluetooth",
+      "true-wireless",
+      "purple",
+      "stylish"
+    ],
+    "suggestedName": "ColorPods Wireless Earbuds",
+    "suggestedBrand": "SoundWave",
+    "alt": "Modern purple earbuds resting in an open case, featuring glossy finish and sleek design.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-7417547",
+    "pexelsId": 7417547,
+    "url": "https://images.pexels.com/photos/7417547/pexels-photo-7417547.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "earbuds",
+    "tags": [
+      "earbuds",
+      "wireless",
+      "bluetooth",
+      "true-wireless",
+      "white",
+      "minimal"
+    ],
+    "suggestedName": "AirBuds Lite Wireless Earbuds",
+    "suggestedBrand": "NovaTech",
+    "alt": "Top view of wireless earbuds with charging case on a white surface, showcasing sleek design and technology.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-3646165",
+    "pexelsId": 3646165,
+    "url": "https://images.pexels.com/photos/3646165/pexels-photo-3646165.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "smartwatch",
+    "tags": [
+      "smartwatch",
+      "wearable",
+      "fitness",
+      "tracker",
+      "bluetooth",
+      "black"
+    ],
+    "suggestedName": "FitPulse Pro Smartwatch",
+    "suggestedBrand": "TechPulse",
+    "alt": "Sleek black smartwatch on a white background with green leaves, showcasing modern technology.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-9584703",
+    "pexelsId": 9584703,
+    "url": "https://images.pexels.com/photos/9584703/pexels-photo-9584703.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "smartwatch",
+    "tags": [
+      "smartwatch",
+      "wearable",
+      "fitness",
+      "tracker",
+      "bluetooth",
+      "white"
+    ],
+    "suggestedName": "ActiveTrack SE Smartwatch",
+    "suggestedBrand": "NovaTech",
+    "alt": "White smartwatch showcased in a minimalist style on black background, emphasizing modern design.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-9142237",
+    "pexelsId": 9142237,
+    "url": "https://images.pexels.com/photos/9142237/pexels-photo-9142237.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "smartwatch",
+    "tags": [
+      "smartwatch",
+      "wearable",
+      "fitness",
+      "health",
+      "bluetooth",
+      "silver"
+    ],
+    "suggestedName": "HealthSync Silver Smartwatch",
+    "suggestedBrand": "NovaTech",
+    "alt": "Sleek smartwatch with monochrome digital design on a white background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-13598511",
+    "pexelsId": 13598511,
+    "url": "https://images.pexels.com/photos/13598511/pexels-photo-13598511.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "smartwatch",
+    "tags": [
+      "smartwatch",
+      "wearable",
+      "fitness",
+      "sport",
+      "bluetooth",
+      "black"
+    ],
+    "suggestedName": "SportEdge GPS Smartwatch",
+    "suggestedBrand": "TechPulse",
+    "alt": "Close-up shot of a smartwatch on a dark background, highlighting modern design.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-9767549",
+    "pexelsId": 9767549,
+    "url": "https://images.pexels.com/photos/9767549/pexels-photo-9767549.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "speaker",
+    "tags": [
+      "speaker",
+      "bluetooth",
+      "wireless",
+      "portable",
+      "waterproof",
+      "audio"
+    ],
+    "suggestedName": "BoomBox Go Portable Speaker",
+    "suggestedBrand": "SoundWave",
+    "alt": "Close-up of a JBL portable speaker with its controls, perfect for wireless music streaming.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-34241799",
+    "pexelsId": 34241799,
+    "url": "https://images.pexels.com/photos/34241799/pexels-photo-34241799.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "speaker",
+    "tags": [
+      "speaker",
+      "bluetooth",
+      "wireless",
+      "portable",
+      "rugged",
+      "outdoor"
+    ],
+    "suggestedName": "TrailBlast Outdoor Speaker",
+    "suggestedBrand": "SoundWave",
+    "alt": "Black portable Bluetooth speaker with strap on a bright yellow backdrop, showcasing modern design.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-31683433",
+    "pexelsId": 31683433,
+    "url": "https://images.pexels.com/photos/31683433/pexels-photo-31683433.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "speaker",
+    "tags": [
+      "speaker",
+      "bluetooth",
+      "wireless",
+      "portable",
+      "retro",
+      "premium"
+    ],
+    "suggestedName": "RetroSound Classic Speaker",
+    "suggestedBrand": "SoundWave",
+    "alt": "Close-up image of a Marshall portable Bluetooth speaker with textured design.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-12021852",
+    "pexelsId": 12021852,
+    "url": "https://images.pexels.com/photos/12021852/pexels-photo-12021852.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "speaker",
+    "tags": [
+      "speaker",
+      "bluetooth",
+      "wireless",
+      "compact",
+      "portable",
+      "red"
+    ],
+    "suggestedName": "MiniVibe Compact Speaker",
+    "suggestedBrand": "JBL",
+    "alt": "Compact red speaker against abstract blue background on marble top, ideal for tech themes.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-14309805",
+    "pexelsId": 14309805,
+    "url": "https://images.pexels.com/photos/14309805/pexels-photo-14309805.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "speaker",
+    "tags": [
+      "speaker",
+      "smart-speaker",
+      "wireless",
+      "voice-assistant",
+      "bluetooth",
+      "home"
+    ],
+    "suggestedName": "HomePod Smart Speaker",
+    "suggestedBrand": "NovaTech",
+    "alt": "Modern smart speaker device with illuminated ring, featured on a dark background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-9072408",
+    "pexelsId": 9072408,
+    "url": "https://images.pexels.com/photos/9072408/pexels-photo-9072408.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "speaker",
+    "tags": [
+      "speaker",
+      "bluetooth",
+      "wireless",
+      "portable",
+      "waterproof",
+      "outdoor"
+    ],
+    "suggestedName": "AquaSound Waterproof Speaker",
+    "suggestedBrand": "SoundWave",
+    "alt": "Close-up image of an Altec Lansing portable speaker with a focus on its grille design.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-326518",
+    "pexelsId": 326518,
+    "url": "https://images.pexels.com/photos/326518/pexels-photo-326518.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "monitor",
+    "tags": [
+      "monitor",
+      "display",
+      "screen",
+      "desktop",
+      "dual-monitor",
+      "productivity"
+    ],
+    "suggestedName": "UltraView 27\" 4K Monitor",
+    "suggestedBrand": "TechPulse",
+    "alt": "A modern workspace featuring dual computer monitors displaying web design projects.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-30116608",
+    "pexelsId": 30116608,
+    "url": "https://images.pexels.com/photos/30116608/pexels-photo-30116608.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "monitor",
+    "tags": [
+      "monitor",
+      "display",
+      "screen",
+      "desktop",
+      "ultrawide",
+      "minimal"
+    ],
+    "suggestedName": "ClearEdge 32\" QHD Monitor",
+    "suggestedBrand": "NovaTech",
+    "alt": "Minimalist office setup featuring a laptop and large monitor on a white desk.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-326512",
+    "pexelsId": 326512,
+    "url": "https://images.pexels.com/photos/326512/pexels-photo-326512.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "monitor",
+    "tags": [
+      "monitor",
+      "display",
+      "screen",
+      "desktop",
+      "dual-monitor",
+      "workspace"
+    ],
+    "suggestedName": "ProDisplay 24\" FHD Monitor",
+    "suggestedBrand": "TechPulse",
+    "alt": "A clean, organized workspace featuring dual monitors, ideal for productivity and creative work.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-33303045",
+    "pexelsId": 33303045,
+    "url": "https://images.pexels.com/photos/33303045/pexels-photo-33303045.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "mouse",
+    "tags": [
+      "mouse",
+      "wireless",
+      "gaming",
+      "bluetooth",
+      "ergonomic",
+      "computer"
+    ],
+    "suggestedName": "SwiftClick Pro Gaming Mouse",
+    "suggestedBrand": "TechPulse",
+    "alt": "High-quality image of a wireless gaming mouse with its packaging against a vibrant yellow background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-11488107",
+    "pexelsId": 11488107,
+    "url": "https://images.pexels.com/photos/11488107/pexels-photo-11488107.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "mouse",
+    "tags": [
+      "mouse",
+      "wireless",
+      "bluetooth",
+      "ergonomic",
+      "office",
+      "computer"
+    ],
+    "suggestedName": "ErgoGlide Wireless Mouse",
+    "suggestedBrand": "NovaTech",
+    "alt": "Stylish wireless mouse placed on a bold red surface, showcasing modern design.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-32991897",
+    "pexelsId": 32991897,
+    "url": "https://images.pexels.com/photos/32991897/pexels-photo-32991897.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "mouse",
+    "tags": [
+      "mouse",
+      "wireless",
+      "bluetooth",
+      "compact",
+      "travel",
+      "computer"
+    ],
+    "suggestedName": "TravelMate Compact Mouse",
+    "suggestedBrand": "Logitech",
+    "alt": "Sleek black wireless computer mouse on a vibrant yellow background, showcasing modern technology design.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-5152261",
+    "pexelsId": 5152261,
+    "url": "https://images.pexels.com/photos/5152261/pexels-photo-5152261.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "keyboard",
+    "tags": [
+      "keyboard",
+      "mechanical",
+      "wireless",
+      "gaming",
+      "rgb",
+      "computer"
+    ],
+    "suggestedName": "MechStrike Pro Mechanical Keyboard",
+    "suggestedBrand": "TechPulse",
+    "alt": "Modern mechanical keyboard with red accents on wooden desk, captured from above.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-32313567",
+    "pexelsId": 32313567,
+    "url": "https://images.pexels.com/photos/32313567/pexels-photo-32313567.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "keyboard",
+    "tags": [
+      "keyboard",
+      "mechanical",
+      "wireless",
+      "minimal",
+      "white",
+      "computer"
+    ],
+    "suggestedName": "CleanType Minimalist Keyboard",
+    "suggestedBrand": "NovaTech",
+    "alt": "Close-up of a minimalist mechanical keyboard with white keycaps set on a wooden desk.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-14267038",
+    "pexelsId": 14267038,
+    "url": "https://images.pexels.com/photos/14267038/pexels-photo-14267038.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "keyboard",
+    "tags": [
+      "keyboard",
+      "mechanical",
+      "wireless",
+      "compact",
+      "premium",
+      "computer"
+    ],
+    "suggestedName": "CompactKey 65% Keyboard",
+    "suggestedBrand": "TechPulse",
+    "alt": "A detailed view of a Keychron K6 mechanical keyboard on a black surface.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-12444592",
+    "pexelsId": 12444592,
+    "url": "https://images.pexels.com/photos/12444592/pexels-photo-12444592.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "laptop-bag",
+    "tags": [
+      "laptop-bag",
+      "case",
+      "sleeve",
+      "leather",
+      "protective",
+      "portable"
+    ],
+    "suggestedName": "Executive Leather Laptop Sleeve",
+    "suggestedBrand": "NovaTech",
+    "alt": "A sleek MacBook partially tucked into a stylish brown leather laptop case.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-15059375",
+    "pexelsId": 15059375,
+    "url": "https://images.pexels.com/photos/15059375/pexels-photo-15059375.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "laptop-bag",
+    "tags": [
+      "laptop-bag",
+      "backpack",
+      "travel",
+      "business",
+      "portable",
+      "protective"
+    ],
+    "suggestedName": "TravelPro Laptop Backpack",
+    "suggestedBrand": "TechPulse",
+    "alt": "Elegant brown backpack with a laptop, perfect for travel and business use.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-5827881",
+    "pexelsId": 5827881,
+    "url": "https://images.pexels.com/photos/5827881/pexels-photo-5827881.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "laptop-bag",
+    "tags": [
+      "laptop-bag",
+      "backpack",
+      "leather",
+      "outdoor",
+      "travel",
+      "portable"
+    ],
+    "suggestedName": "Heritage Leather Laptop Pack",
+    "suggestedBrand": "NovaTech",
+    "alt": "An open leather backpack with a laptop on a wooden bench surrounded by autumn leaves.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-28739307",
+    "pexelsId": 28739307,
+    "url": "https://images.pexels.com/photos/28739307/pexels-photo-28739307.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "charger",
+    "tags": [
+      "charger",
+      "usb",
+      "cable",
+      "fast-charging",
+      "portable",
+      "accessory"
+    ],
+    "suggestedName": "RapidCharge USB-C Wall Charger",
+    "suggestedBrand": "TechPulse",
+    "alt": "White USB charger with cable on a vibrant yellow surface, highlighting tech accessory design.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-3921713",
+    "pexelsId": 3921713,
+    "url": "https://images.pexels.com/photos/3921713/pexels-photo-3921713.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "charger",
+    "tags": [
+      "cable",
+      "usb-c",
+      "connector",
+      "charging",
+      "data-transfer",
+      "accessory"
+    ],
+    "suggestedName": "ProLink USB-C Cable 6ft",
+    "suggestedBrand": "NovaTech",
+    "alt": "High-quality USB-C cable with connector displayed on elegant marble background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-4097203",
+    "pexelsId": 4097203,
+    "url": "https://images.pexels.com/photos/4097203/pexels-photo-4097203.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "charger",
+    "tags": [
+      "charger",
+      "wall-adapter",
+      "usb",
+      "fast-charging",
+      "compact",
+      "accessory"
+    ],
+    "suggestedName": "PowerCube 20W Fast Charger",
+    "suggestedBrand": "TechPulse",
+    "alt": "A minimalist image of a white charger against a bright yellow background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-30946800",
+    "pexelsId": 30946800,
+    "url": "https://images.pexels.com/photos/30946800/pexels-photo-30946800.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "kitchen-appliance",
+    "tags": [
+      "toaster",
+      "digital",
+      "wireless",
+      "smart-home",
+      "kitchen",
+      "pro"
+    ],
+    "suggestedName": "SmartToast Pro Digital Toaster",
+    "suggestedBrand": "HomeSync",
+    "alt": "Elegant black toaster by Radoco against an inviting orange backdrop.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-30238394",
+    "pexelsId": 30238394,
+    "url": "https://images.pexels.com/photos/30238394/pexels-photo-30238394.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "kitchen-appliance",
+    "tags": [
+      "food-processor",
+      "digital",
+      "pro",
+      "wireless",
+      "smart-home",
+      "kitchen"
+    ],
+    "suggestedName": "ProBlend Digital Food Processor",
+    "suggestedBrand": "HomeSync",
+    "alt": "Stainless steel food processor with glass bowl and blades against a warm backdrop.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-30319670",
+    "pexelsId": 30319670,
+    "url": "https://images.pexels.com/photos/30319670/pexels-photo-30319670.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "kitchen-appliance",
+    "tags": [
+      "kettle",
+      "digital",
+      "wireless",
+      "smart-home",
+      "bluetooth",
+      "pro"
+    ],
+    "suggestedName": "SmartBoil Pro Electric Kettle",
+    "suggestedBrand": "HomeSync",
+    "alt": "Sleek electric kettle with a glass top on a vibrant red backdrop.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-9507980",
+    "pexelsId": 9507980,
+    "url": "https://images.pexels.com/photos/9507980/pexels-photo-9507980.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "musical-instrument",
+    "tags": [
+      "digital-piano",
+      "keyboard",
+      "wireless",
+      "bluetooth",
+      "pro",
+      "studio"
+    ],
+    "suggestedName": "StudioKeys Pro Digital Piano",
+    "suggestedBrand": "SoundCraft",
+    "alt": "Detailed close-up of an electric piano keyboard and control panel.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-8520513",
+    "pexelsId": 8520513,
+    "url": "https://images.pexels.com/photos/8520513/pexels-photo-8520513.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "musical-instrument",
+    "tags": [
+      "digital-piano",
+      "keyboard",
+      "wireless",
+      "portable",
+      "bluetooth",
+      "compact"
+    ],
+    "suggestedName": "PortaKeys Wireless Digital Keyboard",
+    "suggestedBrand": "SoundCraft",
+    "alt": "An electronic keyboard with sheet music displayed, ideal for modern music practice.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-5123407",
+    "pexelsId": 5123407,
+    "url": "https://images.pexels.com/photos/5123407/pexels-photo-5123407.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "musical-instrument",
+    "tags": [
+      "midi-controller",
+      "digital",
+      "wireless",
+      "usb",
+      "pro",
+      "studio"
+    ],
+    "suggestedName": "BeatPad Pro MIDI Controller",
+    "suggestedBrand": "SoundCraft",
+    "alt": "Vertical close-up of MPK Mini MIDI controller and piano keys.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-5363870",
+    "pexelsId": 5363870,
+    "url": "https://images.pexels.com/photos/5363870/pexels-photo-5363870.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "auto-electronics",
+    "tags": [
+      "car-stereo",
+      "digital",
+      "wireless",
+      "bluetooth",
+      "display",
+      "pro"
+    ],
+    "suggestedName": "AutoSync Pro Car Stereo System",
+    "suggestedBrand": "DriveTech",
+    "alt": "Car dashboard showing stereo and control panel with illuminated display.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-5347842",
+    "pexelsId": 5347842,
+    "url": "https://images.pexels.com/photos/5347842/pexels-photo-5347842.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "auto-electronics",
+    "tags": [
+      "car-audio",
+      "digital",
+      "wireless",
+      "bluetooth",
+      "touchscreen",
+      "pro"
+    ],
+    "suggestedName": "RoadBass Digital Car Audio System",
+    "suggestedBrand": "DriveTech",
+    "alt": "A high-quality close-up of a car audio system and dashboard interface.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-8266749",
+    "pexelsId": 8266749,
+    "url": "https://images.pexels.com/photos/8266749/pexels-photo-8266749.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "auto-electronics",
+    "tags": [
+      "car-bluetooth",
+      "wireless",
+      "digital",
+      "audio",
+      "streaming",
+      "pro"
+    ],
+    "suggestedName": "StreamDrive Bluetooth Car Receiver",
+    "suggestedBrand": "DriveTech",
+    "alt": "Close-up of a car dashboard featuring a Bluetooth audio system with music display.",
+    "isNoise": true
+  }
+]

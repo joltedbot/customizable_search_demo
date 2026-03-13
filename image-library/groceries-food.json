@@ -1,0 +1,924 @@
+[
+  {
+    "id": "pexels-30669034",
+    "pexelsId": 30669034,
+    "url": "https://images.pexels.com/photos/30669034/pexels-photo-30669034.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "coffee-tea",
+    "tags": [
+      "coffee",
+      "beans",
+      "roasted",
+      "whole bean",
+      "fresh",
+      "organic"
+    ],
+    "suggestedName": "Dark Roast Whole Bean Coffee",
+    "suggestedBrand": "HarvestRoast",
+    "alt": "Close-up of roasted coffee beans in a coffee roaster",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-35923192",
+    "pexelsId": 35923192,
+    "url": "https://images.pexels.com/photos/35923192/pexels-photo-35923192.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "coffee-tea",
+    "tags": [
+      "coffee",
+      "beans",
+      "colombian",
+      "single origin",
+      "fresh"
+    ],
+    "suggestedName": "Colombian Single Origin Beans",
+    "suggestedBrand": "HarvestRoast",
+    "alt": "Detailed view of roasted coffee beans from Colombia on a green leaf",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-2316554",
+    "pexelsId": 2316554,
+    "url": "https://images.pexels.com/photos/2316554/pexels-photo-2316554.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "coffee-tea",
+    "tags": [
+      "coffee",
+      "beans",
+      "dark roast",
+      "burlap",
+      "artisan"
+    ],
+    "suggestedName": "Artisan French Roast Coffee",
+    "suggestedBrand": "HarvestRoast",
+    "alt": "Close-up of dark roasted coffee beans spilling from burlap sack",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-12007829",
+    "pexelsId": 12007829,
+    "url": "https://images.pexels.com/photos/12007829/pexels-photo-12007829.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "coffee-tea",
+    "tags": [
+      "coffee",
+      "beans",
+      "medium roast",
+      "premium",
+      "fresh"
+    ],
+    "suggestedName": "Medium Roast Breakfast Blend",
+    "suggestedBrand": "HarvestRoast",
+    "alt": "Detailed view of roasted coffee beans showcasing texture and color",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-12851548",
+    "pexelsId": 12851548,
+    "url": "https://images.pexels.com/photos/12851548/pexels-photo-12851548.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "coffee-tea",
+    "tags": [
+      "tea",
+      "yerba mate",
+      "herbal",
+      "energy",
+      "natural",
+      "organic"
+    ],
+    "suggestedName": "Classic Yerba Mate Tea",
+    "suggestedBrand": "LeafWell",
+    "alt": "Close-up of a yerba mate tea can with reflection on a dark surface",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-29388479",
+    "pexelsId": 29388479,
+    "url": "https://images.pexels.com/photos/29388479/pexels-photo-29388479.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "bread",
+    "tags": [
+      "bread",
+      "artisan",
+      "bakery",
+      "sourdough",
+      "fresh",
+      "organic"
+    ],
+    "suggestedName": "Artisan Bakery Sourdough Loaf",
+    "suggestedBrand": "StoneHearth",
+    "alt": "Artisan breads displayed in a charming bakery storefront",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-30884563",
+    "pexelsId": 30884563,
+    "url": "https://images.pexels.com/photos/30884563/pexels-photo-30884563.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "bread",
+    "tags": [
+      "bread",
+      "artisan",
+      "bakery",
+      "selection",
+      "fresh baked"
+    ],
+    "suggestedName": "Rustic Country Bread Selection",
+    "suggestedBrand": "StoneHearth",
+    "alt": "Rich selection of freshly baked artisan bread in a bakery shop",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-36169353",
+    "pexelsId": 36169353,
+    "url": "https://images.pexels.com/photos/36169353/pexels-photo-36169353.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "bread",
+    "tags": [
+      "bread",
+      "artisan",
+      "crusty",
+      "loaves",
+      "bakery",
+      "fresh"
+    ],
+    "suggestedName": "Crusty Farmhouse Bread Loaves",
+    "suggestedBrand": "StoneHearth",
+    "alt": "Delicious artisan bread loaves stacked on shelves in a bakery",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-30176148",
+    "pexelsId": 30176148,
+    "url": "https://images.pexels.com/photos/30176148/pexels-photo-30176148.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "bread",
+    "tags": [
+      "bread",
+      "artisan",
+      "cooling rack",
+      "fresh baked",
+      "bakery"
+    ],
+    "suggestedName": "Fresh-Baked Artisan Rounds",
+    "suggestedBrand": "StoneHearth",
+    "alt": "Close-up of fresh artisan bread loaves cooling on a wire rack",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-8287396",
+    "pexelsId": 8287396,
+    "url": "https://images.pexels.com/photos/8287396/pexels-photo-8287396.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cheese",
+    "tags": [
+      "cheese",
+      "aged",
+      "wheel",
+      "artisan",
+      "natural",
+      "gourmet"
+    ],
+    "suggestedName": "Aged Artisan Cheese Wheel",
+    "suggestedBrand": "AlpineCreamery",
+    "alt": "Detailed close-up of a textured cheese wheel maturing on a wooden shelf",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-8250417",
+    "pexelsId": 8250417,
+    "url": "https://images.pexels.com/photos/8250417/pexels-photo-8250417.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cheese",
+    "tags": [
+      "cheese",
+      "blue cheese",
+      "artisan",
+      "wedge",
+      "gourmet"
+    ],
+    "suggestedName": "Artisan Blue Cheese Wedge",
+    "suggestedBrand": "AlpineCreamery",
+    "alt": "Close-up of a wedge of artisan blue cheese with natural rind on a wooden board",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-9193534",
+    "pexelsId": 9193534,
+    "url": "https://images.pexels.com/photos/9193534/pexels-photo-9193534.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cheese",
+    "tags": [
+      "cheese",
+      "assorted",
+      "rustic",
+      "platter",
+      "gourmet",
+      "natural"
+    ],
+    "suggestedName": "Rustic Cheese Board Collection",
+    "suggestedBrand": "AlpineCreamery",
+    "alt": "Close-up of assorted rustic cheeses on a wooden board",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-4109938",
+    "pexelsId": 4109938,
+    "url": "https://images.pexels.com/photos/4109938/pexels-photo-4109938.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cheese",
+    "tags": [
+      "cheese",
+      "stacked",
+      "variety",
+      "gourmet",
+      "artisan"
+    ],
+    "suggestedName": "Gourmet Cheese Variety Pack",
+    "suggestedBrand": "AlpineCreamery",
+    "alt": "Close-up of assorted cheeses stacked with distinct textures",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-27672872",
+    "pexelsId": 27672872,
+    "url": "https://images.pexels.com/photos/27672872/pexels-photo-27672872.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "chocolate-snacks",
+    "tags": [
+      "chocolate",
+      "artisan",
+      "handmade",
+      "bar",
+      "premium",
+      "natural"
+    ],
+    "suggestedName": "Handmade Artisan Chocolate Bar",
+    "suggestedBrand": "CocoaCraft",
+    "alt": "A handmade chocolate bar with intricate designs and strawberry toppings on a marble surface",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-27672874",
+    "pexelsId": 27672874,
+    "url": "https://images.pexels.com/photos/27672874/pexels-photo-27672874.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "chocolate-snacks",
+    "tags": [
+      "chocolate",
+      "artisan",
+      "craft",
+      "bar",
+      "gourmet"
+    ],
+    "suggestedName": "Single Origin Dark Chocolate",
+    "suggestedBrand": "CocoaCraft",
+    "alt": "Hand holding an artisanal chocolate bar with unique design",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-6036360",
+    "pexelsId": 6036360,
+    "url": "https://images.pexels.com/photos/6036360/pexels-photo-6036360.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "chocolate-snacks",
+    "tags": [
+      "chocolate",
+      "dark",
+      "pieces",
+      "premium",
+      "baking"
+    ],
+    "suggestedName": "Premium Dark Chocolate Pieces",
+    "suggestedBrand": "CocoaCraft",
+    "alt": "Close-up of broken dark chocolate pieces scattered across a smooth white surface",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-4110088",
+    "pexelsId": 4110088,
+    "url": "https://images.pexels.com/photos/4110088/pexels-photo-4110088.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "chocolate-snacks",
+    "tags": [
+      "chocolate",
+      "milk",
+      "dark",
+      "bars",
+      "snack",
+      "gourmet"
+    ],
+    "suggestedName": "Milk & Dark Chocolate Bar Set",
+    "suggestedBrand": "CocoaCraft",
+    "alt": "Milk and dark chocolate bars with shavings spread on a white surface",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-6287286",
+    "pexelsId": 6287286,
+    "url": "https://images.pexels.com/photos/6287286/pexels-photo-6287286.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "pasta",
+    "tags": [
+      "pasta",
+      "farfalle",
+      "penne",
+      "spaghetti",
+      "Italian",
+      "dry"
+    ],
+    "suggestedName": "Italian Pasta Variety Pack",
+    "suggestedBrand": "PastaCraft",
+    "alt": "Italian uncooked farfalle penne and spaghetti made with traditional dough recipe",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-6287356",
+    "pexelsId": 6287356,
+    "url": "https://images.pexels.com/photos/6287356/pexels-photo-6287356.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "pasta",
+    "tags": [
+      "pasta",
+      "fusilli",
+      "spaghetti",
+      "Italian",
+      "artisan"
+    ],
+    "suggestedName": "Artisan Fusilli & Spaghetti",
+    "suggestedBrand": "PastaCraft",
+    "alt": "Closeup of fusilli and spaghetti placed on wooden board",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-6287282",
+    "pexelsId": 6287282,
+    "url": "https://images.pexels.com/photos/6287282/pexels-photo-6287282.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "pasta",
+    "tags": [
+      "pasta",
+      "fusilli",
+      "dried",
+      "Italian",
+      "traditional"
+    ],
+    "suggestedName": "Traditional Dried Fusilli",
+    "suggestedBrand": "PastaCraft",
+    "alt": "Closeup of fresh dried yellow fusilli pasta made with traditional Italian dough recipe",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-4039713",
+    "pexelsId": 4039713,
+    "url": "https://images.pexels.com/photos/4039713/pexels-photo-4039713.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "pasta",
+    "tags": [
+      "pasta",
+      "farfalle",
+      "bow tie",
+      "Italian",
+      "dry"
+    ],
+    "suggestedName": "Farfalle Bow Tie Pasta",
+    "suggestedBrand": "PastaCraft",
+    "alt": "Close-up of uncooked farfalle pasta on a white surface",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-33315800",
+    "pexelsId": 33315800,
+    "url": "https://images.pexels.com/photos/33315800/pexels-photo-33315800.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "craft-beverages",
+    "tags": [
+      "beer",
+      "craft",
+      "bottles",
+      "selection",
+      "artisan",
+      "natural"
+    ],
+    "suggestedName": "Craft Beer Selection Pack",
+    "suggestedBrand": "AlpineBrew",
+    "alt": "A selection of colorful craft beer bottles displayed on a shelf",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-24770140",
+    "pexelsId": 24770140,
+    "url": "https://images.pexels.com/photos/24770140/pexels-photo-24770140.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "craft-beverages",
+    "tags": [
+      "beer",
+      "craft",
+      "bottles",
+      "dark",
+      "premium"
+    ],
+    "suggestedName": "Premium Dark Craft Ale Duo",
+    "suggestedBrand": "AlpineBrew",
+    "alt": "Two craft beer bottles placed against a dark background",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-34531951",
+    "pexelsId": 34531951,
+    "url": "https://images.pexels.com/photos/34531951/pexels-photo-34531951.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "craft-beverages",
+    "tags": [
+      "beer",
+      "pale ale",
+      "craft",
+      "bottle",
+      "glass"
+    ],
+    "suggestedName": "Welsh Pale Ale",
+    "suggestedBrand": "AlpineBrew",
+    "alt": "Product shot of pale ale featuring a bottle and glass on a wood surface",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-7220286",
+    "pexelsId": 7220286,
+    "url": "https://images.pexels.com/photos/7220286/pexels-photo-7220286.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "craft-beverages",
+    "tags": [
+      "beer",
+      "craft",
+      "citrus",
+      "orange",
+      "refreshing"
+    ],
+    "suggestedName": "Citrus Wheat Craft Beer",
+    "suggestedBrand": "AlpineBrew",
+    "alt": "Craft beer in a bottle and glass with fresh oranges in a rustic setting",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-1656663",
+    "pexelsId": 1656663,
+    "url": "https://images.pexels.com/photos/1656663/pexels-photo-1656663.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "fresh-produce",
+    "tags": [
+      "vegetables",
+      "carrots",
+      "radishes",
+      "fresh",
+      "organic",
+      "market"
+    ],
+    "suggestedName": "Fresh Organic Root Vegetables",
+    "suggestedBrand": "FarmFresh",
+    "alt": "A vibrant display of fresh carrots, radishes, and greens at a local outdoor market",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-32495172",
+    "pexelsId": 32495172,
+    "url": "https://images.pexels.com/photos/32495172/pexels-photo-32495172.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "fresh-produce",
+    "tags": [
+      "tomatoes",
+      "cucumbers",
+      "fresh",
+      "organic",
+      "market",
+      "vegetables"
+    ],
+    "suggestedName": "Vine-Ripened Tomatoes & Cucumbers",
+    "suggestedBrand": "FarmFresh",
+    "alt": "Vibrant tomatoes and cucumbers on display at a local market",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-2893525",
+    "pexelsId": 2893525,
+    "url": "https://images.pexels.com/photos/2893525/pexels-photo-2893525.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "fresh-produce",
+    "tags": [
+      "peppers",
+      "bell pepper",
+      "chili",
+      "fresh",
+      "organic",
+      "vegetables"
+    ],
+    "suggestedName": "Fresh Bell & Chili Pepper Mix",
+    "suggestedBrand": "FarmFresh",
+    "alt": "Close-up of fresh green bell peppers and chili peppers",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-5273080",
+    "pexelsId": 5273080,
+    "url": "https://images.pexels.com/photos/5273080/pexels-photo-5273080.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "fresh-produce",
+    "tags": [
+      "vegetables",
+      "assorted",
+      "fresh",
+      "organic",
+      "market",
+      "variety"
+    ],
+    "suggestedName": "Seasonal Vegetable Box",
+    "suggestedBrand": "FarmFresh",
+    "alt": "Various vegetables including pepper beets cabbage tomatoes greens potato zucchini and carrot",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-9814625",
+    "pexelsId": 9814625,
+    "url": "https://images.pexels.com/photos/9814625/pexels-photo-9814625.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "pantry",
+    "tags": [
+      "olive oil",
+      "extra virgin",
+      "bottle",
+      "premium",
+      "organic",
+      "natural"
+    ],
+    "suggestedName": "Extra Virgin Olive Oil",
+    "suggestedBrand": "GroveGold",
+    "alt": "Elegant bottle of olive oil with scattered olive branches and seeds",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-9814618",
+    "pexelsId": 9814618,
+    "url": "https://images.pexels.com/photos/9814618/pexels-photo-9814618.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "pantry",
+    "tags": [
+      "olive oil",
+      "bottle",
+      "olives",
+      "gourmet",
+      "natural",
+      "fresh"
+    ],
+    "suggestedName": "Cold Pressed Olive Oil",
+    "suggestedBrand": "GroveGold",
+    "alt": "A high-quality olive oil bottle with olives and a spoon",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-30327171",
+    "pexelsId": 30327171,
+    "url": "https://images.pexels.com/photos/30327171/pexels-photo-30327171.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "kitchen-knives",
+    "tags": [
+      "knife",
+      "kitchen",
+      "chef",
+      "stainless steel",
+      "cooking",
+      "fresh"
+    ],
+    "suggestedName": "Professional Chef's Knife",
+    "suggestedBrand": "EdgeCraft",
+    "alt": "Silver knife on a reflective wet surface with a deep blue background",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-7604430",
+    "pexelsId": 7604430,
+    "url": "https://images.pexels.com/photos/7604430/pexels-photo-7604430.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "kitchen-knives",
+    "tags": [
+      "knife",
+      "chef",
+      "wooden board",
+      "kitchen",
+      "artisan",
+      "cooking"
+    ],
+    "suggestedName": "Artisan Chef's Knife",
+    "suggestedBrand": "EdgeCraft",
+    "alt": "A beautifully crafted chef's knife placed on a wooden board with rustic ropes",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-32808760",
+    "pexelsId": 32808760,
+    "url": "https://images.pexels.com/photos/32808760/pexels-photo-32808760.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "kitchen-knives",
+    "tags": [
+      "knife",
+      "santoku",
+      "kitchen",
+      "Japanese",
+      "cooking",
+      "natural"
+    ],
+    "suggestedName": "Japanese Santoku Knife",
+    "suggestedBrand": "EdgeCraft",
+    "alt": "High-quality Santoku knife displayed on a textured wooden board",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-7415264",
+    "pexelsId": 7415264,
+    "url": "https://images.pexels.com/photos/7415264/pexels-photo-7415264.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cutting-boards",
+    "tags": [
+      "cutting board",
+      "bamboo",
+      "kitchen",
+      "natural",
+      "organic",
+      "cooking"
+    ],
+    "suggestedName": "Natural Bamboo Cutting Board",
+    "suggestedBrand": "EdgeCraft",
+    "alt": "Close-up of a natural bamboo cutting board on a textured wooden surface",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-7251861",
+    "pexelsId": 7251861,
+    "url": "https://images.pexels.com/photos/7251861/pexels-photo-7251861.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cutting-boards",
+    "tags": [
+      "cutting board",
+      "wooden",
+      "knife",
+      "kitchen",
+      "cooking",
+      "fresh"
+    ],
+    "suggestedName": "Classic Wooden Cutting Board",
+    "suggestedBrand": "EdgeCraft",
+    "alt": "Close-up of a knife on a wooden cutting board with green onions",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-5758784",
+    "pexelsId": 5758784,
+    "url": "https://images.pexels.com/photos/5758784/pexels-photo-5758784.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cutting-boards",
+    "tags": [
+      "cutting board",
+      "wooden",
+      "beets",
+      "kitchen",
+      "prep",
+      "natural"
+    ],
+    "suggestedName": "Premium Hardwood Prep Board",
+    "suggestedBrand": "EdgeCraft",
+    "alt": "Chioggia beets with distinct rings on a wooden cutting board, knife beside",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-4778348",
+    "pexelsId": 4778348,
+    "url": "https://images.pexels.com/photos/4778348/pexels-photo-4778348.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "storage-containers",
+    "tags": [
+      "storage",
+      "glass jars",
+      "kitchen",
+      "pantry",
+      "organic",
+      "natural"
+    ],
+    "suggestedName": "Glass Pantry Storage Jar Set",
+    "suggestedBrand": "FreshKeep",
+    "alt": "Glass jars filled with nuts, rice, and beans in a kitchen setting",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-3735163",
+    "pexelsId": 3735163,
+    "url": "https://images.pexels.com/photos/3735163/pexels-photo-3735163.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "storage-containers",
+    "tags": [
+      "storage",
+      "dispensers",
+      "cereals",
+      "bulk",
+      "eco-friendly",
+      "natural"
+    ],
+    "suggestedName": "Bulk Cereal Dispensers",
+    "suggestedBrand": "FreshKeep",
+    "alt": "Transparent dispensers with cereals and nuts in an eco-friendly store setting",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-8580727",
+    "pexelsId": 8580727,
+    "url": "https://images.pexels.com/photos/8580727/pexels-photo-8580727.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "storage-containers",
+    "tags": [
+      "storage",
+      "pantry",
+      "glass jars",
+      "organized",
+      "kitchen",
+      "fresh"
+    ],
+    "suggestedName": "Airtight Pantry Container Set",
+    "suggestedBrand": "FreshKeep",
+    "alt": "Neatly arranged pantry showcasing grains in glass jars and dry goods in containers",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-31110009",
+    "pexelsId": 31110009,
+    "url": "https://images.pexels.com/photos/31110009/pexels-photo-31110009.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cookware",
+    "tags": [
+      "cookware",
+      "pots",
+      "pans",
+      "stainless steel",
+      "kitchen",
+      "fresh vegetables"
+    ],
+    "suggestedName": "Stainless Steel Cookware Set",
+    "suggestedBrand": "IronHearth",
+    "alt": "High-quality stainless steel pots and pans with fresh vegetables on a bright blue background",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-30981356",
+    "pexelsId": 30981356,
+    "url": "https://images.pexels.com/photos/30981356/pexels-photo-30981356.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cookware",
+    "tags": [
+      "cookware",
+      "pots",
+      "stainless steel",
+      "kitchen",
+      "premium"
+    ],
+    "suggestedName": "Premium Stainless Steel Pot Set",
+    "suggestedBrand": "IronHearth",
+    "alt": "Stylish kitchen setup featuring stainless steel pots and kitchen accessories",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-31110049",
+    "pexelsId": 31110049,
+    "url": "https://images.pexels.com/photos/31110049/pexels-photo-31110049.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cookware",
+    "tags": [
+      "cookware",
+      "set",
+      "cutting board",
+      "kitchen",
+      "vegetables",
+      "natural"
+    ],
+    "suggestedName": "Complete Kitchen Cookware Bundle",
+    "suggestedBrand": "IronHearth",
+    "alt": "Premium stainless steel cookware set with wooden cutting board and vegetables",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-36186523",
+    "pexelsId": 36186523,
+    "url": "https://images.pexels.com/photos/36186523/pexels-photo-36186523.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "pet-food",
+    "tags": [
+      "pet food",
+      "dog food",
+      "kibble",
+      "organic",
+      "natural",
+      "fresh"
+    ],
+    "suggestedName": "Premium Organic Dog Food",
+    "suggestedBrand": "PawNatural",
+    "alt": "A detailed macro shot of scattered dog food pellets",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-8434633",
+    "pexelsId": 8434633,
+    "url": "https://images.pexels.com/photos/8434633/pexels-photo-8434633.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "pet-food",
+    "tags": [
+      "pet food",
+      "dog treats",
+      "bowl",
+      "natural",
+      "fresh",
+      "organic"
+    ],
+    "suggestedName": "Natural Dog Treat Bites",
+    "suggestedBrand": "PawNatural",
+    "alt": "A stainless steel dog bowl filled with dry dog treats on a wooden floor",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-12928245",
+    "pexelsId": 12928245,
+    "url": "https://images.pexels.com/photos/12928245/pexels-photo-12928245.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "pet-food",
+    "tags": [
+      "pet food",
+      "dog food",
+      "bowl",
+      "fresh",
+      "natural",
+      "organic"
+    ],
+    "suggestedName": "Fresh Blend Dog Food",
+    "suggestedBrand": "PawNatural",
+    "alt": "Studio shot of a blue bowl filled with brown pet food pellets",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-5217888",
+    "pexelsId": 5217888,
+    "url": "https://images.pexels.com/photos/5217888/pexels-photo-5217888.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cleaning-supplies",
+    "tags": [
+      "cleaning",
+      "detergent",
+      "bottles",
+      "natural",
+      "fresh",
+      "organic"
+    ],
+    "suggestedName": "All-Natural Cleaning Set",
+    "suggestedBrand": "PureClean",
+    "alt": "Collection of colorful bottles of detergent and cleaning supplies",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-4440525",
+    "pexelsId": 4440525,
+    "url": "https://images.pexels.com/photos/4440525/pexels-photo-4440525.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cleaning-supplies",
+    "tags": [
+      "cleaning",
+      "supplies",
+      "household",
+      "fresh",
+      "natural",
+      "organic"
+    ],
+    "suggestedName": "Essential Cleaning Supply Kit",
+    "suggestedBrand": "PureClean",
+    "alt": "A flat lay of assorted cleaning supplies",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-4099258",
+    "pexelsId": 4099258,
+    "url": "https://images.pexels.com/photos/4099258/pexels-photo-4099258.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cleaning-supplies",
+    "tags": [
+      "cleaning",
+      "wipe",
+      "surface",
+      "fresh",
+      "natural",
+      "organic"
+    ],
+    "suggestedName": "Surface Cleaning Wipes",
+    "suggestedBrand": "PureClean",
+    "alt": "A hand wearing a blue glove wipes a surface with a cloth",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-9507245",
+    "pexelsId": 9507245,
+    "url": "https://images.pexels.com/photos/9507245/pexels-photo-9507245.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "garden-tools",
+    "tags": [
+      "garden",
+      "tools",
+      "outdoor",
+      "natural",
+      "fresh",
+      "organic"
+    ],
+    "suggestedName": "Complete Garden Tool Set",
+    "suggestedBrand": "GreenThumb",
+    "alt": "Flat lay of modern and vintage gardening tools on wood surface",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-6231726",
+    "pexelsId": 6231726,
+    "url": "https://images.pexels.com/photos/6231726/pexels-photo-6231726.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "garden-tools",
+    "tags": [
+      "garden",
+      "scissors",
+      "shovels",
+      "tools",
+      "natural",
+      "fresh",
+      "organic"
+    ],
+    "suggestedName": "Garden Pruning & Digging Kit",
+    "suggestedBrand": "GreenThumb",
+    "alt": "Top view of scissors secateurs shovels and tools for loosening soil",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-3971211",
+    "pexelsId": 3971211,
+    "url": "https://images.pexels.com/photos/3971211/pexels-photo-3971211.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "garden-tools",
+    "tags": [
+      "garden",
+      "tools",
+      "hanging",
+      "rustic",
+      "natural",
+      "organic",
+      "fresh"
+    ],
+    "suggestedName": "Rustic Garden Hand Tools",
+    "suggestedBrand": "GreenThumb",
+    "alt": "Neatly arranged garden tools hanging on a rustic wooden wall",
+    "isNoise": true
+  }
+]

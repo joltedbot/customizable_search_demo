@@ -76,12 +76,12 @@ Open `SETUP.md` and fill in the `## Customer Config` section before running the 
 | `README.md` | This file |
 | `SETUP.md` | AI execution script — run this with your AI agent |
 | `template/index.html` | Base demo template the AI customizes |
-| `image-library.md` | Curated product image URLs organized by category |
+| `image-library/` | Pre-curated Pexels image sets (one JSON per industry) |
 | `package.json` | npm scripts: `validate`, `dev`, `setup`, `reset` (v2 mode) |
 | `.env.template` | Credentials template — copy to `.env` and fill in (v2 mode) |
 | `scripts/validate-env.js` | Pre-flight check: validates all `.env` credentials before setup (v2 mode) |
-| `scripts/setup-index.js` | Creates the ES index, deploys ELSER, seeds 75 products (v2 mode) |
-| `scripts/data/products.json` | Canonical 75-product athletic/retail dataset (v2 mode) |
+| `scripts/setup-index.js` | Creates the ES index, deploys ELSER, seeds products (v2 mode) |
+| `scripts/data/products.json` | 46-product sporting goods dataset (v2 mode) |
 
 ---
 
@@ -94,17 +94,43 @@ Open `SETUP.md` and fill in the `## Customer Config` section before running the 
 
 ---
 
-## Demo Flow (During a Customer Presentation)
+## Demo Query Guide
 
-1. Open `demo.html` in a browser — full screen looks best
-2. Select a persona from the header (shows "Shopping as: [Name]")
-3. Type the **Lexical query** → show poor results, explain why
-4. Type the **Hybrid query** → show improved relevance, explain semantic search
-5. Switch persona → type the **LTR query** → show personalized results + cross-sell
-6. Type the **GenAI query** → show curated kit + use the chat box for a live follow-up
-7. Click "Add all to cart" to close the loop
+The demo tells a story in four acts: **same query, progressively better results**. The key move is using the **same query** for Lexical and Hybrid — the audience sees identical input produce dramatically different output.
 
-All queries are scripted and printed in the demo file's HTML comments so you can reference them.
+### Story arc
+
+1. **Lexical** — Type a broad, natural query (e.g., `outdoor gear`). Results are noise: wrong-category products that happen to keyword-match. Point out how keyword search fails for natural language.
+2. **Hybrid** — Type the **exact same query**. Results flip to relevant products. Explain how semantic search understands intent, not just keywords.
+3. **LTR** — Switch persona, type a personalization query (e.g., `gear for me`). Results are tailored to that persona's brands, gender, and purchase history. Switch personas again to show different results.
+4. **GenAI** — Type a kit-building query (e.g., `complete training kit`). Show the curated product bundle + use the chat box for a live follow-up question.
+
+### Recommended queries by category
+
+| Category | Lexical + Hybrid | LTR | GenAI |
+|---|---|---|---|
+| Sporting Goods | `outdoor gear` | `gear for me` | `complete training kit` |
+| Consumer Electronics | `smart devices` | `tech for me` | `complete home office setup` |
+| Clothing & Fashion | `everyday wear` | `style for me` | `complete summer outfit` |
+| Groceries & Food | `kitchen essentials` | `picks for me` | `complete dinner party menu` |
+
+### Key products to ad-lib with
+
+When the audience asks "what else can I search for?", these work well for live demos:
+
+| Category | Real products (Hybrid/LTR) | Noise products (Lexical) |
+|---|---|---|
+| Sporting Goods | running shoes, dumbbells, tennis rackets, cycling helmets, boxing gloves, yoga mats, backpacks, sunglasses | racing helmets, saddles, fishing rods, RC trucks |
+| Consumer Electronics | laptops, headphones, earbuds, smartwatches, speakers, monitors, keyboards, mice | toasters, digital pianos, car stereos |
+| Clothing & Fashion | shirts, sneakers, jackets, dresses, sunglasses, watches, bags, hats | fabric bolts, sewing kits, costumes |
+| Groceries & Food | coffee, bread, cheese, chocolate, pasta, craft beer, produce, olive oil | dog food, cleaning supplies, garden tools |
+
+### Presentation tips
+
+- Open `demo.html` full screen for best visual impact
+- Select a persona from the header before starting (shows "Shopping as: [Name]")
+- After the LTR demo, click "Add all to cart" to close the loop
+- The console cheat sheet (open DevTools) lists all demo queries for quick reference
 
 ---
 
@@ -113,11 +139,11 @@ All queries are scripted and printed in the demo file's HTML comments so you can
 The demo ships with a complete v2 Elasticsearch integration. Mock mode is the default — v2 is enabled by setting `V2_ENABLED = true` and injecting credentials into the output HTML.
 
 **What v2 adds:**
-- Lexical mode → BM25 on `name`/`brand` fields, filtered to noise products (guaranteed wrong results)
+- Lexical mode → BM25 on `name`/`brand` fields, no filtering (noise surfaces naturally for broad queries)
 - Hybrid mode → ELSER semantic + BM25 combined, filtered to real products
 - LTR mode → Hybrid base + `function_score` boosting on persona `preferredBrands`, `gender`, and `purchaseHistory`
 - GenAI chat → Live responses via Elastic inference API (Claude, Bedrock, Azure OpenAI, etc.)
 
-**Index:** 75 athletic/retail products — 65 real + 10 deliberately wrong-category noise products for the lexical failure demo. ELSER embeddings on the `description.semantic` field power hybrid and LTR modes.
+**Index:** 46 sporting goods products — 36 real + 10 wrong-category noise products (surface naturally in broad lexical queries). ELSER embeddings on the `description.semantic` field power hybrid and LTR modes.
 
 See `SETUP.md` → **v2 Mode** for full setup instructions.

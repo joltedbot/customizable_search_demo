@@ -1,0 +1,840 @@
+[
+  {
+    "id": "pexels-6540973",
+    "pexelsId": 6540973,
+    "url": "https://images.pexels.com/photos/6540973/pexels-photo-6540973.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "running-shoes",
+    "tags": [
+      "running",
+      "shoes",
+      "sneakers",
+      "athletic",
+      "training",
+      "footwear"
+    ],
+    "suggestedName": "CloudStrike Running Shoe",
+    "suggestedBrand": "Nike",
+    "alt": "Stylish white athletic sneaker with red accents on a textured white fabric background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-6748268",
+    "pexelsId": 6748268,
+    "url": "https://images.pexels.com/photos/6748268/pexels-photo-6748268.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "running-shoes",
+    "tags": [
+      "running",
+      "shoes",
+      "sneakers",
+      "athletic",
+      "performance",
+      "footwear"
+    ],
+    "suggestedName": "AeroGlide Performance Runner",
+    "suggestedBrand": "Adidas",
+    "alt": "Pair of vibrant sneakers on a structured concrete surface offers dynamic visual appeal.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-2529148",
+    "pexelsId": 2529148,
+    "url": "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "running-shoes",
+    "tags": [
+      "running",
+      "shoes",
+      "sneakers",
+      "lightweight",
+      "training",
+      "footwear"
+    ],
+    "suggestedName": "FlexMotion Trail Runner",
+    "suggestedBrand": "TrailTech",
+    "alt": "Floating modern sneakers showcasing trendy design and vibrant colors.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-1456733",
+    "pexelsId": 1456733,
+    "url": "https://images.pexels.com/photos/1456733/pexels-photo-1456733.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "running-shoes",
+    "tags": [
+      "running",
+      "shoes",
+      "sneakers",
+      "minimalist",
+      "casual",
+      "footwear"
+    ],
+    "suggestedName": "PureStep Everyday Trainer",
+    "suggestedBrand": "New Balance",
+    "alt": "Pair of sleek white sneakers displayed on a subtle white backdrop.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-16947118",
+    "pexelsId": 16947118,
+    "url": "https://images.pexels.com/photos/16947118/pexels-photo-16947118.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "running-shoes",
+    "tags": [
+      "running",
+      "shoes",
+      "sneakers",
+      "athletic",
+      "sport",
+      "footwear"
+    ],
+    "suggestedName": "VelocityMax Racing Flat",
+    "suggestedBrand": "Puma",
+    "alt": "Stylish white sports shoe with extended laces floating, set against a blue backdrop.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-6550843",
+    "pexelsId": 6550843,
+    "url": "https://images.pexels.com/photos/6550843/pexels-photo-6550843.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "dumbbells",
+    "tags": [
+      "dumbbell",
+      "weights",
+      "strength",
+      "training",
+      "gym",
+      "fitness"
+    ],
+    "suggestedName": "HexGrip Pro Dumbbell 25lb",
+    "suggestedBrand": "IronForge",
+    "alt": "Close-up of a hex dumbbell on a wooden gym floor, ideal for weightlifting and strength training.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-669580",
+    "pexelsId": 669580,
+    "url": "https://images.pexels.com/photos/669580/pexels-photo-669580.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "dumbbells",
+    "tags": [
+      "dumbbell",
+      "weights",
+      "strength",
+      "iron",
+      "gym",
+      "fitness"
+    ],
+    "suggestedName": "Classic Iron Dumbbell Set",
+    "suggestedBrand": "Rogue",
+    "alt": "Close-up of two iron dumbbells on a gray background, perfect for strength training images.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-8032962",
+    "pexelsId": 8032962,
+    "url": "https://images.pexels.com/photos/8032962/pexels-photo-8032962.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "dumbbells",
+    "tags": [
+      "dumbbell",
+      "weights",
+      "strength",
+      "workout",
+      "gym",
+      "fitness"
+    ],
+    "suggestedName": "PowerLift Rubber Dumbbell 30lb",
+    "suggestedBrand": "Bowflex",
+    "alt": "Detailed view of a black dumbbell on textured mat for fitness workout.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-3931367",
+    "pexelsId": 3931367,
+    "url": "https://images.pexels.com/photos/3931367/pexels-photo-3931367.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "dumbbells",
+    "tags": [
+      "dumbbell",
+      "weights",
+      "hex",
+      "strength",
+      "gym",
+      "fitness"
+    ],
+    "suggestedName": "HexCore Training Dumbbell 40lb",
+    "suggestedBrand": "IronForge",
+    "alt": "Close-up view of two black hex dumbbells on a gym floor, perfect for fitness content.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-10667388",
+    "pexelsId": 10667388,
+    "url": "https://images.pexels.com/photos/10667388/pexels-photo-10667388.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "tennis-rackets",
+    "tags": [
+      "tennis",
+      "racket",
+      "court",
+      "sport",
+      "equipment",
+      "racquet"
+    ],
+    "suggestedName": "ProSpin Tour Racket",
+    "suggestedBrand": "Wilson",
+    "alt": "A high-quality tennis racket placed on a blue tennis court under sunlight.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-13710137",
+    "pexelsId": 13710137,
+    "url": "https://images.pexels.com/photos/13710137/pexels-photo-13710137.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "tennis-rackets",
+    "tags": [
+      "tennis",
+      "racket",
+      "ball",
+      "court",
+      "sport",
+      "racquet"
+    ],
+    "suggestedName": "AceStrike Competition Racket",
+    "suggestedBrand": "Head",
+    "alt": "Close-up of a blue tennis racket and ball on an indoor clay court, perfect for sports imagery.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-14629572",
+    "pexelsId": 14629572,
+    "url": "https://images.pexels.com/photos/14629572/pexels-photo-14629572.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "tennis-rackets",
+    "tags": [
+      "tennis",
+      "racket",
+      "balls",
+      "court",
+      "sport",
+      "equipment"
+    ],
+    "suggestedName": "PowerDrive 300 Racket",
+    "suggestedBrand": "Babolat",
+    "alt": "Tennis racket and three balls on a vibrant blue court.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-36156260",
+    "pexelsId": 36156260,
+    "url": "https://images.pexels.com/photos/36156260/pexels-photo-36156260.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "tennis-rackets",
+    "tags": [
+      "tennis",
+      "racket",
+      "studio",
+      "sport",
+      "equipment",
+      "racquet"
+    ],
+    "suggestedName": "NetMaster Pro Racket",
+    "suggestedBrand": "Wilson",
+    "alt": "Close-up of a tennis racket with Artengo tennis balls in a studio setting.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-19351994",
+    "pexelsId": 19351994,
+    "url": "https://images.pexels.com/photos/19351994/pexels-photo-19351994.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cycling-helmets",
+    "tags": [
+      "cycling",
+      "helmet",
+      "bicycle",
+      "safety",
+      "sport",
+      "road"
+    ],
+    "suggestedName": "AeroShield Road Helmet",
+    "suggestedBrand": "Giro",
+    "alt": "Minimalist black cycling helmet with modern design and shadow play.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-19351995",
+    "pexelsId": 19351995,
+    "url": "https://images.pexels.com/photos/19351995/pexels-photo-19351995.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cycling-helmets",
+    "tags": [
+      "cycling",
+      "helmet",
+      "bicycle",
+      "safety",
+      "sport",
+      "performance"
+    ],
+    "suggestedName": "VentFlow Pro Cycling Helmet",
+    "suggestedBrand": "POC",
+    "alt": "Close-up of a POC cycling helmet showcasing modern design and sleek aesthetics.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-19351991",
+    "pexelsId": 19351991,
+    "url": "https://images.pexels.com/photos/19351991/pexels-photo-19351991.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cycling-helmets",
+    "tags": [
+      "cycling",
+      "helmet",
+      "bicycle",
+      "safety",
+      "commuter",
+      "urban"
+    ],
+    "suggestedName": "UrbanRide Commuter Helmet",
+    "suggestedBrand": "POC",
+    "alt": "Close-up of a modern POC cycling helmet, ideal for safety and style.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-19351993",
+    "pexelsId": 19351993,
+    "url": "https://images.pexels.com/photos/19351993/pexels-photo-19351993.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "cycling-helmets",
+    "tags": [
+      "cycling",
+      "helmet",
+      "bicycle",
+      "safety",
+      "sport",
+      "mountain"
+    ],
+    "suggestedName": "TrailGuard MTB Helmet",
+    "suggestedBrand": "Bell",
+    "alt": "Detailed shot of a POC cycling helmet showcasing design and branding.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-9945036",
+    "pexelsId": 9945036,
+    "url": "https://images.pexels.com/photos/9945036/pexels-photo-9945036.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "boxing-gloves",
+    "tags": [
+      "boxing",
+      "gloves",
+      "combat",
+      "training",
+      "fitness",
+      "sport"
+    ],
+    "suggestedName": "StrikeForce Pro Boxing Gloves 12oz",
+    "suggestedBrand": "Everlast",
+    "alt": "Red boxing gloves resting on a radiator against a textured wall, symbolizing strength and endurance.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-6456153",
+    "pexelsId": 6456153,
+    "url": "https://images.pexels.com/photos/6456153/pexels-photo-6456153.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "boxing-gloves",
+    "tags": [
+      "boxing",
+      "gloves",
+      "training",
+      "workout",
+      "fitness",
+      "sport"
+    ],
+    "suggestedName": "FitBox Training Gloves 10oz",
+    "suggestedBrand": "Venum",
+    "alt": "Overhead shot of pink boxing gloves on black gym mat. Ideal for fitness and sports concepts.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-7991941",
+    "pexelsId": 7991941,
+    "url": "https://images.pexels.com/photos/7991941/pexels-photo-7991941.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "boxing-gloves",
+    "tags": [
+      "boxing",
+      "gloves",
+      "sparring",
+      "combat",
+      "gym",
+      "sport"
+    ],
+    "suggestedName": "TitanGrip Sparring Gloves 14oz",
+    "suggestedBrand": "Ringside",
+    "alt": "Pair of yellow and black boxing gloves resting on a gym floor.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-6296108",
+    "pexelsId": 6296108,
+    "url": "https://images.pexels.com/photos/6296108/pexels-photo-6296108.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "boxing-gloves",
+    "tags": [
+      "boxing",
+      "gloves",
+      "premium",
+      "training",
+      "fitness",
+      "sport"
+    ],
+    "suggestedName": "EliteStrike Premium Gloves 16oz",
+    "suggestedBrand": "Everlast",
+    "alt": "White and gold boxing gloves resting elegantly on a black surface, highlighting their premium quality.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-5864625",
+    "pexelsId": 5864625,
+    "url": "https://images.pexels.com/photos/5864625/pexels-photo-5864625.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "water-bottles",
+    "tags": [
+      "water bottle",
+      "hydration",
+      "fitness",
+      "sport",
+      "training",
+      "accessory"
+    ],
+    "suggestedName": "PureFlow Insulated Sport Bottle",
+    "suggestedBrand": "HydroFlask",
+    "alt": "High-quality Antipodes water bottles with natural backdrop, showcasing brand elegance.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-593099",
+    "pexelsId": 593099,
+    "url": "https://images.pexels.com/photos/593099/pexels-photo-593099.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "water-bottles",
+    "tags": [
+      "water bottle",
+      "hydration",
+      "fitness",
+      "sport",
+      "gym",
+      "accessory"
+    ],
+    "suggestedName": "CrystalClear Sport Water Bottle",
+    "suggestedBrand": "Nalgene",
+    "alt": "Detailed view of an Aqua Carpatica water bottle with droplets and blurred background.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-1342529",
+    "pexelsId": 1342529,
+    "url": "https://images.pexels.com/photos/1342529/pexels-photo-1342529.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "water-bottles",
+    "tags": [
+      "water bottle",
+      "hydration",
+      "outdoor",
+      "hiking",
+      "sport",
+      "accessory"
+    ],
+    "suggestedName": "TrailSip Outdoor Water Bottle",
+    "suggestedBrand": "CamelBak",
+    "alt": "Close-up of a purple water bottle on rocky ground, perfect for outdoor adventures.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-4325462",
+    "pexelsId": 4325462,
+    "url": "https://images.pexels.com/photos/4325462/pexels-photo-4325462.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "yoga-mats",
+    "tags": [
+      "yoga mat",
+      "yoga",
+      "fitness",
+      "training",
+      "exercise",
+      "accessory"
+    ],
+    "suggestedName": "ZenGrip Premium Yoga Mat",
+    "suggestedBrand": "Manduka",
+    "alt": "Close-up view of black yoga mats rolled and stacked in a wooden basket indoors.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-4327014",
+    "pexelsId": 4327014,
+    "url": "https://images.pexels.com/photos/4327014/pexels-photo-4327014.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "yoga-mats",
+    "tags": [
+      "yoga mat",
+      "yoga",
+      "fitness",
+      "studio",
+      "exercise",
+      "accessory"
+    ],
+    "suggestedName": "FlowForm Studio Yoga Mat",
+    "suggestedBrand": "Liforme",
+    "alt": "Close-up of a hand selecting a yoga mat from a basket in a yoga studio.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-4325439",
+    "pexelsId": 4325439,
+    "url": "https://images.pexels.com/photos/4325439/pexels-photo-4325439.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "yoga-mats",
+    "tags": [
+      "yoga mat",
+      "yoga",
+      "pilates",
+      "fitness",
+      "exercise",
+      "accessory"
+    ],
+    "suggestedName": "EcoFlex Travel Yoga Mat",
+    "suggestedBrand": "Gaiam",
+    "alt": "Close-up of rolled yoga mats in a basket at a fitness studio, ideal for yoga or pilates.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-6207519",
+    "pexelsId": 6207519,
+    "url": "https://images.pexels.com/photos/6207519/pexels-photo-6207519.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "foam-rollers",
+    "tags": [
+      "foam roller",
+      "recovery",
+      "muscle",
+      "fitness",
+      "training",
+      "accessory"
+    ],
+    "suggestedName": "DeepRelief Textured Foam Roller",
+    "suggestedBrand": "TriggerPoint",
+    "alt": "Close-up of a black textured foam roller on a metallic gym stand, emphasizing fitness equipment.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-16513603",
+    "pexelsId": 16513603,
+    "url": "https://images.pexels.com/photos/16513603/pexels-photo-16513603.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "foam-rollers",
+    "tags": [
+      "foam roller",
+      "recovery",
+      "muscle",
+      "gym",
+      "fitness",
+      "accessory"
+    ],
+    "suggestedName": "ProRoll Muscle Recovery Roller",
+    "suggestedBrand": "OPTP",
+    "alt": "A blue muscle roller sits on a bench in a contemporary gym, highlighting fitness equipment.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-7318797",
+    "pexelsId": 7318797,
+    "url": "https://images.pexels.com/photos/7318797/pexels-photo-7318797.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "foam-rollers",
+    "tags": [
+      "foam roller",
+      "recovery",
+      "stretching",
+      "fitness",
+      "gym",
+      "accessory"
+    ],
+    "suggestedName": "FlexZone Density Foam Roller Set",
+    "suggestedBrand": "TriggerPoint",
+    "alt": "A neatly organized vertical stack of foam rollers mounted on a wall, ideal for fitness enthusiasts.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-8266907",
+    "pexelsId": 8266907,
+    "url": "https://images.pexels.com/photos/8266907/pexels-photo-8266907.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "backpacks",
+    "tags": [
+      "backpack",
+      "outdoor",
+      "hiking",
+      "travel",
+      "sport",
+      "accessory"
+    ],
+    "suggestedName": "SummitPack 40L Daypack",
+    "suggestedBrand": "Osprey",
+    "alt": "Maroon backpack with leather straps against a rustic log stack backdrop. Ideal for travel and adventure.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-3731256",
+    "pexelsId": 3731256,
+    "url": "https://images.pexels.com/photos/3731256/pexels-photo-3731256.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "backpacks",
+    "tags": [
+      "backpack",
+      "gym",
+      "training",
+      "sport",
+      "urban",
+      "accessory"
+    ],
+    "suggestedName": "UrbanFit Gym Backpack",
+    "suggestedBrand": "Under Armour",
+    "alt": "A simple black backpack being held by a hand against a minimal white background, emphasizing style and practicality.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-19102197",
+    "pexelsId": 19102197,
+    "url": "https://images.pexels.com/photos/19102197/pexels-photo-19102197.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "backpacks",
+    "tags": [
+      "backpack",
+      "hiking",
+      "mountain",
+      "outdoor",
+      "adventure",
+      "accessory"
+    ],
+    "suggestedName": "AlpineTrail Technical Pack",
+    "suggestedBrand": "TrailTech",
+    "alt": "Blue and orange backpacks resting on a rocky mountain peak under a clear sky.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-33947080",
+    "pexelsId": 33947080,
+    "url": "https://images.pexels.com/photos/33947080/pexels-photo-33947080.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sunglasses",
+    "tags": [
+      "sunglasses",
+      "sport",
+      "outdoor",
+      "running",
+      "cycling",
+      "accessory"
+    ],
+    "suggestedName": "SpeedView Sport Sunglasses",
+    "suggestedBrand": "Oakley",
+    "alt": "Sleek sports sunglasses with blue lenses resting on a dark surface. Ideal for modern, sporty styles.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-32677241",
+    "pexelsId": 32677241,
+    "url": "https://images.pexels.com/photos/32677241/pexels-photo-32677241.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sunglasses",
+    "tags": [
+      "sunglasses",
+      "outdoor",
+      "hiking",
+      "UV protection",
+      "sport",
+      "accessory"
+    ],
+    "suggestedName": "TrailShade Polarized Sunglasses",
+    "suggestedBrand": "Ray-Ban",
+    "alt": "Elegant tortoiseshell sunglasses with brown lenses on a branded gray case.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-7858516",
+    "pexelsId": 7858516,
+    "url": "https://images.pexels.com/photos/7858516/pexels-photo-7858516.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "sunglasses",
+    "tags": [
+      "sunglasses",
+      "sport",
+      "performance",
+      "cycling",
+      "outdoor",
+      "accessory"
+    ],
+    "suggestedName": "AeroLens Performance Sunglasses",
+    "suggestedBrand": "Oakley",
+    "alt": "Elegant close-up of stylish sunglasses with sleek packaging, perfect for fashion shoots.",
+    "isNoise": false
+  },
+  {
+    "id": "pexels-33013857",
+    "pexelsId": 33013857,
+    "url": "https://images.pexels.com/photos/33013857/pexels-photo-33013857.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "motorsport-gear",
+    "tags": [
+      "helmet",
+      "racing",
+      "motorsport",
+      "sport",
+      "safety",
+      "gear",
+      "performance"
+    ],
+    "suggestedName": "PitLane Racing Helmet",
+    "suggestedBrand": "Arai",
+    "alt": "A close-up of a racing helmet with a visor on a car roof, set against an outdoor event backdrop.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-33856862",
+    "pexelsId": 33856862,
+    "url": "https://images.pexels.com/photos/33856862/pexels-photo-33856862.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "motorsport-gear",
+    "tags": [
+      "helmet",
+      "racing",
+      "motorsport",
+      "sport",
+      "safety",
+      "gear",
+      "outdoor"
+    ],
+    "suggestedName": "GridStart Full-Face Racing Helmet",
+    "suggestedBrand": "Shoei",
+    "alt": "White racing helmet resting on a surface with a sunset backdrop, emphasizing motorsport passion.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-20234126",
+    "pexelsId": 20234126,
+    "url": "https://images.pexels.com/photos/20234126/pexels-photo-20234126.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "motorsport-gear",
+    "tags": [
+      "helmet",
+      "racing",
+      "motorsport",
+      "sport",
+      "performance",
+      "gear",
+      "training"
+    ],
+    "suggestedName": "ApexDrive Competition Helmet",
+    "suggestedBrand": "Bell",
+    "alt": "Striking racing helmet sits on a sports car roof, showcasing vibrant colors and design.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-7882393",
+    "pexelsId": 7882393,
+    "url": "https://images.pexels.com/photos/7882393/pexels-photo-7882393.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "equestrian",
+    "tags": [
+      "saddle",
+      "equestrian",
+      "horse",
+      "riding",
+      "sport",
+      "gear",
+      "outdoor"
+    ],
+    "suggestedName": "ClassicRide Leather Saddle",
+    "suggestedBrand": "Dover",
+    "alt": "Detailed view of a horse's saddle and stirrup with a mounting block nearby.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-93489",
+    "pexelsId": 93489,
+    "url": "https://images.pexels.com/photos/93489/pexels-photo-93489.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "equestrian",
+    "tags": [
+      "stirrup",
+      "equestrian",
+      "horse",
+      "riding",
+      "sport",
+      "boots",
+      "gear"
+    ],
+    "suggestedName": "ProStride Riding Stirrups",
+    "suggestedBrand": "Ariat",
+    "alt": "Detailed view of a rider's boot in a stirrup on a horse, showcasing equestrian gear.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-34448707",
+    "pexelsId": 34448707,
+    "url": "https://images.pexels.com/photos/34448707/pexels-photo-34448707.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "equestrian",
+    "tags": [
+      "saddle",
+      "equestrian",
+      "horse",
+      "riding",
+      "sport",
+      "leather",
+      "gear"
+    ],
+    "suggestedName": "Heritage Dressage Saddle",
+    "suggestedBrand": "Dover",
+    "alt": "Detailed close-up of a black leather horse saddle in black and white, showcasing texture.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-5538382",
+    "pexelsId": 5538382,
+    "url": "https://images.pexels.com/photos/5538382/pexels-photo-5538382.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "fishing",
+    "tags": [
+      "fishing rod",
+      "fishing",
+      "reel",
+      "outdoor",
+      "sport",
+      "gear",
+      "equipment"
+    ],
+    "suggestedName": "CastMaster Pro Fishing Rod",
+    "suggestedBrand": "Shimano",
+    "alt": "Detailed view of fishing rods and reels, showcasing craftsmanship and quality gear.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-5537698",
+    "pexelsId": 5537698,
+    "url": "https://images.pexels.com/photos/5537698/pexels-photo-5537698.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "fishing",
+    "tags": [
+      "fishing rod",
+      "fishing",
+      "reel",
+      "outdoor",
+      "sport",
+      "gear",
+      "angling"
+    ],
+    "suggestedName": "RiverRunner Spinning Rod & Reel Combo",
+    "suggestedBrand": "Penn",
+    "alt": "Detailed view of fishing rods with reels set up on grassy terrain, ideal for outdoor angling activities.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-33725699",
+    "pexelsId": 33725699,
+    "url": "https://images.pexels.com/photos/33725699/pexels-photo-33725699.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "hobby-rc",
+    "tags": [
+      "RC car",
+      "remote control",
+      "hobby",
+      "outdoor",
+      "sport",
+      "off-road",
+      "training"
+    ],
+    "suggestedName": "TrailBlazer 4x4 RC Truck",
+    "suggestedBrand": "Traxxas",
+    "alt": "Blue remote control truck kicks up dirt on a wooded trail, showcasing dynamic motion.",
+    "isNoise": true
+  },
+  {
+    "id": "pexels-34080786",
+    "pexelsId": 34080786,
+    "url": "https://images.pexels.com/photos/34080786/pexels-photo-34080786.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "category": "hobby-rc",
+    "tags": [
+      "RC car",
+      "remote control",
+      "hobby",
+      "outdoor",
+      "off-road",
+      "sport",
+      "adventure"
+    ],
+    "suggestedName": "RockCrawler Pro RC Jeep",
+    "suggestedBrand": "Axial",
+    "alt": "Orange remote control Jeep navigating through a forest path with sunlight filtering through the trees.",
+    "isNoise": true
+  }
+]

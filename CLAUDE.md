@@ -99,16 +99,17 @@ No build step for mock mode — open `output/{slug}/demo.html` directly in a bro
 - **v2** (`V2_ENABLED = true`): live Elasticsearch, requires `npm run dev` for CORS
 
 **Key files:**
-- `template/index.html` — ~2600-line single-file demo with `{{TOKEN}}` placeholders; AI replaces these during SETUP.md execution
+- `template/index.html` — ~2100-line single-file demo with `{{TOKEN}}` placeholders; AI replaces these during SETUP.md execution
 - `SETUP.md` — AI execution script; the SA runs this with Claude Code or Gemini CLI
+- `image-library/` — pre-curated Pexels image sets (one JSON per industry: consumer-electronics, sporting-goods, clothing-fashion, groceries-food)
 - `scripts/setup-index.js` — seeds the ES index (run once via `npm run setup`)
-- `scripts/data/products.json` — canonical 75-product athletic/retail dataset
+- `scripts/data/products.json` — 46-product sporting goods dataset (default for testing)
 - `scripts/generate-test.js` — dev helper: injects `.env` → `output/test/demo.html`
 - `.env.template` — credentials template; copy to `.env` before running v2 setup
 - `output/{customer-slug}/demo.html` — generated output, gitignored
 
 **Search modes (4):**
-1. Lexical — BM25 on `name`/`brand`, filtered to noise products (guaranteed bad results)
+1. Lexical — BM25 on `name`/`brand`, no filtering (returns noise + real products based on keyword match)
 2. Hybrid — ELSER semantic + BM25, filtered to real products
 3. Hybrid + LTR — Hybrid base + `function_score` boosting on persona `preferredBrands`, `gender`, `purchaseHistory`
 4. GenAI — Curated product kit + live chat via Elastic inference API
@@ -125,14 +126,16 @@ No build step for mock mode — open `output/{slug}/demo.html` directly in a bro
 
 **CORS:** Configured in Kibana with regex `/https?:\/\/localhost(:[0-9]+)?/`
 
-**Dataset:** 75 products — 65 real athletic/retail + 10 noise (`is_noise: true`) for lexical failure demo. Lexical mode filters TO noise; all other modes filter AWAY from noise.
+**Dataset:** 46 products — 36 real sporting goods + 10 noise (`is_noise: true`). Lexical mode searches all products (noise surfaces naturally for broad queries); all other modes filter AWAY from noise. SAs generate custom datasets during SETUP.md from the `image-library/` JSON files.
+
+**Image library:** 4 pre-curated category sets in `image-library/` (~50 images each). SAs pick a set matching their customer's industry. Images are Pexels CDN links — no local storage, no API keys needed. Extensible: add a new industry by adding a new JSON file.
 
 **RPI plans:** stored in `.claude/plans/` within the repo.
 
 **Key JS state variables in `template/index.html`:**
 - `activePersona` — current persona object (alex/marcus/sam); set by persona switcher
 - `activeMode` — current search mode string (`'lexical'|'hybrid'|'ltr'|'genai'`); set by mode switcher pills
-- `cartCount` — integer item count (no item data stored yet); drives header badge
+- `cartItems` — array of cart item objects; drives header badge count and cart drawer
 
 **Z-index layer stack (`template/index.html`):**
 header=1000 → autocomplete=2000 → search overlay=3000 → genai overlay=4000. New overlays/drawers should use z-index ≥ 5000.
@@ -147,10 +150,10 @@ No automated test suite. Manual testing only:
 3. Verify all 4 search modes return results, persona switcher works, GenAI chat shows mock response
 
 **v2 mode:**
-1. Ensure `.env` is filled in and `npm run setup` has been run successfully (look for `✓ All 75 products indexed successfully`)
+1. Ensure `.env` is filled in and `npm run setup` has been run successfully (look for `✓ All 46 products indexed successfully`)
 2. Run `npm run generate-test` → then `npm run dev`
 3. Open `http://localhost:3000/test/demo.html`
-4. Verify: Lexical returns noise/irrelevant products; Hybrid/LTR return real products; GenAI chat returns live inference response
+4. Verify: Lexical returns keyword-matched products (mix of noise and real); Hybrid/LTR return only real relevant products; GenAI chat returns live inference response
 5. Switch personas and confirm LTR results change
 
 **Note — v2 products come from ES, not the template:** In v2 mode, product data (including image URLs) is served from the Elasticsearch index. Fixing `products.json` or `template/index.html` alone won't be reflected in v2 until `npm run reset` reseeds the index.
@@ -165,7 +168,7 @@ No automated test suite. Manual testing only:
 - **JS config keys:** camelCase (e.g. `inferenceUrl`, `apiKey`)
 - **No new dependencies** without discussion — the project intentionally has minimal deps (`@elastic/elasticsearch`, `serve`)
 - **Mock fallback pattern:** all v2 ES calls must fall back to mock silently on failure; never let a failed ES call break the demo
-- **Images — Pexels only:** All product images use Pexels CDN. **Never use Unsplash** — their URLs go stale/404. Format: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`. Use IDs from `image-library.md`. Verify new IDs with `curl -s -o /dev/null -w "%{http_code}" https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg` before committing.
+- **Images — Pexels only:** All product images use Pexels CDN. **Never use Unsplash** — their URLs go stale/404. Format: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`. Use IDs from `image-library/*.json` files. Verify new IDs with `curl -s -o /dev/null -w "%{http_code}" https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg` before committing.
 - **Pexels search pages block automation** — `pexels.com/search/*` returns 403 to headless fetches. Find IDs by browsing manually, using the Pexels API (free key at pexels.com/api/), or verifying candidate IDs with curl as above.
 - **Bash variable naming in zsh:** `status` is read-only in zsh — use `code`, `result`, or similar instead. Relevant when writing `curl` status-checking loops.
 

@@ -75,7 +75,7 @@ This checks that all `.env` values are set, the cluster is reachable, both API k
 npm run setup
 ```
 
-This creates the index, enables ELSER semantic embeddings, and bulk-loads 75 athletic/retail products. Confirm the output shows `✓ All 75 products indexed successfully`. Run `npm run setup -- --reset` to wipe and reseed.
+This creates the index, enables ELSER semantic embeddings, and bulk-loads the product dataset. Confirm the output shows `✓ All [N] products indexed successfully`. Run `npm run setup -- --reset` to wipe and reseed.
 
 ### v2-C — Configure CORS
 
@@ -200,7 +200,13 @@ Wait for the SA to confirm before proceeding to Step 3.
    cp template/index.html output/[CUSTOMER_SLUG]/demo.html
    ```
 
-2. Read `image-library.md` to select image URLs for the customer's industry and products. Do this before making any edits.
+2. Read the JSON files in `image-library/` to find the category set closest to the customer's industry. Available sets:
+   - `consumer-electronics.json` — laptops, headphones, earbuds, smartwatches, speakers, etc.
+   - `sporting-goods.json` — running shoes, dumbbells, tennis rackets, cycling helmets, boxing gloves, etc.
+   - `clothing-fashion.json` — shirts, tops, sneakers, jackets, dresses, sunglasses, etc.
+   - `groceries-food.json` — coffee, bread, cheese, chocolate, pasta, craft beverages, etc.
+
+   Each file contains ~50 pre-curated image entries with Pexels CDN URLs, suggested product names, brands, and tags. Ask the SA which set best matches their customer, or recommend the closest one. The SA can mix images across sets if needed.
 
 3. Read `output/[CUSTOMER_SLUG]/demo.html` to confirm the copy succeeded before editing.
 
@@ -288,41 +294,75 @@ Make personas distinct: different genders, different buying motivations, and dif
 
 ---
 
-### 3g — Product Catalog (Homepage Grid)
+### 3g — Image Selection & Review
+
+Before building product data, the SA must review and approve the images that will be used. This step is critical for content safety.
+
+1. Read the selected category set JSON file from `image-library/`
+2. Present the available images to the SA, organized by product type. For each image, show:
+   - The Pexels CDN URL (SA can open in browser to preview)
+   - The suggested product name and category
+   - Whether it's a noise product (`isNoise: true`)
+3. Ask the SA:
+   > "Please review these images. Open any URLs you'd like to check in your browser. Let me know which to keep, skip, or if you'd like to pull images from a different category set."
+4. **Content safety reminder:**
+   > "Please verify all images are appropriate for a customer-facing demo. Flag any that should be removed."
+5. The SA can:
+   - Approve the full set
+   - Skip specific images
+   - Request images from other category sets (cross-set mixing)
+   - Paste manual Pexels CDN URLs for products not covered (`https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`)
+
+Once approved, use the selected images for all product data in steps 3h–3l below. **Write product data to match the images** — names, descriptions, and brands should reflect what's shown in each image.
+
+---
+
+### 3h — Product Catalog (Homepage Grid)
 
 > **v2 mode:** This array powers the homepage grid only — search results come from Elasticsearch. Still fill it in for a complete-looking homepage.
 
 **Edit target:** the `const PRODUCTS` array in the JS (between its opening `[` and closing `];`).
 
-Replace with 12–15 products appropriate to the industry. Requirements:
+Replace with 12–15 products using SA-approved images from step 3g. Requirements:
 - Mix of genders: roughly ⅓ women's, ⅓ men's, ⅓ unisex
 - Mix of price points: entry-level, mid-range, and premium
 - Varied categories: not all the same product type
-- Select image URLs from `image-library.md` that match each product type
-- Use realistic brand names, product names, prices, ratings, and review counts
+- Use image URLs from the approved set — all must be Pexels CDN URLs
+- Write product names, brands, prices, ratings, and review counts to match the images
 - Include 1–2 items with a `sale` price and `badge: 'Sale'`
 - Include 1–2 items with `badge: 'New'` and 1–2 with `badge: 'Bestseller'`
 
 ---
 
-### 3h — Lexical Mode Products
+### 3i — Lexical Mode Products
 
-> **v2 mode:** `PRODUCTS_LEXICAL` is bypassed — lexical results come from Elasticsearch (filtered to `is_noise: true` products in the seeded dataset). You may skip this array. Still set `DEMO_QUERIES.lexical` to the appropriate misspelled query.
+> **v2 mode:** `PRODUCTS_LEXICAL` is bypassed — lexical results come from Elasticsearch via BM25 across all products (noise surfaces naturally for broad queries). You may skip this array. Still set `DEMO_QUERIES.lexical`.
 
 **Edit target:** the `const PRODUCTS_LEXICAL` array and the `DEMO_QUERIES.lexical` value in `const DEMO_QUERIES`.
 
-Replace `PRODUCTS_LEXICAL` with 6 intentionally wrong/irrelevant products. These demonstrate keyword-matching failure when the SA types a misspelled or ambiguous search query.
+Replace `PRODUCTS_LEXICAL` with 6 intentionally wrong/irrelevant products. These demonstrate keyword-matching failure — lexical search returns noise products that partially match query terms but are completely wrong context.
 
 Rules for lexical results:
 - Products must be in completely wrong categories (e.g., for a sporting goods store: motorcycle gear, equestrian equipment, or archery supplies — items that technically match keywords but are wrong context)
 - Low review counts (under 100) and mediocre ratings (3.2–3.9) to reinforce "bad results" feeling
-- Select images from the `"Bad Results"` section of `image-library.md`
+- Use images from the noise products (`isNoise: true`) in the selected category set
 
-Set `DEMO_QUERIES.lexical` to a misspelled or ambiguous version of a common product name (e.g., `'footware for runing'` — intentional misspellings trigger the lexical failure scenario).
+**Demo query strategy — "same query, different results":**
+
+The most compelling demo story uses the **same query** for lexical and hybrid modes. This makes the contrast unmistakable: identical input, dramatically different output.
+
+Set `DEMO_QUERIES.lexical` to a broad, natural language query appropriate to the industry. **Do not misspell the query** — the point is that even a perfectly reasonable query returns wrong results with keyword-only search.
+
+| Category | Recommended lexical query | Why it works |
+|---|---|---|
+| Sporting Goods | `'outdoor gear'` | Returns noise: motorsport helmets, saddles, fishing rods — technically "outdoor" but wrong context |
+| Consumer Electronics | `'smart devices'` | Returns noise: toasters, car stereos — technically "devices" but not what shoppers mean |
+| Clothing & Fashion | `'everyday wear'` | Returns noise: fabric bolts, costumes — keyword match on "wear" but wrong category |
+| Groceries & Food | `'kitchen essentials'` | Returns noise: cleaning supplies, garden tools — keyword match on "kitchen" but not food |
 
 ---
 
-### 3i — Hybrid Mode Products
+### 3j — Hybrid Mode Products
 
 > **v2 mode:** `PRODUCTS_HYBRID` is bypassed — hybrid results come from Elasticsearch (semantic + BM25 on the seeded dataset). You may skip this array. Still set `DEMO_QUERIES.hybrid`.
 
@@ -334,13 +374,13 @@ Rules:
 - All products should be directly relevant to the demo query
 - Include a mix of product types (not all the same item)
 - High ratings (4.5–4.9) and healthy review counts
-- Good images from matching categories in `image-library.md`
+- Use image URLs from the SA-approved set
 
-Set `DEMO_QUERIES.hybrid` to a natural language query appropriate to the industry (e.g., `'trail running shoes'`, `'summer workout gear'`).
+**Set `DEMO_QUERIES.hybrid` to the same query as `DEMO_QUERIES.lexical`.** This is the key to the demo story: the same natural language query returns noise with lexical search but relevant products with hybrid/semantic search. The audience sees the difference without changing what they typed.
 
 ---
 
-### 3j — LTR Mode Products (Personalized)
+### 3k — LTR Mode Products (Personalized)
 
 > **v2 mode:** `PRODUCTS_LTR` is bypassed — personalized results come from Elasticsearch using `function_score` boosting on the persona's `preferredBrands`, `gender`, and `purchaseHistory`. You may skip this array. Still set `DEMO_QUERIES.ltr`.
 
@@ -357,13 +397,13 @@ Replace `PRODUCTS_LTR` with persona-specific results for each of the 3 personas.
 - Draw from their `purchaseHistory` for contextual relevance
 - Include at least one consumable or accessory (lower price point)
 
-Set `DEMO_QUERIES.ltr` to a query that includes a personalization trigger word like `'for me'` or `'my'` (e.g., `'running gear for me'`, `'show me workout essentials'`).
+Set `DEMO_QUERIES.ltr` to a short personalization query like `'gear for me'` or `'picks for me'` — the trigger words `'for me'` / `'my'` activate the persona overlay.
 
 The LTR overlay displays the character name in a "Shopping as [CHARACTER_NAME]" banner. Update any hardcoded character name references to use the SA's chosen `CHARACTER_NAME`.
 
 ---
 
-### 3k — GenAI Kit
+### 3l — GenAI Kit
 
 **Edit target:** the `const GENAI_KITS` object and the `DEMO_QUERIES.genai` value.
 
@@ -384,11 +424,11 @@ Replace `GENAI_KITS` with persona-specific curated kits. Each persona entry need
 
 **`altProduct`** — one alternative product suggestion (shown as "or consider this" in the UI)
 
-Set `DEMO_QUERIES.genai` to a natural language "curated kit" query (e.g., `'complete race day kit'`, `'build my summer workout setup'`).
+Set `DEMO_QUERIES.genai` to a natural language "curated kit" query (e.g., `'complete training kit'`, `'build my summer workout setup'`).
 
 ---
 
-### 3l — Mid-Page Promo Banner
+### 3m — Mid-Page Promo Banner
 
 **Edit target:** the `<!-- CUSTOMIZE: mid-page promo banner -->` div.
 
@@ -396,12 +436,52 @@ Update with a short promotional message appropriate to the industry (e.g., "Summ
 
 ---
 
-### 3m — Footer
+### 3n — Footer
 
 **Edit target:** the `<!-- CUSTOMIZE: footer links and copyright -->` footer block.
 
 - Replace brand name in copyright with `CUSTOMER_NAME`
 - Update footer nav links to match the nav categories from 3c
+
+---
+
+### 3o — v2 Product Data (v2 mode only)
+
+**Skip this step if not running v2 mode.**
+
+In v2 mode, search results come from Elasticsearch — not the template constants. The SA needs a custom `products.json` that matches their approved images and product data.
+
+1. Generate a custom `scripts/data/products.json` from the SA-approved images and product data built in steps 3h–3l. Each product entry needs:
+
+```json
+{
+  "id": 1,
+  "name": "Product Name",
+  "brand": "Brand",
+  "category": "category-slug",
+  "gender": "Women's" | "Men's" | null,
+  "price": 99.99,
+  "sale": null,
+  "rating": 4.7,
+  "reviews": 1234,
+  "badge": "New" | "Best Seller" | "Sale" | null,
+  "tags": ["keyword1", "keyword2", "keyword3"],
+  "description": "2-3 sentence description with keywords for semantic search.",
+  "image": "https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+  "is_noise": false
+}
+```
+
+2. Include all products from the homepage grid, search modes, LTR, and GenAI kits. Also include noise products with `"is_noise": true`.
+3. Real product IDs: 1–50. Noise product IDs: 101+.
+4. Write rich `description` fields — these power semantic search (ELSER). Include use cases, features, materials, and scenarios.
+5. Reseed the Elasticsearch index:
+
+```bash
+npm run reset
+```
+
+Confirm output shows `✓ All [N] products indexed successfully`.
 
 ---
 
@@ -428,13 +508,13 @@ If any optional credential (e.g. `ES_INFERENCE_URL`) is blank, leave it as an em
 
 ---
 
-### 3n — Search Routing Keywords
+### 3q — Search Routing Keywords
 
 **Edit target:** the `doSearch()` function's `if` conditions in the JS.
 
-Update the lexical and GenAI keyword triggers to match the customer's specific demo queries set in 3h and 3k. The LTR trigger (`'for me'`, `'my '`) is generic and rarely needs changing.
+Update the lexical and GenAI keyword triggers to match the customer's specific demo queries set in 3i and 3l. The LTR trigger (`'for me'`, `'my '`) is generic and rarely needs changing.
 
-### 3o — Console Cheat Sheet
+### 3r — Console Cheat Sheet
 
 **Edit target:** the `console.log` calls at the very end of the `<script>` block.
 
@@ -450,7 +530,8 @@ After completing all edits, read back `output/[CUSTOMER_SLUG]/demo.html` and ver
 - `const PERSONAS` uses the correct persona names/IDs
 - `const PRODUCTS` contains customer-specific products (not the template's trail running defaults)
 - `DEMO_QUERIES` contains all four customized query strings
-- No references to the template brand names (e.g., "On Running", "Salomon") remain unless intentional
+- No references to the template brand names remain unless intentional
+- All image URLs are valid Pexels CDN links from the approved image set
 
 If any section was missed or still contains template defaults, apply the missing edit before proceeding.
 
@@ -463,7 +544,8 @@ After writing the file, print:
 ```
 ✅ Demo generated: output/[CUSTOMER_SLUG]/demo.html
 
-Open the file in any browser — no server needed.
+Mock mode: Open the file in any browser — no server needed.
+v2 mode: Run `npm run dev` and open http://localhost:3000/[CUSTOMER_SLUG]/demo.html
 
 DEMO CHEAT SHEET — queries to type during your presentation:
   1. Lexical:     "[DEMO_QUERIES.lexical]"   → bad results, wrong category
@@ -480,8 +562,10 @@ For the LTR/GenAI modes, switch personas and re-run the same query to show perso
 ## Notes for the AI Agent
 
 - **Do not modify `template/index.html`** — always write to `output/[CUSTOMER_SLUG]/demo.html`
-- **Images use Pexels only — never Unsplash** — Unsplash URLs go stale and 404. All image URLs in `image-library.md` use the Pexels CDN format: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`
-- **Do not invent image URLs** — use only URLs from `image-library.md`. If no image matches well, reuse the closest category match
+- **Images use Pexels CDN only — never Unsplash** — Unsplash URLs go stale and 404. All image URLs use the Pexels CDN format: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`
+- **Do not invent image URLs** — use only URLs from the `image-library/*.json` files or URLs manually provided by the SA. If no image matches well, reuse the closest category match
+- **Images drive product data** — write product names, descriptions, and brands to match the SA-approved images, not the reverse
+- **Content safety is mandatory** — always ask the SA to review images before including them in the demo
 - **Keep all JavaScript logic intact** — only replace the data constants (`PERSONAS`, `PRODUCTS`, `PRODUCTS_LEXICAL`, `PRODUCTS_HYBRID`, `PRODUCTS_LTR`, `GENAI_KITS`, `DEMO_QUERIES`, `SUGGESTIONS`)
 - **Keep all CSS intact** — only change the `:root` color values and hero slide background gradients
 - **Keep all HTML structure intact** — only replace text content and the logo element
