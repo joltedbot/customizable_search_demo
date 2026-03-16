@@ -109,7 +109,7 @@ No build step for mock mode — open `output/{slug}/demo.html` directly in a bro
 - `output/{customer-slug}/demo.html` — generated output, gitignored
 
 **Search modes (4):**
-1. Lexical — BM25 on `name`/`brand`, no filtering (returns noise + real products based on keyword match)
+1. Lexical — BM25 on `name^3`, `brand^2`, `tags^1`, `category^1`, `description^0.5`; no filtering (returns noise + real products based on keyword match). Broadened fields ensure queries like "camping gear" surface relevant results.
 2. Hybrid — ELSER semantic + BM25, filtered to real products
 3. Hybrid + LTR — Hybrid base + `function_score` boosting on persona `preferredBrands`, `gender`, `purchaseHistory`
 4. GenAI — Curated product kit + live chat via Elastic inference API
@@ -139,6 +139,8 @@ No build step for mock mode — open `output/{slug}/demo.html` directly in a bro
 
 **Z-index layer stack (`template/index.html`):**
 header=1000 → autocomplete=2000 → search overlay=3000 → genai overlay=4000. New overlays/drawers should use z-index ≥ 5000.
+
+**Empty state (zero results):** When a search returns no products, `openScenario()` displays a "0 results found" message with the search icon, query text, and suggestion to try a different search term. Improves retail demo UX.
 
 ## Testing Guidelines
 

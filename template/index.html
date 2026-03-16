@@ -2354,7 +2354,7 @@ function buildEsQuery(query, mode, persona) {
   if (mode === 'lexical') {
     return {
       query: {
-        multi_match: { query, fields: ['name^3', 'brand^2'] }
+        multi_match: { query, fields: ['name^3', 'brand^2', 'tags^1', 'category^1', 'description^0.5'] }
       },
       size: 6
     };
@@ -2522,6 +2522,15 @@ async function openScenario(mode, query) {
   }
 
   const { products, xsell } = await searchProducts(query, mode, activePersona);
+
+  if (!products || products.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;">
+      <div style="font-size:48px;margin-bottom:16px;opacity:0.3;">&#128269;</div>
+      <div style="font-size:18px;font-weight:600;color:var(--black);margin-bottom:8px;">0 results found for "${query}"</div>
+      <div style="font-size:14px;color:var(--gray-600);">Try a different search term or check your spelling.</div>
+    </div>`;
+    return;
+  }
 
   if (mode === 'lexical') {
     grid.innerHTML = products.map(renderProduct).join('');
