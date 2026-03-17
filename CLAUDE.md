@@ -189,3 +189,4 @@ No automated test suite. Manual testing only:
 - If architecture makes a solution complex, discuss changes rather than working around issues
 - Recommend refactoring separately when found code isn't part of the current task
 - If a solution fails multiple times, stop and ask for input
+- **Post-task documentation sweep:** After completing any task that changes architecture, features, search modes, APIs, or user-facing behavior, proactively update all project documentation before considering the task complete: `README.md` (user-facing docs), `CLAUDE.md` (project instructions), and project memory. Delegate these updates to the project-librarian agent in a single pass.

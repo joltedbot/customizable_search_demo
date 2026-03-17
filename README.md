@@ -1,25 +1,23 @@
 # Elastic Search Demo Builder
 
-A cloneable repo for Elastic SAs to quickly build a branded, interactive search demo for any customer — backed by a live Elastic cluster by default, with a mock fallback for offline use.
+A cloneable repo for Elastic SAs to quickly build a branded, interactive search demo for any customer — backed by a live Elastic Cloud cluster with semantic search, ML reranking, and AI chat.
 
 ## What You'll Get
 
 A single-page HTML demo that looks like the customer's own website and walks through four search scenarios:
 
 1. **Lexical (BM25)** — Intentionally poor results; shows the limits of keyword-only search
-2. **Hybrid Search** — Relevant results via semantic + lexical matching
-3. **Hybrid + LTR** — Personalized, reranked results with cross-sell surfacing
+2. **Hybrid Search** — Relevant results via semantic (ELSER) + lexical (BM25) matching using RRF
+3. **Personalized Search** — RRF-merged results from 3 retrievers (semantic + lexical + persona affinity), ML-reranked by Jina Reranker v3
 4. **GenAI Search** — Curated "kit" + conversational AI follow-up
 
-By default, the demo connects to a live Elasticsearch cluster for real semantic search and AI chat. If no `.env` credentials are configured, it falls back to mock mode — fully offline and shareable as a single `.html` file.
+The demo connects to a live Elasticsearch Cloud cluster for real semantic search, AI-powered reranking, and live chat.
 
 ---
 
 ## Quickstart
 
-### v2 mode (live Elasticsearch + AI chat — recommended)
-
-**Prerequisites:** Git, Node.js 18+, Claude Code (`claude`) or Gemini CLI, Elastic Cloud deployment (ES 9.x with ML), an Elastic inference endpoint
+**Prerequisites:** Git, Node.js 18+, Claude Code (`claude`) or Gemini CLI, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed, Jina Reranker v3 available via Elastic Inference Service
 
 ```bash
 git clone <repo-url> my-customer-demo
@@ -42,30 +40,6 @@ open http://localhost:3000/<customer-slug>/demo.html
 ```
 
 See `SETUP.md` → **Elasticsearch Setup** section for CORS configuration and API key setup details.
-
----
-
-### Mock mode (no Elasticsearch required — offline fallback)
-
-**Prerequisites:** Git, Claude Code (`claude`) or Gemini CLI
-
-Skip the `.env` setup — just clone and run the agent:
-
-```bash
-git clone <repo-url> my-customer-demo
-cd my-customer-demo
-claude   # or: gemini
-```
-
-Then tell the agent:
-```
-Please read SETUP.md and follow the instructions.
-```
-
-Answer the questions, then open the generated file directly:
-```bash
-open output/<customer-slug>/demo.html
-```
 
 ---
 
@@ -107,13 +81,13 @@ The demo tells a story in four acts: **same query, progressively better results*
 ### Story arc
 
 1. **Lexical** — Type a broad, natural query (e.g., `outdoor gear`). Results are noise: wrong-category products that happen to keyword-match. Point out how keyword search fails for natural language.
-2. **Hybrid** — Type the **exact same query**. Results flip to relevant products. Explain how semantic search understands intent, not just keywords.
-3. **LTR** — Switch persona, type a personalization query (e.g., `gear for me`). Results are tailored to that persona's brands, gender, and purchase history. Switch personas again to show different results.
+2. **Hybrid** — Type the **exact same query**. Results flip to relevant products. Explain how semantic search (ELSER) combined with keyword search (BM25) via RRF understands intent, not just keywords.
+3. **Personalized** — Switch persona, type a personalization query (e.g., `gear for me`). Results are tailored to that persona's brands, gender, and purchase history, reranked by the Jina ML model. Switch personas again to show different results.
 4. **GenAI** — Type a kit-building query (e.g., `complete training kit`). Show the curated product bundle + use the chat box for a live follow-up question.
 
 ### Recommended queries by category
 
-| Category | Lexical + Hybrid | LTR | GenAI |
+| Category | Lexical + Hybrid | Personalized | GenAI |
 |---|---|---|---|
 | Sporting Goods | `outdoor gear` | `gear for me` | `complete training kit` |
 | Consumer Electronics | `smart devices` | `tech for me` | `complete home office setup` |
@@ -124,7 +98,7 @@ The demo tells a story in four acts: **same query, progressively better results*
 
 When the audience asks "what else can I search for?", these work well for live demos:
 
-| Category | Real products (Hybrid/LTR) | Noise products (Lexical) |
+| Category | Real products (Hybrid/Personalized) | Noise products (Lexical) |
 |---|---|---|
 | Sporting Goods | running shoes, dumbbells, tennis rackets, cycling helmets, boxing gloves, yoga mats, backpacks, sunglasses | racing helmets, saddles, fishing rods, RC trucks |
 | Consumer Electronics | laptops, headphones, earbuds, smartwatches, speakers, monitors, keyboards, mice | toasters, digital pianos, car stereos |
@@ -135,21 +109,23 @@ When the audience asks "what else can I search for?", these work well for live d
 
 - Open `demo.html` full screen for best visual impact
 - Select a persona from the header before starting (shows "Shopping as: [Name]")
-- After the LTR demo, click "Add all to cart" to close the loop
+- After the Personalized demo, click "Add all to cart" to close the loop
 - The console cheat sheet (open DevTools) lists all demo queries for quick reference
 
 ---
 
-## v2: Real Elasticsearch
+## Search Architecture
 
-The demo ships with a complete v2 Elasticsearch integration. v2 is the default — enabled by configuring `.env` credentials before running SETUP.md. If `.env` is missing, the agent falls back to mock mode (`V2_ENABLED = false`).
+The demo uses Elasticsearch Cloud (9.x with ML) for all search modes:
 
-**What v2 adds:**
-- Lexical mode → BM25 on `name`, `brand`, `tags`, `category`, `description` fields, no filtering (noise surfaces naturally for broad queries)
-- Hybrid mode → ELSER semantic + BM25 combined, filtered to real products
-- LTR mode → Hybrid base + `function_score` boosting on persona `preferredBrands`, `gender`, and `purchaseHistory`
-- GenAI chat → Live responses via Elastic inference API (Claude, Bedrock, Azure OpenAI, etc.)
+**Lexical mode** — BM25 on `name`, `brand`, `tags`, `category`, `description` fields, no filtering. Noise products surface naturally for broad queries.
 
-**Index:** 46 sporting goods products — 36 real + 10 wrong-category noise products (surface naturally in broad lexical queries). ELSER embeddings on the `description.semantic` field power hybrid and LTR modes.
+**Hybrid mode** — RRF (Reciprocal Rank Fusion) merges ELSER semantic embeddings and BM25 keyword retrieval, filtered to real products only.
 
-See `SETUP.md` → **v2 Mode** for full setup instructions.
+**Personalized mode** — RRF merges 3 retrievers: ELSER semantic, BM25 keyword, and persona affinity signal. Results are then reranked by Jina Reranker v3 (a real ML cross-encoder running on Elastic Inference Service) to refine order based on persona brands, gender, and purchase history.
+
+**GenAI chat** — Live conversational responses via Elastic inference API (Claude, Bedrock, Azure OpenAI, etc.)
+
+**Dataset:** 46 products — 36 real sporting goods + 10 intentional noise products. The noise products only surface in lexical mode; all other modes filter them away.
+
+See `SETUP.md` for full implementation details and setup instructions.
