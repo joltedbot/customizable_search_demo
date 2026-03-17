@@ -10,7 +10,7 @@
   DEMO QUERIES (tell the SA what to type during the presentation):
     Lexical:  {{DEMO_QUERY_LEXICAL}}
     Hybrid:   {{DEMO_QUERY_HYBRID}}
-    LTR:      {{DEMO_QUERY_LTR}}
+    Personalized: {{DEMO_QUERY_PERSONALIZED}}
     GenAI:    {{DEMO_QUERY_GENAI}}
   ============================================================
 -->
@@ -46,7 +46,7 @@
       --gray-600:      #666;
       --white:         #fff;
       --red:           #cc0000;
-      --badge-ltr:     #0a6ebd;
+      --badge-personalized:     #0a6ebd;
       --badge-genai:   #7b2d8b;
     }
 
@@ -822,16 +822,16 @@
       0%, 100% { opacity: 1; }
       50%       { opacity: 0.4; }
     }
-    .ltr-xsell-header {
+    .personalized-xsell-header {
       grid-column: 1 / -1;
       font-size: 14px;
       font-weight: 700;
-      color: var(--badge-ltr);
+      color: var(--badge-personalized);
       padding: 14px 0 4px;
       border-top: 2px dashed var(--gray-200);
       margin-top: 4px;
     }
-    .ltr-persona-tag {
+    .personalized-persona-tag {
       font-size: 12px;
       color: var(--gray-600);
       font-weight: 400;
@@ -1147,7 +1147,7 @@
         <div class="mode-tabs" id="modeTabs">
           <button class="mode-tab active" data-mode="lexical">Lexical</button>
           <button class="mode-tab" data-mode="hybrid">Hybrid</button>
-          <button class="mode-tab" data-mode="ltr">LTR</button>
+          <button class="mode-tab" data-mode="personalized">Personalized</button>
           <button class="mode-tab" data-mode="genai">GenAI</button>
         </div>
       </div>
@@ -1423,9 +1423,8 @@
 <!-- ===================== JAVASCRIPT ===================== -->
 <script>
 // ============================================================
-// v2 ELASTICSEARCH CONFIG
+// ELASTICSEARCH CONFIG
 // Tokens replaced by SETUP.md — leave as-is in the template.
-// Set V2_ENABLED = false to use mock data (default for template).
 // ============================================================
 const ES_CONFIG = {
   url:                '{{ES_URL}}',
@@ -1434,7 +1433,6 @@ const ES_CONFIG = {
   inferenceUrl:    '{{ES_INFERENCE_URL}}',
   inferenceApiKey: '{{ES_INFERENCE_API_KEY}}'
 };
-const V2_ENABLED = {{V2_ENABLED}};
 
 // ============================================================
 // CONFIGURATION — CUSTOMIZE THIS ENTIRE SECTION
@@ -1444,7 +1442,7 @@ const V2_ENABLED = {{V2_ENABLED}};
 
 // CUSTOMIZE: Persona definitions
 // gender: 'female' | 'male' | 'neutral'
-// preferredBrands: used to rank products in LTR mode
+// preferredBrands: used to rank products in Personalized mode
 // purchaseHistory: cross-sell relevance signals
 const PERSONAS = {
   alex: {
@@ -1486,7 +1484,7 @@ const PERSONAS = {
 const DEMO_QUERIES = {
   lexical: 'outdoor gear',
   hybrid:  'outdoor gear',
-  ltr:     'gear for me',
+  personalized: 'gear for me',
   genai:   'complete training kit',
 };
 
@@ -1661,556 +1659,10 @@ const PRODUCTS = [
   },
 ];
 
-// ---- SEARCH SCENARIO DATA ----
+// ---- GENAI SCENARIO DATA ----
 
-// CUSTOMIZE: Lexical mode products — these should be "wrong" results
-// that demonstrate keyword-matching failure (wrong category, can't handle misspellings)
-const PRODUCTS_LEXICAL = [
-  {
-    id: 101,
-    brand: 'Arai',
-    name: 'PitLane Racing Helmet',
-    price: 599.99,
-    sale: null,
-    badge: null,
-    rating: 4.2,
-    reviews: 89,
-    gender: null,
-    image: 'https://images.pexels.com/photos/33013857/pexels-photo-33013857.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 102,
-    brand: 'Shoei',
-    name: 'GridStart Full-Face Racing Helmet',
-    price: 549.99,
-    sale: null,
-    badge: null,
-    rating: 4.3,
-    reviews: 67,
-    gender: null,
-    image: 'https://images.pexels.com/photos/33856862/pexels-photo-33856862.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 103,
-    brand: 'Bell',
-    name: 'ApexDrive Competition Helmet',
-    price: 449.99,
-    sale: null,
-    badge: null,
-    rating: 4.1,
-    reviews: 45,
-    gender: null,
-    image: 'https://images.pexels.com/photos/20234126/pexels-photo-20234126.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 104,
-    brand: 'Dover',
-    name: 'ClassicRide Leather Saddle',
-    price: 1299.99,
-    sale: null,
-    badge: null,
-    rating: 4.4,
-    reviews: 34,
-    gender: null,
-    image: 'https://images.pexels.com/photos/7882393/pexels-photo-7882393.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 105,
-    brand: 'Ariat',
-    name: 'ProStride Riding Stirrups',
-    price: 89.99,
-    sale: null,
-    badge: null,
-    rating: 4.3,
-    reviews: 56,
-    gender: null,
-    image: 'https://images.pexels.com/photos/93489/pexels-photo-93489.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 106,
-    brand: 'Dover',
-    name: 'Heritage Dressage Saddle',
-    price: 1899.99,
-    sale: null,
-    badge: null,
-    rating: 4.5,
-    reviews: 23,
-    gender: null,
-    image: 'https://images.pexels.com/photos/34448707/pexels-photo-34448707.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 107,
-    brand: 'Shimano',
-    name: 'CastMaster Pro Fishing Rod',
-    price: 129.99,
-    sale: null,
-    badge: null,
-    rating: 4.4,
-    reviews: 78,
-    gender: null,
-    image: 'https://images.pexels.com/photos/5538382/pexels-photo-5538382.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 108,
-    brand: 'Penn',
-    name: 'RiverRunner Spinning Rod & Reel Combo',
-    price: 79.99,
-    sale: null,
-    badge: null,
-    rating: 4.2,
-    reviews: 123,
-    gender: null,
-    image: 'https://images.pexels.com/photos/5537698/pexels-photo-5537698.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-];
-
-// CUSTOMIZE: Hybrid mode products — relevant, good results
-const PRODUCTS_HYBRID = [
-  {
-    id: 1,
-    brand: 'Nike',
-    name: 'CloudStrike Running Shoe',
-    price: 169.99,
-    sale: null,
-    badge: 'Best Seller',
-    rating: 4.9,
-    reviews: 2341,
-    gender: "Women's",
-    image: 'https://images.pexels.com/photos/6540973/pexels-photo-6540973.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 3,
-    brand: 'TrailTech',
-    name: 'FlexMotion Trail Runner',
-    price: 149.99,
-    sale: null,
-    badge: null,
-    rating: 4.6,
-    reviews: 987,
-    gender: "Men's",
-    image: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 10,
-    brand: 'Wilson',
-    name: 'ProSpin Tour Racket',
-    price: 229.99,
-    sale: null,
-    badge: 'Best Seller',
-    rating: 4.8,
-    reviews: 1234,
-    gender: null,
-    image: 'https://images.pexels.com/photos/10667388/pexels-photo-10667388.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 14,
-    brand: 'Giro',
-    name: 'AeroShield Road Helmet',
-    price: 149.99,
-    sale: null,
-    badge: null,
-    rating: 4.7,
-    reviews: 1098,
-    gender: null,
-    image: 'https://images.pexels.com/photos/19351994/pexels-photo-19351994.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 18,
-    brand: 'Everlast',
-    name: 'StrikeForce Pro Boxing Gloves 12oz',
-    price: 79.99,
-    sale: null,
-    badge: null,
-    rating: 4.7,
-    reviews: 1876,
-    gender: null,
-    image: 'https://images.pexels.com/photos/9945036/pexels-photo-9945036.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 22,
-    brand: 'Hydro Flask',
-    name: 'PureFlow Insulated Sport Bottle',
-    price: 44.95,
-    sale: null,
-    badge: null,
-    rating: 4.8,
-    reviews: 3456,
-    gender: null,
-    image: 'https://images.pexels.com/photos/5864625/pexels-photo-5864625.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 25,
-    brand: 'Manduka',
-    name: 'ZenGrip Premium Yoga Mat',
-    price: 89.99,
-    sale: null,
-    badge: null,
-    rating: 4.9,
-    reviews: 2876,
-    gender: null,
-    image: 'https://images.pexels.com/photos/4325462/pexels-photo-4325462.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-  {
-    id: 34,
-    brand: 'Oakley',
-    name: 'SpeedView Sport Sunglasses',
-    price: 189.99,
-    sale: null,
-    badge: null,
-    rating: 4.7,
-    reviews: 1654,
-    gender: null,
-    image: 'https://images.pexels.com/photos/33947080/pexels-photo-33947080.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-  },
-];
-
-// CUSTOMIZE: LTR mode — personalized results per persona
-// Primary: main search results (ranked by persona relevance)
-// Xsell: cross-sell items "you might also need"
-const PRODUCTS_LTR = {
-  alex: {
-    primary: [
-      {
-        id: 1,
-        brand: 'Nike',
-        name: 'CloudStrike Running Shoe',
-        price: 169.99,
-        sale: null,
-        badge: 'Best Seller',
-        rating: 4.9,
-        reviews: 2341,
-        gender: "Women's",
-        image: 'https://images.pexels.com/photos/6540973/pexels-photo-6540973.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 4,
-        brand: 'On Running',
-        name: 'PureStep Everyday Trainer',
-        price: 139.99,
-        sale: null,
-        badge: 'New',
-        rating: 4.8,
-        reviews: 1823,
-        gender: "Women's",
-        image: 'https://images.pexels.com/photos/1456733/pexels-photo-1456733.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 5,
-        brand: 'Puma',
-        name: 'VelocityMax Racing Flat',
-        price: 179.99,
-        sale: null,
-        badge: null,
-        rating: 4.5,
-        reviews: 678,
-        gender: "Men's",
-        image: 'https://images.pexels.com/photos/16947118/pexels-photo-16947118.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 34,
-        brand: 'Oakley',
-        name: 'SpeedView Sport Sunglasses',
-        price: 189.99,
-        sale: null,
-        badge: null,
-        rating: 4.7,
-        reviews: 1654,
-        gender: null,
-        image: 'https://images.pexels.com/photos/33947080/pexels-photo-33947080.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 25,
-        brand: 'Manduka',
-        name: 'ZenGrip Premium Yoga Mat',
-        price: 89.99,
-        sale: null,
-        badge: null,
-        rating: 4.9,
-        reviews: 2876,
-        gender: null,
-        image: 'https://images.pexels.com/photos/4325462/pexels-photo-4325462.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 22,
-        brand: 'Hydro Flask',
-        name: 'PureFlow Insulated Sport Bottle',
-        price: 44.95,
-        sale: null,
-        badge: null,
-        rating: 4.8,
-        reviews: 3456,
-        gender: null,
-        image: 'https://images.pexels.com/photos/5864625/pexels-photo-5864625.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      }
-    ],
-    secondary: [
-      {
-        id: 28,
-        brand: 'TriggerPoint',
-        name: 'DeepRelief Textured Foam Roller',
-        price: 44.99,
-        sale: null,
-        badge: null,
-        rating: 4.7,
-        reviews: 2345,
-        gender: null,
-        image: 'https://images.pexels.com/photos/6207519/pexels-photo-6207519.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 27,
-        brand: 'Gaiam',
-        name: 'EcoFlex Travel Yoga Mat',
-        price: 34.99,
-        sale: 24.99,
-        badge: 'Sale',
-        rating: 4.3,
-        reviews: 3211,
-        gender: null,
-        image: 'https://images.pexels.com/photos/4325439/pexels-photo-4325439.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 36,
-        brand: 'Oakley',
-        name: 'AeroLens Performance Sunglasses',
-        price: 219.99,
-        sale: null,
-        badge: 'New',
-        rating: 4.8,
-        reviews: 567,
-        gender: null,
-        image: 'https://images.pexels.com/photos/7858516/pexels-photo-7858516.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      }
-    ],
-  },
-  marcus: {
-    primary: [
-      {
-        id: 3,
-        brand: 'TrailTech',
-        name: 'FlexMotion Trail Runner',
-        price: 149.99,
-        sale: null,
-        badge: null,
-        rating: 4.6,
-        reviews: 987,
-        gender: "Men's",
-        image: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 17,
-        brand: 'Bell',
-        name: 'TrailGuard MTB Helmet',
-        price: 129.99,
-        sale: null,
-        badge: null,
-        rating: 4.6,
-        reviews: 543,
-        gender: null,
-        image: 'https://images.pexels.com/photos/19351993/pexels-photo-19351993.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 33,
-        brand: 'The North Face',
-        name: 'AlpineTrail Technical Pack',
-        price: 199.99,
-        sale: null,
-        badge: null,
-        rating: 4.7,
-        reviews: 876,
-        gender: null,
-        image: 'https://images.pexels.com/photos/19102197/pexels-photo-19102197.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 24,
-        brand: 'CamelBak',
-        name: 'TrailSip Outdoor Water Bottle',
-        price: 29.99,
-        sale: null,
-        badge: null,
-        rating: 4.6,
-        reviews: 2198,
-        gender: null,
-        image: 'https://images.pexels.com/photos/1342529/pexels-photo-1342529.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 31,
-        brand: 'Osprey',
-        name: 'SummitPack 40L Daypack',
-        price: 159.99,
-        sale: null,
-        badge: null,
-        rating: 4.8,
-        reviews: 1543,
-        gender: null,
-        image: 'https://images.pexels.com/photos/8266907/pexels-photo-8266907.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 35,
-        brand: 'Ray-Ban',
-        name: 'TrailShade Polarized Sunglasses',
-        price: 163.0,
-        sale: null,
-        badge: null,
-        rating: 4.6,
-        reviews: 3210,
-        gender: null,
-        image: 'https://images.pexels.com/photos/32677241/pexels-photo-32677241.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      }
-    ],
-    secondary: [
-      {
-        id: 14,
-        brand: 'Giro',
-        name: 'AeroShield Road Helmet',
-        price: 149.99,
-        sale: null,
-        badge: null,
-        rating: 4.7,
-        reviews: 1098,
-        gender: null,
-        image: 'https://images.pexels.com/photos/19351994/pexels-photo-19351994.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 29,
-        brand: 'OPTP',
-        name: 'ProRoll Muscle Recovery Roller',
-        price: 29.99,
-        sale: null,
-        badge: null,
-        rating: 4.5,
-        reviews: 1876,
-        gender: null,
-        image: 'https://images.pexels.com/photos/16513603/pexels-photo-16513603.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 22,
-        brand: 'Hydro Flask',
-        name: 'PureFlow Insulated Sport Bottle',
-        price: 44.95,
-        sale: null,
-        badge: null,
-        rating: 4.8,
-        reviews: 3456,
-        gender: null,
-        image: 'https://images.pexels.com/photos/5864625/pexels-photo-5864625.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      }
-    ],
-  },
-  sam: {
-    primary: [
-      {
-        id: 2,
-        brand: 'Adidas',
-        name: 'AeroGlide Performance Runner',
-        price: 159.99,
-        sale: null,
-        badge: null,
-        rating: 4.7,
-        reviews: 1456,
-        gender: "Men's",
-        image: 'https://images.pexels.com/photos/6748268/pexels-photo-6748268.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 6,
-        brand: 'IronForge',
-        name: 'HexGrip Pro Dumbbell 25lb',
-        price: 49.99,
-        sale: null,
-        badge: null,
-        rating: 4.8,
-        reviews: 1567,
-        gender: null,
-        image: 'https://images.pexels.com/photos/6550843/pexels-photo-6550843.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 8,
-        brand: 'Under Armour',
-        name: 'PowerLift Rubber Dumbbell 30lb',
-        price: 59.99,
-        sale: 44.99,
-        badge: 'Sale',
-        rating: 4.6,
-        reviews: 892,
-        gender: null,
-        image: 'https://images.pexels.com/photos/8032962/pexels-photo-8032962.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 19,
-        brand: 'Venum',
-        name: 'FitBox Training Gloves 10oz',
-        price: 59.99,
-        sale: null,
-        badge: null,
-        rating: 4.5,
-        reviews: 1234,
-        gender: null,
-        image: 'https://images.pexels.com/photos/6456153/pexels-photo-6456153.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 32,
-        brand: 'Under Armour',
-        name: 'UrbanFit Gym Backpack',
-        price: 69.99,
-        sale: null,
-        badge: null,
-        rating: 4.5,
-        reviews: 2876,
-        gender: null,
-        image: 'https://images.pexels.com/photos/3731256/pexels-photo-3731256.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 25,
-        brand: 'Manduka',
-        name: 'ZenGrip Premium Yoga Mat',
-        price: 89.99,
-        sale: null,
-        badge: null,
-        rating: 4.9,
-        reviews: 2876,
-        gender: null,
-        image: 'https://images.pexels.com/photos/4325462/pexels-photo-4325462.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      }
-    ],
-    secondary: [
-      {
-        id: 28,
-        brand: 'TriggerPoint',
-        name: 'DeepRelief Textured Foam Roller',
-        price: 44.99,
-        sale: null,
-        badge: null,
-        rating: 4.7,
-        reviews: 2345,
-        gender: null,
-        image: 'https://images.pexels.com/photos/6207519/pexels-photo-6207519.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 23,
-        brand: 'Nalgene',
-        name: 'CrystalClear Sport Water Bottle',
-        price: 14.99,
-        sale: null,
-        badge: null,
-        rating: 4.5,
-        reviews: 4521,
-        gender: null,
-        image: 'https://images.pexels.com/photos/593099/pexels-photo-593099.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      },
-      {
-        id: 27,
-        brand: 'Gaiam',
-        name: 'EcoFlex Travel Yoga Mat',
-        price: 34.99,
-        sale: 24.99,
-        badge: 'Sale',
-        rating: 4.3,
-        reviews: 3211,
-        gender: null,
-        image: 'https://images.pexels.com/photos/4325439/pexels-photo-4325439.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop',
-      }
-    ],
-  },
-};
+// NOTE: PRODUCTS_LEXICAL, PRODUCTS_HYBRID, and PRODUCTS_LTR mock arrays
+// have been removed. All search modes now query Elasticsearch directly.
 
 // CUSTOMIZE: GenAI mode — curated product kits per persona
 // Each persona gets: intro text, product bundle, chat response function, and an alternate product
@@ -2351,6 +1803,7 @@ async function esSearch(body) {
 }
 
 function buildEsQuery(query, mode, persona) {
+  // ── Lexical: BM25 keyword matching (intentionally broad, includes noise) ──
   if (mode === 'lexical') {
     return {
       query: {
@@ -2360,46 +1813,102 @@ function buildEsQuery(query, mode, persona) {
     };
   }
 
-  const hybridBool = {
-    bool: {
-      should: [
-        { semantic: { field: 'description.semantic', query, boost: 0.6 } },
-        { multi_match: { query, fields: ['name^3', 'brand^2', 'tags'], boost: 0.4 } }
-      ],
-      must_not: { term: { is_noise: true } }
+  // ── Shared retrievers for Hybrid and Personalized modes ──
+  const noiseFilter = [{ term: { is_noise: false } }];
+
+  const semanticRetriever = {
+    standard: {
+      query: { semantic: { field: 'description.semantic', query } },
+      filter: noiseFilter
     }
   };
 
+  const bm25Retriever = {
+    standard: {
+      query: { multi_match: { query, fields: ['name^3', 'brand^2', 'tags'] } },
+      filter: noiseFilter
+    }
+  };
+
+  // ── Hybrid: RRF fusion of semantic + BM25 ──
   if (mode === 'hybrid') {
-    return { query: hybridBool, size: 6 };
+    return {
+      retriever: {
+        rrf: {
+          retrievers: [semanticRetriever, bm25Retriever],
+          rank_window_size: 30,
+          rank_constant: 60
+        }
+      },
+      size: 6
+    };
   }
 
-  if (mode === 'ltr') {
-    const functions = [];
+  // ── Personalized: RRF (semantic + BM25 + persona affinity) → Jina reranker ──
+  if (mode === 'personalized') {
+    // Build persona affinity signal
+    const personaShould = [];
     (persona.preferredBrands || []).forEach((brand, i) => {
-      functions.push({ filter: { term: { 'brand.keyword': brand } }, weight: Math.max(3 - (i * 0.4), 1) });
+      personaShould.push({ term: { 'brand.keyword': { value: brand, boost: 4 - i } } });
     });
     const genderMap = { female: "Women's", male: "Men's" };
     const genderVal = genderMap[persona.gender];
-    if (genderVal) functions.push({ filter: { term: { gender: genderVal } }, weight: 2 });
+    if (genderVal) {
+      personaShould.push({ term: { gender: { value: genderVal, boost: 3 } } });
+    }
     (persona.purchaseHistory || []).slice(0, 3).forEach(tag => {
-      functions.push({ filter: { match: { tags: tag } }, weight: 1.5 });
+      personaShould.push({ match: { tags: { query: tag, boost: 2 } } });
     });
+    // match_all ensures this retriever returns results even when no persona signals match
+    personaShould.push({ match_all: { boost: 0.1 } });
+
+    const personaRetriever = {
+      standard: {
+        query: { bool: { should: personaShould, minimum_should_match: 0 } },
+        filter: noiseFilter
+      }
+    };
+
+    const rrfRetriever = {
+      rrf: {
+        retrievers: [semanticRetriever, bm25Retriever, personaRetriever],
+        rank_window_size: 30,
+        rank_constant: 60
+      }
+    };
+
+    // Wrap in Jina reranker for ML-based relevance reranking
     return {
-      query: {
-        function_score: { query: hybridBool, functions, score_mode: 'sum', boost_mode: 'multiply' }
+      retriever: {
+        text_similarity_reranker: {
+          retriever: rrfRetriever,
+          field: 'description',
+          inference_id: '.jina-reranker-v3',
+          inference_text: query,
+          rank_window_size: 20
+        }
       },
       size: 8
     };
   }
 
-  return { query: hybridBool, size: 6 };
+  // Fallback (should not reach here)
+  return {
+    retriever: {
+      rrf: {
+        retrievers: [semanticRetriever, bm25Retriever],
+        rank_window_size: 30,
+        rank_constant: 60
+      }
+    },
+    size: 6
+  };
 }
 
 function parseEsResponse(resp, mode) {
   const hits = (resp.hits && resp.hits.hits) || [];
   const products = hits.map(hit => hit._source);
-  if (mode === 'ltr') {
+  if (mode === 'personalized') {
     return { products: products.slice(0, 6), xsell: products.slice(6) };
   }
   return { products, xsell: [] };
@@ -2408,48 +1917,26 @@ function parseEsResponse(resp, mode) {
 // ── Public search interface ───────────────────────────────────
 
 async function searchProducts(query, mode, persona) {
-  if (!V2_ENABLED) return searchProductsMock(query, mode, persona);
   try {
     const esQuery = buildEsQuery(query, mode, persona);
     const resp = await esSearch(esQuery);
     return parseEsResponse(resp, mode);
   } catch (err) {
-    console.error('[ES v2] Search failed, using mock:', err);
-    return searchProductsMock(query, mode, persona);
-  }
-}
-
-function searchProductsMock(query, mode, persona) {
-  switch (mode) {
-    case 'lexical': return { products: PRODUCTS_LEXICAL, xsell: [] };
-    case 'hybrid':  return { products: PRODUCTS_HYBRID, xsell: [] };
-    case 'ltr': {
-      const personaData = PRODUCTS_LTR[persona.id] || PRODUCTS_LTR.sam;
-      return { products: personaData.primary, xsell: personaData.xsell };
-    }
-    case 'genai': {
-      const kit = GENAI_KITS[persona.id] || GENAI_KITS.sam;
-      return { products: kit.products, kit };
-    }
-    default: return { products: PRODUCTS_HYBRID, xsell: [] };
+    console.error('[ES] Search failed:', err);
+    return { products: [], xsell: [] };
   }
 }
 
 async function askAgent(question, persona) {
-  if (!V2_ENABLED || !ES_CONFIG.inferenceUrl || ES_CONFIG.inferenceUrl === '{{ES_INFERENCE_URL}}') {
-    return askAgentMock(question, persona);
+  if (!ES_CONFIG.inferenceUrl || ES_CONFIG.inferenceUrl === '{{ES_INFERENCE_URL}}') {
+    return 'Inference endpoint not configured. Set ES_INFERENCE_URL in .env and regenerate.';
   }
   try {
     return await callInferenceApi(question, persona);
   } catch (err) {
-    console.error('[ES v2] Inference API failed, using mock:', err);
-    return askAgentMock(question, persona);
+    console.error('[ES] Inference API failed:', err);
+    return 'Sorry, the AI assistant is temporarily unavailable. Please try again.';
   }
-}
-
-function askAgentMock(question, persona) {
-  const kit = GENAI_KITS[persona.id] || GENAI_KITS.sam;
-  return kit.chatResponse(question);
 }
 
 async function callInferenceApi(question, persona) {
@@ -2537,9 +2024,9 @@ async function openScenario(mode, query) {
   } else if (mode === 'hybrid') {
     grid.innerHTML = products.map(renderProduct).join('');
     wireFilterChips(products, query);
-  } else if (mode === 'ltr') {
+  } else if (mode === 'personalized') {
     const xsellHtml = xsell.length
-      ? `<div class="ltr-xsell-header">Based on ${activePersona.name}'s profile — you might also need: <span class="ltr-persona-tag">(cross-sell via LTR signals)</span></div>` + xsell.map(renderProduct).join('')
+      ? `<div class="personalized-xsell-header">Based on ${activePersona.name}'s profile — you might also need: <span class="personalized-persona-tag">(cross-sell via personalization signals)</span></div>` + xsell.map(renderProduct).join('')
       : '';
     grid.innerHTML = products.map(renderProduct).join('') + xsellHtml;
     wireFilterChips(products, query);
@@ -2941,7 +2428,7 @@ document.getElementById('productsGrid').innerHTML = PRODUCTS.map(renderProduct).
 console.log('%c DEMO QUERY CHEAT SHEET ', 'background:#1a6b4a;color:white;font-weight:bold;font-size:14px;padding:4px');
 console.log(`Lexical:  "${DEMO_QUERIES.lexical}"`);
 console.log(`Hybrid:   "${DEMO_QUERIES.hybrid}"`);
-console.log(`LTR:      "${DEMO_QUERIES.ltr}"`);
+console.log(`Personalized: "${DEMO_QUERIES.personalized}"`);
 console.log(`GenAI:    "${DEMO_QUERIES.genai}"`);
 console.log('Switch personas in the header to see personalized results.');
 </script>

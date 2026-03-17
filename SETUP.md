@@ -19,7 +19,6 @@ PRODUCT_FOCUS:
 PERSONA_1:
 PERSONA_2:
 PERSONA_3:
-CHARACTER_NAME:
 DEMO_NARRATIVE:
 ```
 
@@ -35,18 +34,15 @@ DEMO_NARRATIVE:
 | `INDUSTRY` | Short description of what the company does | `outdoor sporting goods` |
 | `PRODUCT_FOCUS` | 1–2 sentences on what the customer sells | `Premium trail running and outdoor apparel` |
 | `PERSONA_1/2/3` | Name, gender (female/male/neutral), and buyer profile — or `"use defaults"` | `Jordan, female, competitive trail runner` |
-| `CHARACTER_NAME` | Name for the LTR personalization narrative | `Jordan` |
-| `DEMO_NARRATIVE` | One sentence about the character's goal | `preparing for a summer trail race` |
+| `DEMO_NARRATIVE` | One sentence about the demo scenario goal | `preparing for a summer trail race` |
 
 ---
 
-## Elasticsearch Setup (Default)
+## Elasticsearch Setup (Required)
 
 The demo runs against a real Elasticsearch cluster with semantic search and live AI responses. Complete these pre-steps before proceeding to Step 1.
 
-**To skip this and generate a mock-only demo instead**, jump straight to Step 1. The agent will set `V2_ENABLED = false` and skip steps 3o and 3p automatically if `.env` does not exist or is not filled in.
-
-**Prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), an Elastic inference endpoint configured for an LLM.
+**Prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed as an inference endpoint, Jina Reranker v3 (`.jina-reranker-v3`) deployed in Kibana ML Trained Models.
 
 ### v2-A — Configure credentials
 
@@ -93,8 +89,6 @@ During Step 3, you (the AI agent) will inject the credentials into the output fi
 - `ES_URL`, `ES_API_KEY_READONLY`, `ES_INDEX`, `ES_INFERENCE_URL`, `ES_INFERENCE_API_KEY`
 
 Note: `ES_INDEX` is a base name. The actual index will be `{ES_INDEX}-{CUSTOMER_SLUG}` (e.g., if `ES_INDEX=demo-products` and `CUSTOMER_SLUG=acme-sports`, the index is `demo-products-acme-sports`).
-
-If `.env` does not exist or is not filled in, fall back to mock mode: set `V2_ENABLED = false` and leave the credential tokens as empty strings.
 
 ---
 
@@ -154,18 +148,17 @@ Ask:
 Ask:
 > "Do you want me to generate default personas based on the industry, or do you have specific people in mind? If you have preferences — genders, buyer types, how experienced they are — share them and I'll build from there."
 
-- If the SA says generate defaults: create 2–3 personas with distinct genders and buyer motivations appropriate to the industry.
-- If the SA gives partial guidance: build on it and fill gaps.
+- If the SA says generate defaults: create 3 personas (Alex female, Marcus male, Sam neutral) with distinct buyer motivations appropriate to the industry.
+- If the SA gives partial guidance: customize `preferredBrands` and `purchaseHistory` to match; keep the persona names/genders/taglines fixed.
 
-From the personas, derive `CHARACTER_NAME` (the name used in the LTR "Shopping as" banner — typically the most interesting persona for the personalization story) and `DEMO_NARRATIVE` automatically. Only ask about these if the SA wants to customize them.
+From the personas, derive `DEMO_NARRATIVE` automatically based on one of the personas' profiles. This narrative is used in search result overlays to personalize context.
 
 ---
 
 **General defaults (apply silently unless the SA asks):**
 - `CUSTOMER_SLUG`: derived from `CUSTOMER_NAME`
 - `SECONDARY_COLOR`: a warm gold, amber, or contrasting accent that complements the primary
-- `CHARACTER_NAME`: the persona most central to the LTR demo narrative
-- `DEMO_NARRATIVE`: derived from that persona's profile and the industry
+- `DEMO_NARRATIVE`: derived from one of the persona profiles and the industry
 
 ---
 
@@ -181,7 +174,7 @@ Ready to generate the demo. Here's what I have:
   Colors:      [PRIMARY_COLOR] / [SECONDARY_COLOR]
   Industry:    [INDUSTRY]
   Personas:    [list names + one-line profiles]
-  Character:   [CHARACTER_NAME] — [DEMO_NARRATIVE]
+  Narrative:   [DEMO_NARRATIVE]
 
 Generate the demo now? (yes / make changes)
 ```
@@ -277,13 +270,13 @@ Replace `SUGGESTIONS.trending` with 7 search terms appropriate to the industry a
 
 **Edit target:** the `const PERSONAS` object and the `let activePersona` initialisation line in the JS.
 
-Replace with 3 personas based on the SA's input (or generated defaults). Each persona must have:
+The personas are fixed as Alex (female), Marcus (male), and Sam (neutral). Customize only `preferredBrands` and `purchaseHistory` to match the customer's product set. Each persona must have:
 
 ```js
 {
-  id: 'firstname_lowercase',
-  name: 'FirstName',
-  initials: 'XX',          // 2-letter initials
+  id: 'alex' | 'marcus' | 'sam',
+  name: 'Alex' | 'Marcus' | 'Sam',
+  initials: 'AX' | 'MR' | 'SM',
   gender: 'female' | 'male' | 'neutral',
   tagline: 'One sentence buyer profile',
   preferredBrands: [...],  // 3–5 brand names relevant to the industry
@@ -293,7 +286,7 @@ Replace with 3 personas based on the SA's input (or generated defaults). Each pe
 }
 ```
 
-Make personas distinct: different genders, different buying motivations, and different preferred brands where possible. The persona IDs (`alex`, `marcus`, `sam` in the template) should be replaced with the actual persona first names in lowercase.
+Customize `preferredBrands` and `purchaseHistory` to reflect the customer's actual product set and industry. Keep the persona names, genders, and IDs fixed.
 
 ---
 
@@ -322,7 +315,7 @@ Once approved, use the selected images for all product data in steps 3h–3l bel
 
 ### 3h — Product Catalog (Homepage Grid)
 
-> **v2 mode:** This array powers the homepage grid only — search results come from Elasticsearch. Still fill it in for a complete-looking homepage.
+> **v2 mode:** This array powers the homepage grid only — search results come from Elasticsearch via the seeded dataset.
 
 **Edit target:** the `const PRODUCTS` array in the JS (between its opening `[` and closing `];`).
 
@@ -337,24 +330,17 @@ Replace with 12–15 products using SA-approved images from step 3g. Requirement
 
 ---
 
-### 3i — Lexical Mode Products
+### 3i — Lexical Mode Query
 
-> **v2 mode:** `PRODUCTS_LEXICAL` is bypassed — lexical results come from Elasticsearch via BM25 across all products (noise surfaces naturally for broad queries). You may skip this array. Still set `DEMO_QUERIES.lexical`.
+> **v2 mode:** Lexical results come from Elasticsearch via BM25 across all products including noise. Noise surfaces naturally for broad queries.
 
-**Edit target:** the `const PRODUCTS_LEXICAL` array and the `DEMO_QUERIES.lexical` value in `const DEMO_QUERIES`.
+**Edit target:** the `DEMO_QUERIES.lexical` value in `const DEMO_QUERIES`.
 
-Replace `PRODUCTS_LEXICAL` with 6 intentionally wrong/irrelevant products. These demonstrate keyword-matching failure — lexical search returns noise products that partially match query terms but are completely wrong context.
-
-Rules for lexical results:
-- Products must be in completely wrong categories (e.g., for a sporting goods store: motorcycle gear, equestrian equipment, or archery supplies — items that technically match keywords but are wrong context)
-- Low review counts (under 100) and mediocre ratings (3.2–3.9) to reinforce "bad results" feeling
-- Use images from the noise products (`isNoise: true`) in the selected category set
+Set `DEMO_QUERIES.lexical` to a broad, natural language query appropriate to the industry. **Do not misspell the query** — the point is that even a perfectly reasonable query returns wrong results with keyword-only search.
 
 **Demo query strategy — "same query, different results":**
 
 The most compelling demo story uses the **same query** for lexical and hybrid modes. This makes the contrast unmistakable: identical input, dramatically different output.
-
-Set `DEMO_QUERIES.lexical` to a broad, natural language query appropriate to the industry. **Do not misspell the query** — the point is that even a perfectly reasonable query returns wrong results with keyword-only search.
 
 | Category | Recommended lexical query | Why it works |
 |---|---|---|
@@ -365,44 +351,30 @@ Set `DEMO_QUERIES.lexical` to a broad, natural language query appropriate to the
 
 ---
 
-### 3j — Hybrid Mode Products
+### 3j — Hybrid Mode Query
 
-> **v2 mode:** `PRODUCTS_HYBRID` is bypassed — hybrid results come from Elasticsearch (semantic + BM25 on the seeded dataset). You may skip this array. Still set `DEMO_QUERIES.hybrid`.
+> **v2 mode:** Hybrid results come from Elasticsearch using RRF (Reciprocal Rank Fusion) to merge ELSER semantic and BM25 keyword retrieval, filtered to real products only (noise excluded).
 
-**Edit target:** the `const PRODUCTS_HYBRID` array and the `DEMO_QUERIES.hybrid` value.
-
-Replace `PRODUCTS_HYBRID` with 6 relevant, high-quality results. These demonstrate semantic search understanding — the results are correct and relevant even when the query is natural language.
-
-Rules:
-- All products should be directly relevant to the demo query
-- Include a mix of product types (not all the same item)
-- High ratings (4.5–4.9) and healthy review counts
-- Use image URLs from the SA-approved set
+**Edit target:** the `DEMO_QUERIES.hybrid` value.
 
 **Set `DEMO_QUERIES.hybrid` to the same query as `DEMO_QUERIES.lexical`.** This is the key to the demo story: the same natural language query returns noise with lexical search but relevant products with hybrid/semantic search. The audience sees the difference without changing what they typed.
 
 ---
 
-### 3k — LTR Mode Products (Personalized)
+### 3k — Personalized Mode Query
 
-> **v2 mode:** `PRODUCTS_LTR` is bypassed — personalized results come from Elasticsearch using `function_score` boosting on the persona's `preferredBrands`, `gender`, and `purchaseHistory`. You may skip this array. Still set `DEMO_QUERIES.ltr`.
+> **v2 mode:** Personalized results come from Elasticsearch using a 3-stage pipeline:
+> 1. RRF (Reciprocal Rank Fusion) merges 3 retrievers: ELSER semantic, BM25 keyword, and persona affinity signal
+> 2. Jina reranker (`.jina-reranker-v3`) does ML-based reranking
+> 3. Client-side split: top 6 = primary, next 2 = cross-sell
+>
+> No static array needed — results are entirely dynamic from ES.
 
-**Edit target:** the `const PRODUCTS_LTR` object and the `DEMO_QUERIES.ltr` value.
+**Edit target:** the `DEMO_QUERIES.personalized` value.
 
-Replace `PRODUCTS_LTR` with persona-specific results for each of the 3 personas. Each persona entry needs:
+Set `DEMO_QUERIES.personalized` to a short personalization query like `'gear for me'` or `'picks for me'` — the trigger words `'for me'` / `'my'` activate the persona-based RRF retrieval.
 
-**`primary`** — 5 products ranked for that persona:
-- Lead with gender-matching products for that persona
-- Prioritize their `preferredBrands` in the ranking order
-- Products should reflect their `purchaseHistory` context (complementary items they'd logically want)
-
-**`xsell`** — 2–3 cross-sell products ("you might also need"):
-- Draw from their `purchaseHistory` for contextual relevance
-- Include at least one consumable or accessory (lower price point)
-
-Set `DEMO_QUERIES.ltr` to a short personalization query like `'gear for me'` or `'picks for me'` — the trigger words `'for me'` / `'my'` activate the persona overlay.
-
-The LTR overlay displays the character name in a "Shopping as [CHARACTER_NAME]" banner. Update any hardcoded character name references to use the SA's chosen `CHARACTER_NAME`.
+The "Shopping as [persona-name]" overlay is displayed at the top of search results in personalized mode.
 
 ---
 
@@ -475,7 +447,7 @@ In v2 mode, search results come from Elasticsearch — not the template constant
 }
 ```
 
-2. Include all products from the homepage grid, search modes, LTR, and GenAI kits. Also include noise products with `"is_noise": true`.
+2. Include all products from the homepage grid, search modes, and GenAI kits. Also include noise products with `"is_noise": true`.
 3. Real product IDs: 1–50. Noise product IDs: 101+.
 4. Write rich `description` fields — these power semantic search (ELSER). Include use cases, features, materials, and scenarios.
 5. Reseed the Elasticsearch index:
@@ -492,9 +464,7 @@ Confirm output shows `✓ All [N] products indexed successfully`.
 
 ### 3p — Credential Injection
 
-**Skip this step if `.env` is missing or empty (mock-only mode).**
-
-**Edit target:** the `ES_CONFIG` and `V2_ENABLED` block near the top of the `<script>` section in `output/[CUSTOMER_SLUG]/demo.html`.
+**Edit target:** the `ES_CONFIG` block near the top of the `<script>` section in `output/[CUSTOMER_SLUG]/demo.html`.
 
 Replace each `{{token}}` with the value read from `.env` in step v2-D:
 
@@ -506,12 +476,11 @@ const ES_CONFIG = {
   inferenceUrl:    '[ES_INFERENCE_URL]',
   inferenceApiKey: '[ES_INFERENCE_API_KEY]'
 };
-const V2_ENABLED = true;
 ```
 
 The `index` value is computed as `{ES_INDEX}-{CUSTOMER_SLUG}` — the base name from `.env` plus the customer slug. This matches the index created by the `npm run reset -- --slug [CUSTOMER_SLUG]` command in step 3o.
 
-If any optional credential (e.g. `ES_INFERENCE_URL`) is blank, leave it as an empty string — the code falls back to mock gracefully.
+All credentials are required — if any are missing, the demo cannot run.
 
 ---
 
@@ -519,13 +488,13 @@ If any optional credential (e.g. `ES_INFERENCE_URL`) is blank, leave it as an em
 
 **Edit target:** the `doSearch()` function's `if` conditions in the JS.
 
-Update the lexical and GenAI keyword triggers to match the customer's specific demo queries set in 3i and 3l. The LTR trigger (`'for me'`, `'my '`) is generic and rarely needs changing.
+Update the lexical and GenAI keyword triggers to match the customer's specific demo queries set in 3i and 3l. The Personalized trigger (`'for me'`, `'my '`) is generic and rarely needs changing.
 
 ### 3r — Console Cheat Sheet
 
 **Edit target:** the `console.log` calls at the very end of the `<script>` block.
 
-Update the background color in the first `console.log` to `PRIMARY_COLOR` and update the query strings to match `DEMO_QUERIES`.
+Update the background color in the first `console.log` to `PRIMARY_COLOR` and update the query strings to match `DEMO_QUERIES`. Update mode names: `lexical`, `hybrid`, `personalized`, `genai`.
 
 ---
 
@@ -534,9 +503,10 @@ Update the background color in the first `console.log` to `PRIMARY_COLOR` and up
 After completing all edits, read back `output/[CUSTOMER_SLUG]/demo.html` and verify:
 - The `:root` colors are updated (not still `#1a6b4a`)
 - The `<title>` contains the customer name
-- `const PERSONAS` uses the correct persona names/IDs
+- `const PERSONAS` uses Alex, Marcus, and Sam with customized `preferredBrands` and `purchaseHistory`
 - `const PRODUCTS` contains customer-specific products (not the template's trail running defaults)
-- `DEMO_QUERIES` contains all four customized query strings
+- `DEMO_QUERIES` contains all four customized query strings: `lexical`, `hybrid`, `personalized`, `genai`
+- `ES_CONFIG` is populated with the correct ES credentials and `[ES_INDEX]-[CUSTOMER_SLUG]` index name
 - No references to the template brand names remain unless intentional
 - All image URLs are valid Pexels CDN links from the approved image set
 
@@ -551,17 +521,16 @@ After writing the file, print:
 ```
 ✅ Demo generated: output/[CUSTOMER_SLUG]/demo.html
 
-v2 mode: Run `npm run dev` and open http://localhost:3000/[CUSTOMER_SLUG]/demo.html
-Mock mode: Open the file directly in any browser — no server needed.
+Run `npm run dev` and open http://localhost:3000/[CUSTOMER_SLUG]/demo.html
 
 DEMO CHEAT SHEET — queries to type during your presentation:
-  1. Lexical:     "[DEMO_QUERIES.lexical]"   → bad results, wrong category
-  2. Hybrid:      "[DEMO_QUERIES.hybrid]"    → relevant, semantically matched
-  3. LTR:         "[DEMO_QUERIES.ltr]"       → personalized by active persona
-  4. GenAI:       "[DEMO_QUERIES.genai]"     → curated kit + chat
+  1. Lexical:     "[DEMO_QUERIES.lexical]"       → bad results, wrong category
+  2. Hybrid:      "[DEMO_QUERIES.hybrid]"        → relevant, semantically matched
+  3. Personalized: "[DEMO_QUERIES.personalized]" → ranked by active persona preferences
+  4. GenAI:       "[DEMO_QUERIES.genai]"         → curated kit + live chat
 
 Switch personas using the avatar buttons in the top bar.
-For the LTR/GenAI modes, switch personas and re-run the same query to show personalization.
+For the Personalized and GenAI modes, switch personas and re-run the same query to show how results change.
 ```
 
 ---
@@ -573,8 +542,8 @@ For the LTR/GenAI modes, switch personas and re-run the same query to show perso
 - **Do not invent image URLs** — use only URLs from the `image-library/*.json` files or URLs manually provided by the SA. If no image matches well, reuse the closest category match
 - **Images drive product data** — write product names, descriptions, and brands to match the SA-approved images, not the reverse
 - **Content safety is mandatory** — always ask the SA to review images before including them in the demo
-- **Keep all JavaScript logic intact** — only replace the data constants (`PERSONAS`, `PRODUCTS`, `PRODUCTS_LEXICAL`, `PRODUCTS_HYBRID`, `PRODUCTS_LTR`, `GENAI_KITS`, `DEMO_QUERIES`, `SUGGESTIONS`)
+- **Keep all JavaScript logic intact** — only replace the data constants (`PERSONAS`, `PRODUCTS`, `GENAI_KITS`, `DEMO_QUERIES`, `SUGGESTIONS`) and the `ES_CONFIG` credential block
 - **Keep all CSS intact** — only change the `:root` color values and hero slide background gradients
 - **Keep all HTML structure intact** — only replace text content and the logo element
-- **v2 mode** (default): the demo must be served via `npm run dev` (localhost:3000) — direct `file://` opening will cause CORS errors on ES queries
-- **Mock mode** (fallback): the demo works when opened from `file://` with no server, no credentials, and no internet-dependent assets beyond Google Fonts. Used when `.env` is not configured.
+- **ES mode (required):** the demo must be served via `npm run dev` (localhost:3000) — direct `file://` opening will cause CORS errors on ES queries
+- **All credentials are mandatory** — if any `.env` value is missing, the setup cannot proceed

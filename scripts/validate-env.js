@@ -232,6 +232,33 @@ async function checkInference() {
   });
 }
 
+// ─── Check 5: Jina reranker endpoint ────────────────────────────────────────
+
+async function checkJinaReranker() {
+  step('Checking Jina reranker inference endpoint...');
+
+  const url = process.env.ES_URL;
+  const key = process.env.ES_API_KEY;
+  if (isPlaceholder(url) || isPlaceholder(key)) {
+    info('Skipping — ES_URL or ES_API_KEY not valid');
+    return;
+  }
+
+  const client = new Client({ node: url, auth: { apiKey: key } });
+
+  try {
+    await client.inference.get({ inference_id: '.jina-reranker-v3' });
+    ok('Jina reranker endpoint found: .jina-reranker-v3');
+  } catch (e) {
+    if (e?.meta?.statusCode === 404) {
+      fail('Jina reranker endpoint not found: .jina-reranker-v3');
+      info('Create in Kibana: Search → Inference Endpoints → Elastic Inference Service → .jina-reranker-v3');
+    } else {
+      info(`Could not verify Jina reranker: ${esError(e)}`);
+    }
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -250,6 +277,7 @@ async function main() {
   await checkWriteKey();
   await checkReadKey();
   await checkInference();
+  await checkJinaReranker();
 
   console.log('\n──────────────────────────────────────────');
   if (failed === 0) {

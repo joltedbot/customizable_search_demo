@@ -84,19 +84,16 @@ When an approach is repeatedly blocked — whether by compilation errors, test f
 - **Validate credentials:** `npm run validate` — pre-flight check before seeding (requires `.env`)
 - **Seed ES index:** `npm run setup` — creates index, deploys ELSER, loads products (requires `.env`). Pass `-- --slug {name}` to create a customer-specific index `{ES_INDEX}-{name}`
 - **Reset ES index:** `npm run reset` — wipes and reseeds (requires `.env`). Pass `-- --slug {name}` to work with customer-specific index
-- **Generate test build:** `npm run generate-test` — injects `.env` credentials into template → `output/test/demo.html` with `V2_ENABLED=true`
+- **Generate test build:** `npm run generate-test` — injects `.env` credentials into template → `output/test/demo.html`
 
-No build step for mock mode — open `output/{slug}/demo.html` directly in a browser.
-
-**After changing `products.json` or `products-{slug}.json`:** run `npm run reset` (or `npm run reset -- --slug {name}` for customer-specific data) to push new data to the ES index, then `npm run generate-test` to rebuild the test file. Changes are not reflected in v2 mode until the index is reseeded.
+**After changing `products.json` or `products-{slug}.json`:** run `npm run reset` (or `npm run reset -- --slug {name}` for customer-specific data) to push new data to the ES index, then `npm run generate-test` to rebuild the test file. Changes are not reflected until the index is reseeded.
 
 ## Architecture Overview
 
 **Purpose:** SAs clone this repo, run `SETUP.md` with an AI agent, and get a branded single-page search demo customised for their customer.
 
-**Two modes — same codebase:**
-- **v2** (`V2_ENABLED = true`, default): live Elasticsearch, requires `npm run dev` for CORS
-- **Mock** (`V2_ENABLED = false`, fallback): fully offline, no ES, opens as `file://`. Used when `.env` is not configured.
+**One mode:**
+- **ES mode:** live Elasticsearch (required), `npm run dev` for CORS
 
 **Key files:**
 - `template/index.html` — ~2100-line single-file demo with `{{TOKEN}}` placeholders; AI replaces these during SETUP.md execution
@@ -110,15 +107,18 @@ No build step for mock mode — open `output/{slug}/demo.html` directly in a bro
 
 **Search modes (4):**
 1. Lexical — BM25 on `name^3`, `brand^2`, `tags^1`, `category^1`, `description^0.5`; no filtering (returns noise + real products based on keyword match). Broadened fields ensure queries like "camping gear" surface relevant results.
-2. Hybrid — ELSER semantic + BM25, filtered to real products
-3. Hybrid + LTR — Hybrid base + `function_score` boosting on persona `preferredBrands`, `gender`, `purchaseHistory`
+2. Hybrid — RRF (Reciprocal Rank Fusion) merges ELSER semantic and BM25 retrieval, filtered to real products
+3. Personalized — RRF (ELSER semantic + BM25 + persona affinity signal) followed by Jina reranker (`.jina-reranker-v3` inference endpoint), personalized by active persona's `preferredBrands`, `purchaseHistory`
 4. GenAI — Curated product kit + live chat via Elastic inference API
 
-**Personas (3):** Alex, Marcus, Sam — switcher in header; affect LTR and GenAI responses
+**Personas (3):** Alex (female), Marcus (male), Sam (neutral) — fixed identities, switcher in header; affect Personalized and GenAI responses
 
-**ES stack:** Cloud Hosted 9.x, `semantic_text` field + ELSER v2 (`.elser-2-elasticsearch`), index `demo-products`
+**ES stack:** Cloud Hosted 9.x, `semantic_text` field + ELSER v2 (`.elser-2-elasticsearch`), Jina Reranker v3 (`.jina-reranker-v3`), index `demo-products` (or `demo-products-{slug}` for customer-specific)
 
-**Inference API:** `POST {ES_URL}/_inference/completion/{id}` — body: `{ input: "..." }`, response: `completion[0].result`. Uses `completion` task type (not `chat_completion`).
+**Inference endpoints:**
+- **ELSER v2** — semantic embeddings (deployed automatically by `npm run setup`)
+- **Jina Reranker v3** — ML-based reranking for personalized mode (deployed via Elastic Inference Service; `npm run setup` auto-creates the endpoint)
+- **Completion API** — `POST {ES_URL}/_inference/completion/{id}` — body: `{ input: "..." }`, response: `completion[0].result`. Uses `completion` task type (not `chat_completion`).
 
 **Credentials in output HTML:**
 - `ES_API_KEY_READONLY` — baked into demo.html for browser queries (read-only, scoped to index)
@@ -134,7 +134,7 @@ No build step for mock mode — open `output/{slug}/demo.html` directly in a bro
 
 **Key JS state variables in `template/index.html`:**
 - `activePersona` — current persona object (alex/marcus/sam); set by persona switcher
-- `activeMode` — current search mode string (`'lexical'|'hybrid'|'ltr'|'genai'`); set by mode switcher pills
+- `activeMode` — current search mode string (`'lexical'|'hybrid'|'personalized'|'genai'`); set by mode switcher pills
 - `cartItems` — array of cart item objects; drives header badge count and cart drawer
 
 **Z-index layer stack (`template/index.html`):**
@@ -146,19 +146,17 @@ header=1000 → autocomplete=2000 → search overlay=3000 → genai overlay=4000
 
 No automated test suite. Manual testing only:
 
-**Mock mode:**
-1. Have the AI agent run SETUP.md to generate `output/{slug}/demo.html`
-2. Open directly in browser (`file://`) — no server needed
-3. Verify all 4 search modes return results, persona switcher works, GenAI chat shows mock response
-
-**v2 mode:**
-1. Ensure `.env` is filled in and `npm run setup` has been run successfully (look for `✓ All 46 products indexed successfully`)
+1. Ensure `.env` is filled in and `npm run setup` has been run successfully (look for `✓ All [N] products indexed successfully`)
 2. Run `npm run generate-test` → then `npm run dev`
 3. Open `http://localhost:3000/test/demo.html`
-4. Verify: Lexical returns keyword-matched products (mix of noise and real); Hybrid/LTR return only real relevant products; GenAI chat returns live inference response
-5. Switch personas and confirm LTR results change
+4. Verify:
+   - **Lexical** returns keyword-matched products (mix of noise and real)
+   - **Hybrid** returns only real relevant products (RRF of semantic + keyword)
+   - **Personalized** returns top 6 results ranked and reranked by persona affinity (RRF + Jina reranker)
+   - **GenAI** returns curated kit and live inference chat response
+5. Switch personas and confirm Personalized and GenAI results change
 
-**Note — v2 products come from ES, not the template:** In v2 mode, product data (including image URLs) is served from the Elasticsearch index. Fixing `products.json` or `template/index.html` alone won't be reflected in v2 until `npm run reset` reseeds the index.
+**Note — products come from ES, not the template:** Product data (including image URLs) is served from the Elasticsearch index. Fixing `products.json` or `template/index.html` alone won't be reflected until `npm run reset` reseeds the index.
 
 
 ## Code Style Guidelines
@@ -169,7 +167,7 @@ No automated test suite. Manual testing only:
 - **Env vars:** `ALL_CAPS_WITH_UNDERSCORES` (e.g. `ES_INFERENCE_URL`)
 - **JS config keys:** camelCase (e.g. `inferenceUrl`, `apiKey`)
 - **No new dependencies** without discussion — the project intentionally has minimal deps (`@elastic/elasticsearch`, `serve`)
-- **Mock fallback pattern:** all v2 ES calls must fall back to mock silently on failure; never let a failed ES call break the demo
+- **Error handling:** ES calls must show user-friendly error messages on failure (network issues, credentials); never silently fall back
 - **Images — Pexels only:** All product images use Pexels CDN. **Never use Unsplash** — their URLs go stale/404. Format: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`. Use IDs from `image-library/*.json` files. Verify new IDs with `curl -s -o /dev/null -w "%{http_code}" https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg` before committing.
 - **Pexels search pages block automation** — `pexels.com/search/*` returns 403 to headless fetches. Find IDs by browsing manually, using the Pexels API (free key at pexels.com/api/), or verifying candidate IDs with curl as above.
 - **Bash variable naming in zsh:** `status` is read-only in zsh — use `code`, `result`, or similar instead. Relevant when writing `curl` status-checking loops.

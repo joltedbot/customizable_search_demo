@@ -2,7 +2,7 @@
 /**
  * generate-test.js
  * Injects .env credentials into the template and writes output/test/demo.html
- * with V2_ENABLED = true. For testing Stage 3 ES integration only.
+ * for testing ES integration.
  */
 
 const fs = require('fs');
@@ -38,8 +38,6 @@ html = html.replace('{{ES_API_KEY_READONLY}}',     env.ES_API_KEY_READONLY);
 html = html.replace('{{ES_INDEX}}',                env.ES_INDEX || 'demo-products');
 html = html.replace('{{ES_INFERENCE_URL}}',       env.ES_INFERENCE_URL || '');
 html = html.replace('{{ES_INFERENCE_API_KEY}}',   env.ES_INFERENCE_API_KEY || '');
-html = html.replace('{{V2_ENABLED}}',              'true');
-
 const outDir = path.join(__dirname, '..', 'output', 'test');
 fs.mkdirSync(outDir, { recursive: true });
 const outPath = path.join(outDir, 'demo.html');
@@ -48,6 +46,5 @@ fs.writeFileSync(outPath, html, 'utf8');
 console.log(`\n✓ Generated: output/test/demo.html`);
 console.log(`  ES_URL:   ${env.ES_URL}`);
 console.log(`  ES_INDEX: ${env.ES_INDEX}`);
-console.log(`  V2_ENABLED: true`);
 console.log(`\n  Run: npm run dev`);
 console.log(`  Open: http://localhost:3000/test/demo.html\n`);

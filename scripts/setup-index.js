@@ -26,6 +26,7 @@ const { Client } = require('@elastic/elasticsearch');
 // ─── Config ──────────────────────────────────────────────────────────────────
 
 const ELSER_INFERENCE_ID = '.elser-2-elasticsearch';
+const JINA_RERANKER_INFERENCE_ID = '.jina-reranker-v3';
 
 // ─── .env loader (no dotenv dependency) ──────────────────────────────────────
 
@@ -132,6 +133,22 @@ async function checkElser(client) {
       warn('The index will still be created, but semantic_text fields will not work until ELSER is deployed.');
     } else {
       warn(`Could not verify ELSER endpoint: ${err.message}`);
+    }
+  }
+}
+
+async function checkJinaReranker(client) {
+  step('Checking Jina reranker inference endpoint...');
+  try {
+    await client.inference.get({ inference_id: JINA_RERANKER_INFERENCE_ID });
+    ok(`Jina reranker inference endpoint found: ${JINA_RERANKER_INFERENCE_ID}`);
+  } catch (err) {
+    if (err.statusCode === 404) {
+      warn(`Jina reranker endpoint not found: ${JINA_RERANKER_INFERENCE_ID}`);
+      warn('Create it in Kibana: Search → Inference Endpoints → Add endpoint → Elastic Inference Service → .jina-reranker-v3');
+      warn('Personalized search mode requires this endpoint for ML-based reranking.');
+    } else {
+      warn(`Could not verify Jina reranker endpoint: ${err.message}`);
     }
   }
 }
@@ -299,7 +316,7 @@ function printSummary(indexName) {
      Then open http://localhost:3000
 
   Note: ELSER generates embeddings asynchronously after indexing.
-  Hybrid and LTR search modes will improve as embeddings complete.
+  Hybrid and Personalized search modes will improve as embeddings complete.
   Full processing typically takes 1-5 minutes.
 `);
 }
@@ -344,6 +361,7 @@ async function main() {
 
   await checkConnection(client);
   await checkElser(client);
+  await checkJinaReranker(client);
 
   if (isCheckOnly) {
     console.log('\n  Check complete — no changes made.\n');
