@@ -3,13 +3,20 @@
 /**
  * setup-index.js
  * Bootstraps the Elasticsearch demo index: creates mappings, deploys ELSER,
- * and bulk-indexes the 75-product dataset.
+ * and bulk-indexes the product dataset.
  *
  * Usage:
- *   node scripts/setup-index.js            — full setup (skip if index exists)
- *   node scripts/setup-index.js --reset    — delete + recreate index, re-seed
- *   node scripts/setup-index.js --seed-only — skip index creation, just bulk index
- *   node scripts/setup-index.js --check    — verify cluster + ELSER, no writes
+ *   node scripts/setup-index.js                        — full setup (skip if index exists)
+ *   node scripts/setup-index.js --reset                — delete + recreate index, re-seed
+ *   node scripts/setup-index.js --seed-only            — skip index creation, just bulk index
+ *   node scripts/setup-index.js --check                — verify cluster + ELSER, no writes
+ *   node scripts/setup-index.js --slug sportchek       — use products-sportchek.json and index suffix -sportchek
+ *   node scripts/setup-index.js --reset --slug mec     — delete + recreate customer-specific index
+ *
+ * The --slug flag:
+ *   - Reads product data from scripts/data/products-{slug}.json instead of products.json
+ *   - Appends -{slug} to the ES_INDEX base name (e.g. demo-products → demo-products-sportchek)
+ *   - Without --slug, behaviour is unchanged (uses products.json and ES_INDEX as-is)
  */
 
 const fs = require('fs');
@@ -19,7 +26,6 @@ const { Client } = require('@elastic/elasticsearch');
 // ─── Config ──────────────────────────────────────────────────────────────────
 
 const ELSER_INFERENCE_ID = '.elser-2-elasticsearch';
-const PRODUCTS_FILE = path.join(__dirname, 'data', 'products.json');
 
 // ─── .env loader (no dotenv dependency) ──────────────────────────────────────
 
@@ -167,17 +173,17 @@ async function createIndex(client, indexName) {
   }
 }
 
-async function seedProducts(client, indexName) {
+async function seedProducts(client, indexName, productsFilePath) {
   step('Bulk indexing products...');
 
   let products;
   try {
-    products = JSON.parse(fs.readFileSync(PRODUCTS_FILE, 'utf8'));
+    products = JSON.parse(fs.readFileSync(productsFilePath, 'utf8'));
   } catch (err) {
-    fatal(`Cannot read products file: ${err.message}`);
+    fatal(`Cannot read products file: ${err.message}\n  Path: ${productsFilePath}`);
   }
 
-  log(`Loaded ${products.length} products from ${PRODUCTS_FILE}`);
+  log(`Loaded ${products.length} products from ${productsFilePath}`);
 
   const operations = products.flatMap(product => [
     { index: { _index: indexName, _id: String(product.id) } },
@@ -275,7 +281,7 @@ function printSummary(indexName) {
   console.log('─'.repeat(60));
   console.log(`
   Index:   ${indexName}
-  Products: 75 (65 real + 10 noise)
+  Products: see verification counts above
 
   Next steps:
   1. Configure CORS so the demo can query ES from localhost:3000.
@@ -294,7 +300,7 @@ function printSummary(indexName) {
 
   Note: ELSER generates embeddings asynchronously after indexing.
   Hybrid and LTR search modes will improve as embeddings complete.
-  Full processing typically takes 1-5 minutes for 75 documents.
+  Full processing typically takes 1-5 minutes.
 `);
 }
 
@@ -306,19 +312,30 @@ async function main() {
   const isSeedOnly = args.includes('--seed-only');
   const isCheckOnly = args.includes('--check');
 
+  // Parse --slug <value>
+  const slugIdx = args.indexOf('--slug');
+  const slug = slugIdx !== -1 && args[slugIdx + 1] ? args[slugIdx + 1] : null;
+
+  // Derive products file and index name from slug
+  const productsFile = slug
+    ? path.join(__dirname, 'data', `products-${slug}.json`)
+    : path.join(__dirname, 'data', 'products.json');
+
   console.log('\n━━━ Elastic Search Demo — Index Setup ━━━');
   if (isReset)    console.log('  Mode: RESET (delete + recreate + seed)');
   if (isSeedOnly) console.log('  Mode: SEED ONLY (skip index creation)');
   if (isCheckOnly) console.log('  Mode: CHECK (read-only, no writes)');
+  if (slug)       console.log(`  Slug: ${slug}`);
 
   loadEnv();
 
   const esUrl   = requireEnv('ES_URL');
   const apiKey  = requireEnv('ES_API_KEY');
-  const esIndex = process.env.ES_INDEX || 'demo-products';
+  const baseIndex = process.env.ES_INDEX || 'demo-products';
+  const esIndex = slug ? `${baseIndex}-${slug}` : baseIndex;
 
   log(`ES_URL:   ${esUrl}`);
-  log(`ES_INDEX: ${esIndex}`);
+  log(`ES_INDEX: ${esIndex}${slug ? ` (base: ${baseIndex}, slug: ${slug})` : ''}`);
 
   const client = new Client({
     node: esUrl,
@@ -341,7 +358,7 @@ async function main() {
     await createIndex(client, esIndex);
   }
 
-  await seedProducts(client, esIndex);
+  await seedProducts(client, esIndex, productsFile);
   await verifyIndex(client, esIndex);
   printSummary(esIndex);
 }

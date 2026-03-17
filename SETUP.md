@@ -92,6 +92,8 @@ http.cors.allow-headers: "X-Requested-With, Content-Type, Content-Length, Author
 During Step 3, you (the AI agent) will inject the credentials into the output file. Before proceeding to Step 1, read `.env` and store the following values for use in step 3p:
 - `ES_URL`, `ES_API_KEY_READONLY`, `ES_INDEX`, `ES_INFERENCE_URL`, `ES_INFERENCE_API_KEY`
 
+Note: `ES_INDEX` is a base name. The actual index will be `{ES_INDEX}-{CUSTOMER_SLUG}` (e.g., if `ES_INDEX=demo-products` and `CUSTOMER_SLUG=acme-sports`, the index is `demo-products-acme-sports`).
+
 If `.env` does not exist or is not filled in, fall back to mock mode: set `V2_ENABLED = false` and leave the credential tokens as empty strings.
 
 ---
@@ -450,9 +452,9 @@ Update with a short promotional message appropriate to the industry (e.g., "Summ
 
 **Skip this step if `.env` is missing or empty (mock-only mode).**
 
-In v2 mode, search results come from Elasticsearch — not the template constants. The SA needs a custom `products.json` that matches their approved images and product data.
+In v2 mode, search results come from Elasticsearch — not the template constants. Each customer gets their own product data file and ES index to prevent overwrites.
 
-1. Generate a custom `scripts/data/products.json` from the SA-approved images and product data built in steps 3h–3l. Each product entry needs:
+1. Generate `scripts/data/products-[CUSTOMER_SLUG].json` from the SA-approved images and product data built in steps 3h–3l. Each product entry needs:
 
 ```json
 {
@@ -479,8 +481,10 @@ In v2 mode, search results come from Elasticsearch — not the template constant
 5. Reseed the Elasticsearch index:
 
 ```bash
-npm run reset
+npm run reset -- --slug [CUSTOMER_SLUG]
 ```
+
+The `--slug` flag reads from `products-[CUSTOMER_SLUG].json` and creates index `{ES_INDEX}-[CUSTOMER_SLUG]` (where `ES_INDEX` is the base name from `.env`). This keeps each customer's data isolated.
 
 Confirm output shows `✓ All [N] products indexed successfully`.
 
@@ -498,12 +502,14 @@ Replace each `{{token}}` with the value read from `.env` in step v2-D:
 const ES_CONFIG = {
   url:                '[ES_URL]',
   apiKey:             '[ES_API_KEY_READONLY]',
-  index:              '[ES_INDEX]',
+  index:              '[ES_INDEX]-[CUSTOMER_SLUG]',
   inferenceUrl:    '[ES_INFERENCE_URL]',
   inferenceApiKey: '[ES_INFERENCE_API_KEY]'
 };
 const V2_ENABLED = true;
 ```
+
+The `index` value is computed as `{ES_INDEX}-{CUSTOMER_SLUG}` — the base name from `.env` plus the customer slug. This matches the index created by the `npm run reset -- --slug [CUSTOMER_SLUG]` command in step 3o.
 
 If any optional credential (e.g. `ES_INFERENCE_URL`) is blank, leave it as an empty string — the code falls back to mock gracefully.
 

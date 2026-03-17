@@ -3,3 +3,4 @@ output/
 node_modules/
 .claude
 .DS_Store
+scripts/data/products-*.json
