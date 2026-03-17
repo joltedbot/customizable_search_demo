@@ -6,7 +6,7 @@ A cloneable repo for Elastic SAs to quickly build a branded, interactive search 
 
 A single-page HTML demo that looks like the customer's own website and walks through four search scenarios:
 
-1. **Lexical (B25)** — Intentionally poor results; shows the limits of keyword-only search
+1. **Lexical (BM25)** — Intentionally poor results; shows the limits of keyword-only search
 2. **Hybrid Search** — Relevant results via semantic + lexical matching
 3. **Hybrid + LTR** — Personalized, reranked results with cross-sell surfacing
 4. **GenAI Search** — Curated "kit" + conversational AI follow-up
@@ -30,6 +30,7 @@ cp .env.template .env   # fill in ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READO
 npm install
 npm run validate        # pre-flight check — fix any ✗ failures before continuing
 npm run setup
+# For customer-specific index: npm run setup -- --slug <customer-slug>
 
 # 2. Generate the branded demo (via AI agent)
 claude   # or: gemini
@@ -85,8 +86,8 @@ Open `SETUP.md` and fill in the `## Customer Config` section before running the 
 | `package.json` | npm scripts: `validate`, `dev`, `setup`, `reset` (v2 mode) |
 | `.env.template` | Credentials template — copy to `.env` and fill in (v2 mode) |
 | `scripts/validate-env.js` | Pre-flight check: validates all `.env` credentials before setup (v2 mode) |
-| `scripts/setup-index.js` | Creates the ES index, deploys ELSER, seeds products (v2 mode) |
-| `scripts/data/products.json` | 46-product sporting goods dataset (v2 mode) |
+| `scripts/setup-index.js` | Creates the ES index, deploys ELSER, seeds products. Supports `--slug {name}` for customer-specific indices (v2 mode) |
+| `scripts/data/products.json` | 46-product sporting goods base dataset (v2 mode); customer-specific data in `products-{slug}.json` (gitignored) |
 
 ---
 
@@ -144,7 +145,7 @@ When the audience asks "what else can I search for?", these work well for live d
 The demo ships with a complete v2 Elasticsearch integration. v2 is the default — enabled by configuring `.env` credentials before running SETUP.md. If `.env` is missing, the agent falls back to mock mode (`V2_ENABLED = false`).
 
 **What v2 adds:**
-- Lexical mode → BM25 on `name`/`brand` fields, no filtering (noise surfaces naturally for broad queries)
+- Lexical mode → BM25 on `name`, `brand`, `tags`, `category`, `description` fields, no filtering (noise surfaces naturally for broad queries)
 - Hybrid mode → ELSER semantic + BM25 combined, filtered to real products
 - LTR mode → Hybrid base + `function_score` boosting on persona `preferredBrands`, `gender`, and `purchaseHistory`
 - GenAI chat → Live responses via Elastic inference API (Claude, Bedrock, Azure OpenAI, etc.)

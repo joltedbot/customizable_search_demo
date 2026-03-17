@@ -82,13 +82,13 @@ When an approach is repeatedly blocked — whether by compilation errors, test f
 
 - **Serve demo locally:** `npm run dev` — serves `output/` at `http://localhost:3000`
 - **Validate credentials:** `npm run validate` — pre-flight check before seeding (requires `.env`)
-- **Seed ES index:** `npm run setup` — creates index, deploys ELSER, loads 75 products (requires `.env`)
-- **Reset ES index:** `npm run reset` — wipes and reseeds (requires `.env`)
+- **Seed ES index:** `npm run setup` — creates index, deploys ELSER, loads products (requires `.env`). Pass `-- --slug {name}` to create a customer-specific index `{ES_INDEX}-{name}`
+- **Reset ES index:** `npm run reset` — wipes and reseeds (requires `.env`). Pass `-- --slug {name}` to work with customer-specific index
 - **Generate test build:** `npm run generate-test` — injects `.env` credentials into template → `output/test/demo.html` with `V2_ENABLED=true`
 
 No build step for mock mode — open `output/{slug}/demo.html` directly in a browser.
 
-**After changing `products.json`:** run `npm run reset` to push new data to the ES index, then `npm run generate-test` to rebuild the test file. Changes to `products.json` are not reflected in v2 mode until the index is reseeded.
+**After changing `products.json` or `products-{slug}.json`:** run `npm run reset` (or `npm run reset -- --slug {name}` for customer-specific data) to push new data to the ES index, then `npm run generate-test` to rebuild the test file. Changes are not reflected in v2 mode until the index is reseeded.
 
 ## Architecture Overview
 
@@ -101,15 +101,15 @@ No build step for mock mode — open `output/{slug}/demo.html` directly in a bro
 **Key files:**
 - `template/index.html` — ~2100-line single-file demo with `{{TOKEN}}` placeholders; AI replaces these during SETUP.md execution
 - `SETUP.md` — AI execution script; the SA runs this with Gemini CLI or Claude Code
-- `image-library/` — pre-curated Pexels image sets (one JSON per industry: consumer-electronics, sporting-goods, clothing-fashion, groceries-food)
+- `image-library/` — pre-curated Pexels image sets (one JSON per industry: consumer-electronics, sporting-goods, clothing-fashion, groceries-food, outdoor-camping)
 - `scripts/setup-index.js` — seeds the ES index (run once via `npm run setup`)
-- `scripts/data/products.json` — 46-product sporting goods dataset (default for testing)
+- `scripts/data/products.json` — 46-product sporting goods dataset (default for testing); customer-specific data goes in `scripts/data/products-{slug}.json`
 - `scripts/generate-test.js` — dev helper: injects `.env` → `output/test/demo.html`
 - `.env.template` — credentials template; copy to `.env` before running v2 setup
 - `output/{customer-slug}/demo.html` — generated output, gitignored
 
 **Search modes (4):**
-1. Lexical — BM25 on `name`/`brand`, no filtering (returns noise + real products based on keyword match)
+1. Lexical — BM25 on `name^3`, `brand^2`, `tags^1`, `category^1`, `description^0.5`; no filtering (returns noise + real products based on keyword match). Broadened fields ensure queries like "camping gear" surface relevant results.
 2. Hybrid — ELSER semantic + BM25, filtered to real products
 3. Hybrid + LTR — Hybrid base + `function_score` boosting on persona `preferredBrands`, `gender`, `purchaseHistory`
 4. GenAI — Curated product kit + live chat via Elastic inference API
@@ -126,9 +126,11 @@ No build step for mock mode — open `output/{slug}/demo.html` directly in a bro
 
 **CORS:** Configured in Kibana with regex `/https?:\/\/localhost(:[0-9]+)?/`
 
-**Dataset:** 46 products — 36 real sporting goods + 10 noise (`is_noise: true`). Lexical mode searches all products (noise surfaces naturally for broad queries); all other modes filter AWAY from noise. SAs generate custom datasets during SETUP.md from the `image-library/` JSON files.
+**Dataset:** 46 products — 36 real sporting goods + 10 noise (`is_noise: true`). Lexical mode searches all products (noise surfaces naturally for broad queries); all other modes filter AWAY from noise. SAs generate custom datasets during SETUP.md from the `image-library/` JSON files. Each customer gets their own `products-{slug}.json` file and ES index `{ES_INDEX}-{slug}`.
 
-**Image library:** 4 pre-curated category sets in `image-library/` (~50 images each). SAs pick a set matching their customer's industry. Images are Pexels CDN links — no local storage, no API keys needed. Extensible: add a new industry by adding a new JSON file.
+**Image library:** 5 pre-curated category sets in `image-library/` (~50 images each). SAs pick a set matching their customer's industry. Images are Pexels CDN links — no local storage, no API keys needed. Extensible: add a new industry by adding a new JSON file.
+
+**Empty state (zero results):** When a search returns no products, `openScenario()` displays a "0 results found" message with the search icon, query text, and suggestion to try a different search term. Improves retail demo UX.
 
 **RPI plans:** stored in `.gemini/plans/` within the repo.
 
