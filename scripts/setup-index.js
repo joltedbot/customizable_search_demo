@@ -7,20 +7,24 @@
  *
  * Usage:
  *   node scripts/setup-index.js                        — full setup (skip if index exists)
- *   node scripts/setup-index.js --reset                — delete + recreate index, re-seed
+ *   node scripts/setup-index.js --reset                — delete + recreate indexes, re-seed
  *   node scripts/setup-index.js --seed-only            — skip index creation, just bulk index
  *   node scripts/setup-index.js --check                — verify cluster + ELSER, no writes
  *   node scripts/setup-index.js --slug sportchek       — use products-sportchek.json and index suffix -sportchek
- *   node scripts/setup-index.js --reset --slug mec     — delete + recreate customer-specific index
+ *   node scripts/setup-index.js --reset --slug mec     — delete + recreate customer-specific indexes
+ *   node scripts/setup-index.js --skip-agent           — skip Agent Builder setup even if Kibana creds are set
  *
  * The --slug flag:
  *   - Reads product data from scripts/data/products-{slug}.json instead of products.json
- *   - Appends -{slug} to the ES_INDEX base name (e.g. demo-products → demo-products-sportchek)
- *   - Without --slug, behaviour is unchanged (uses products.json and ES_INDEX as-is)
+ *   - Appends -{slug} to index names (e.g. demo-products → demo-products-sportchek, demo-personas → demo-personas-sportchek)
+ *   - Agent Builder tools/agent IDs are also suffixed
+ *   - Without --slug, behaviour is unchanged (uses products.json and base index names)
  */
 
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
+const https = require('https');
 const { Client } = require('@elastic/elasticsearch');
 
 // ─── Config ──────────────────────────────────────────────────────────────────
@@ -292,6 +296,235 @@ async function verifyIndex(client, indexName) {
   }
 }
 
+// ─── Persona index ──────────────────────────────────────────────────────────
+
+function personaMapping() {
+  return {
+    settings: { number_of_shards: 1, number_of_replicas: 0 },
+    mappings: {
+      properties: {
+        id:               { type: 'keyword' },
+        name:             { type: 'text', fields: { keyword: { type: 'keyword' } } },
+        tagline:          { type: 'text' },
+        gender:           { type: 'keyword' },
+        preferredBrands:  { type: 'keyword' },
+        purchaseHistory:  { type: 'keyword' },
+        clickHistory:     { type: 'keyword' },
+        season:           { type: 'keyword' }
+      }
+    }
+  };
+}
+
+async function createPersonaIndex(client, indexName) {
+  step(`Creating persona index: ${indexName}...`);
+  try {
+    const exists = await client.indices.exists({ index: indexName });
+    if (exists) {
+      warn(`Persona index ${indexName} already exists. Use --reset to recreate it.`);
+      return false;
+    }
+  } catch (_) {}
+
+  try {
+    await client.indices.create({ index: indexName, body: personaMapping() });
+    ok(`Persona index created: ${indexName}`);
+    return true;
+  } catch (err) {
+    fatal(`Failed to create persona index: ${err.message}`);
+  }
+}
+
+async function seedPersonas(client, indexName) {
+  step('Indexing personas...');
+  const personasPath = path.join(__dirname, 'data', 'personas.json');
+  let personas;
+  try {
+    personas = JSON.parse(fs.readFileSync(personasPath, 'utf8'));
+  } catch (err) {
+    fatal(`Cannot read personas file: ${err.message}\n  Path: ${personasPath}`);
+  }
+
+  const operations = personas.flatMap(p => [
+    { index: { _index: indexName, _id: p.id } },
+    p
+  ]);
+
+  try {
+    const result = await client.bulk({ body: operations, refresh: true });
+    if (result.errors) {
+      const failed = result.items.filter(i => i.index && i.index.error);
+      warn(`Persona bulk index had ${failed.length} error(s)`);
+    } else {
+      ok(`All ${personas.length} personas indexed successfully`);
+    }
+  } catch (err) {
+    fatal(`Persona bulk indexing failed: ${err.message}`);
+  }
+}
+
+async function deletePersonaIndex(client, indexName) {
+  step(`Deleting persona index: ${indexName}...`);
+  try {
+    await client.indices.delete({ index: indexName });
+    ok(`Persona index deleted: ${indexName}`);
+  } catch (err) {
+    if (err.statusCode === 404) {
+      log('Persona index did not exist, nothing to delete.');
+    } else {
+      fatal(`Failed to delete persona index: ${err.message}`);
+    }
+  }
+}
+
+// ─── Agent Builder (Kibana API) ─────────────────────────────────────────────
+
+function kibanaRequest(method, urlPath, body, kibanaUrl, kibanaApiKey) {
+  const fullUrl = new URL(urlPath, kibanaUrl);
+  const payload = body ? JSON.stringify(body) : null;
+
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: fullUrl.hostname,
+      port: fullUrl.port || (fullUrl.protocol === 'https:' ? 443 : 80),
+      path: fullUrl.pathname,
+      method,
+      headers: {
+        'Authorization': `ApiKey ${kibanaApiKey}`,
+        'kbn-xsrf': 'true',
+        'Content-Type': 'application/json'
+      }
+    };
+    if (payload) options.headers['Content-Length'] = Buffer.byteLength(payload);
+
+    const transport = fullUrl.protocol === 'https:' ? https : http;
+
+    const req = transport.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        let parsed;
+        try { parsed = JSON.parse(data); } catch { parsed = data; }
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve({ status: res.statusCode, body: parsed });
+        } else {
+          reject({ status: res.statusCode, body: parsed });
+        }
+      });
+    });
+
+    req.on('error', (e) => reject({ status: 0, body: e.message }));
+    req.setTimeout(30000, () => { req.destroy(); reject({ status: 0, body: 'Request timed out' }); });
+
+    if (payload) req.write(payload);
+    req.end();
+  });
+}
+
+async function createAgentTools(kibanaUrl, kibanaApiKey, productIndex, personaIndex, slug) {
+  step('Creating Agent Builder tools...');
+
+  const suffix = slug ? `-${slug}` : '';
+  const tools = [
+    {
+      id: `demo-product-search${suffix}`,
+      type: 'index_search',
+      description: 'Search the product catalog for items matching customer queries',
+      configuration: { pattern: productIndex }
+    },
+    {
+      id: `demo-persona-search${suffix}`,
+      type: 'index_search',
+      description: 'Look up customer persona profiles including preferences and purchase history',
+      configuration: { pattern: personaIndex }
+    }
+  ];
+
+  const toolIds = [];
+  for (const tool of tools) {
+    // Idempotency: check if tool exists
+    try {
+      await kibanaRequest('GET', `/api/agent_builder/tools/${tool.id}`, null, kibanaUrl, kibanaApiKey);
+      ok(`Tool already exists: ${tool.id} (skipping)`);
+      toolIds.push(tool.id);
+      continue;
+    } catch (e) {
+      if (e.status !== 404) {
+        warn(`Could not check tool ${tool.id}: ${JSON.stringify(e.body)}`);
+      }
+    }
+
+    try {
+      await kibanaRequest('POST', '/api/agent_builder/tools', tool, kibanaUrl, kibanaApiKey);
+      ok(`Tool created: ${tool.id}`);
+      toolIds.push(tool.id);
+    } catch (e) {
+      fatal(`Failed to create tool ${tool.id}: ${JSON.stringify(e.body)}`);
+    }
+  }
+
+  return toolIds;
+}
+
+async function createAgent(kibanaUrl, kibanaApiKey, toolIds, slug) {
+  step('Creating Agent Builder agent...');
+
+  const suffix = slug ? `-${slug}` : '';
+  const agentId = `demo-shopping-assistant${suffix}`;
+
+  // Idempotency: check if agent exists
+  try {
+    await kibanaRequest('GET', `/api/agent_builder/agents/${agentId}`, null, kibanaUrl, kibanaApiKey);
+    ok(`Agent already exists: ${agentId} (skipping)`);
+    return agentId;
+  } catch (e) {
+    if (e.status !== 404) {
+      warn(`Could not check agent ${agentId}: ${JSON.stringify(e.body)}`);
+    }
+  }
+
+  const agent = {
+    id: agentId,
+    name: `Shopping Assistant${slug ? ` (${slug})` : ''}`,
+    description: 'AI shopping assistant for product discovery and recommendations',
+    configuration: {
+      instructions: [
+        'You are a shopping assistant for an online retail store.',
+        'Help customers find products, make recommendations, and answer questions about the catalog.',
+        '',
+        'When a customer asks about products:',
+        '1. Search the product index for relevant items',
+        '2. If a persona name is mentioned, look up their profile in the persona index to understand their preferences and purchase history',
+        '3. Recommend products that match both the query and the customer\'s preferences',
+        '4. Be conversational, helpful, and concise'
+      ].join('\n'),
+      tools: [{ tool_ids: toolIds }]
+    }
+  };
+
+  try {
+    await kibanaRequest('POST', '/api/agent_builder/agents', agent, kibanaUrl, kibanaApiKey);
+    ok(`Agent created: ${agentId}`);
+    return agentId;
+  } catch (e) {
+    fatal(`Failed to create agent: ${JSON.stringify(e.body)}`);
+  }
+}
+
+function writeAgentIdToEnv(agentId) {
+  const envPath = path.join(__dirname, '..', '.env');
+  let content = fs.readFileSync(envPath, 'utf8');
+
+  if (content.match(/^AGENT_ID=.*$/m)) {
+    content = content.replace(/^AGENT_ID=.*$/m, `AGENT_ID=${agentId}`);
+  } else {
+    content = content.trimEnd() + `\nAGENT_ID=${agentId}\n`;
+  }
+
+  fs.writeFileSync(envPath, content, 'utf8');
+  ok(`AGENT_ID=${agentId} written to .env`);
+}
+
 function printSummary(indexName) {
   console.log('\n' + '─'.repeat(60));
   console.log('  Setup complete!');
@@ -328,6 +561,7 @@ async function main() {
   const isReset = args.includes('--reset');
   const isSeedOnly = args.includes('--seed-only');
   const isCheckOnly = args.includes('--check');
+  const skipAgent = args.includes('--skip-agent');
 
   // Parse --slug <value>
   const slugIdx = args.indexOf('--slug');
@@ -338,21 +572,27 @@ async function main() {
     ? path.join(__dirname, 'data', `products-${slug}.json`)
     : path.join(__dirname, 'data', 'products.json');
 
+  const baseIndex = 'demo-products';
+  const basePersonaIndex = 'demo-personas';
+
   console.log('\n━━━ Elastic Search Demo — Index Setup ━━━');
   if (isReset)    console.log('  Mode: RESET (delete + recreate + seed)');
   if (isSeedOnly) console.log('  Mode: SEED ONLY (skip index creation)');
   if (isCheckOnly) console.log('  Mode: CHECK (read-only, no writes)');
+  if (skipAgent)  console.log('  Agent: SKIP (--skip-agent)');
   if (slug)       console.log(`  Slug: ${slug}`);
 
   loadEnv();
 
   const esUrl   = requireEnv('ES_URL');
   const apiKey  = requireEnv('ES_API_KEY');
-  const baseIndex = process.env.ES_INDEX || 'demo-products';
-  const esIndex = slug ? `${baseIndex}-${slug}` : baseIndex;
+  const esIndexBase = process.env.ES_INDEX || baseIndex;
+  const esIndex = slug ? `${esIndexBase}-${slug}` : esIndexBase;
+  const personaIndex = slug ? `${basePersonaIndex}-${slug}` : basePersonaIndex;
 
-  log(`ES_URL:   ${esUrl}`);
-  log(`ES_INDEX: ${esIndex}${slug ? ` (base: ${baseIndex}, slug: ${slug})` : ''}`);
+  log(`ES_URL:          ${esUrl}`);
+  log(`ES_INDEX:        ${esIndex}${slug ? ` (base: ${esIndexBase}, slug: ${slug})` : ''}`);
+  log(`PERSONA_INDEX:   ${personaIndex}`);
 
   const client = new Client({
     node: esUrl,
@@ -368,6 +608,7 @@ async function main() {
     return;
   }
 
+  // Product index
   if (isReset) {
     await deleteIndex(client, esIndex);
   }
@@ -378,6 +619,33 @@ async function main() {
 
   await seedProducts(client, esIndex, productsFile);
   await verifyIndex(client, esIndex);
+
+  // Persona index
+  if (isReset) {
+    await deletePersonaIndex(client, personaIndex);
+  }
+
+  if (!isSeedOnly) {
+    await createPersonaIndex(client, personaIndex);
+  }
+
+  await seedPersonas(client, personaIndex);
+
+  // Agent Builder setup (Kibana API)
+  const kibanaUrl = process.env.KIBANA_URL;
+  const kibanaApiKey = process.env.KIBANA_API_KEY;
+
+  if (skipAgent) {
+    log('Agent Builder setup skipped (--skip-agent)');
+  } else if (!kibanaUrl || kibanaUrl.includes('your-deployment') || !kibanaApiKey || kibanaApiKey.startsWith('your_')) {
+    warn('KIBANA_URL or KIBANA_API_KEY not set — skipping Agent Builder setup.');
+    warn('GenAI mode will not work until Kibana credentials are configured and npm run setup is re-run.');
+  } else {
+    const toolIds = await createAgentTools(kibanaUrl, kibanaApiKey, esIndex, personaIndex, slug);
+    const agentId = await createAgent(kibanaUrl, kibanaApiKey, toolIds, slug);
+    writeAgentIdToEnv(agentId);
+  }
+
   printSummary(esIndex);
 }
 

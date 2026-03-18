@@ -841,7 +841,6 @@
     /* ===================== GENAI OVERLAY ===================== */
     :root {
       --genai-bar-h: 73px;
-      --genai-drawer-hdr: 52px;
     }
     .genai-overlay {
       display: none;
@@ -866,21 +865,75 @@
       position: relative;
       box-shadow: 0 24px 80px rgba(0,0,0,0.4);
     }
-    .genai-modal-top {
-      overflow-y: auto;
-      flex: 1;
-      padding: 32px 32px calc(var(--genai-drawer-hdr) + 20px);
+    .genai-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--gray-200);
+      flex-shrink: 0;
     }
-    .genai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .genai-title { font-size: 18px; font-weight: 700; margin-left: 8px; }
-    .genai-intro { margin-bottom: 20px; }
-    .genai-intro p { margin: 4px 0; font-size: 14px; }
-    .genai-sub { color: var(--gray-600); font-size: 14px; }
+
+    /* Chat area — primary interface */
+    .genai-chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      min-height: 200px;
+    }
+    .genai-msg { margin-bottom: 14px; display: flex; flex-direction: column; }
+    .genai-msg-user {
+      align-self: flex-end;
+      background: var(--primary);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 18px 18px 4px 18px;
+      max-width: 80%;
+      font-size: 14px;
+    }
+    .genai-msg-ai-wrap { align-self: flex-start; max-width: 92%; }
+    .genai-msg-ai-label { font-size: 11px; color: var(--gray-400); font-weight: 700; margin-bottom: 4px; }
+    .genai-msg-ai {
+      background: #f3e8fd;
+      padding: 12px 14px;
+      border-radius: 4px 18px 18px 18px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .genai-msg-ai strong { color: var(--primary); }
+
+    /* Thinking indicator */
+    .genai-thinking {
+      display: flex;
+      gap: 4px;
+      padding: 12px 14px;
+    }
+    .genai-thinking-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--badge-genai);
+      animation: genaiPulse 1.4s ease-in-out infinite;
+    }
+    .genai-thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+    .genai-thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes genaiPulse {
+      0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Products area (populated from agent tool results) */
+    .genai-products-area {
+      flex-shrink: 0;
+      padding: 0 24px 12px;
+      border-top: 1px solid var(--gray-200);
+    }
     .genai-products {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 14px;
-      margin-bottom: 20px;
+      margin: 16px 0 12px;
     }
     .genai-product-card {
       background: var(--gray-100);
@@ -902,7 +955,7 @@
     .genai-product-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
     .genai-product-brand { font-size: 12px; color: var(--gray-400); }
     .genai-product-price { font-size: 14px; font-weight: 700; color: var(--primary); margin-top: 4px; }
-    .genai-cart-row { text-align: center; margin-bottom: 8px; }
+    .genai-cart-row { text-align: center; margin-bottom: 4px; }
     .genai-add-all {
       background: var(--primary);
       color: white;
@@ -953,73 +1006,6 @@
     }
     .genai-chat-input-row button:hover { background: #6a2478; }
     .genai-chat-input-row button:disabled { opacity: 0.5; cursor: default; }
-
-    /* Chat Drawer */
-    .genai-chat-drawer {
-      position: absolute;
-      left: 0; right: 0;
-      bottom: var(--genai-bar-h);
-      height: 50%;
-      background: white;
-      border-top: 2px solid var(--badge-genai);
-      display: flex;
-      flex-direction: column;
-      transform: translateY(100%);
-      transition: transform 0.35s ease;
-    }
-    .genai-chat-drawer.open { transform: translateY(0); }
-    .genai-chat-drawer.peek { transform: translateY(calc(100% - var(--genai-drawer-hdr))); }
-    .genai-drawer-header {
-      flex-shrink: 0;
-      height: var(--genai-drawer-hdr);
-      box-sizing: border-box;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      border-bottom: 1px solid var(--gray-200);
-      background: #f8f0fc;
-      cursor: pointer;
-    }
-    .genai-drawer-label { font-size: 15px; font-weight: 700; color: var(--badge-genai); flex: 1; }
-    .genai-drawer-toggle {
-      background: none;
-      border: none;
-      font-size: 16px;
-      color: var(--badge-genai);
-      cursor: pointer;
-      padding: 6px;
-      border-radius: 4px;
-      transition: background 0.15s;
-    }
-    .genai-drawer-toggle:hover { background: #e8d9f0; }
-    .genai-drawer-body { overflow-y: auto; padding: 16px; flex: 1; }
-    .genai-msg { margin-bottom: 14px; display: flex; flex-direction: column; }
-    .genai-msg-user {
-      align-self: flex-end;
-      background: var(--primary);
-      color: white;
-      padding: 10px 14px;
-      border-radius: 18px 18px 4px 18px;
-      max-width: 80%;
-      font-size: 14px;
-    }
-    .genai-msg-ai-wrap { align-self: flex-start; max-width: 92%; }
-    .genai-msg-ai-label { font-size: 11px; color: var(--gray-400); font-weight: 700; margin-bottom: 4px; }
-    .genai-msg-ai {
-      background: #f3e8fd;
-      padding: 12px 14px;
-      border-radius: 4px 18px 18px 18px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    .genai-msg-ai strong { color: var(--primary); }
-
-    @keyframes cardSwap {
-      0%   { transform: rotateY(0);   opacity: 1; }
-      50%  { transform: rotateY(90deg); opacity: 0; }
-      100% { transform: rotateY(0);   opacity: 1; }
-    }
-    .genai-product-card.swapped { animation: cardSwap 0.55s ease forwards; }
 
     /* ===================== PROMO BANNER ===================== */
     .promo-banner {
@@ -1363,21 +1349,22 @@
 <div class="genai-overlay" id="genaiOverlay">
   <div class="genai-modal" id="genaiModal">
 
-    <div class="genai-modal-top">
-      <div class="genai-header">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="scenario-badge badge-genai">✨ GenAI Search</span>
-          <span class="genai-title">AI-Powered Results</span>
-        </div>
-        <button class="srm-close" id="genaiClose">✕</button>
+    <div class="genai-header">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="scenario-badge badge-genai">✨ GenAI Search</span>
+        <span class="genai-title">AI Shopping Assistant</span>
       </div>
-      <div class="genai-intro">
-        <p id="genaiIntroText">Based on your question and your profile, here's everything you'll need:</p>
-        <p class="genai-sub" id="genaiSubText"></p>
-      </div>
+      <button class="srm-close" id="genaiClose">✕</button>
+    </div>
+
+    <!-- Chat messages area (primary interface) -->
+    <div class="genai-chat-area" id="genaiChatArea"></div>
+
+    <!-- Product cards area (populated from tool results) -->
+    <div class="genai-products-area" id="genaiProductsArea" style="display:none">
       <div class="genai-products" id="genaiProductGrid"></div>
       <div class="genai-cart-row">
-        <button class="genai-add-all" id="genaiAddAll">Add all items to cart</button>
+        <button class="genai-add-all" id="genaiAddAll" style="display:none">Add all items to cart</button>
       </div>
     </div>
 
@@ -1385,17 +1372,8 @@
     <div class="genai-input-bar">
       <div class="genai-chat-input-row">
         <input type="text" id="genaiChatInput" placeholder="Ask a follow-up question…" />
-        <button id="genaiAskBtn">Ask AI →</button>
+        <button id="genaiAskBtn">Ask AI</button>
       </div>
-    </div>
-
-    <!-- Chat drawer (slides up from bottom) -->
-    <div class="genai-chat-drawer" id="genaiChatDrawer">
-      <div class="genai-drawer-header" id="genaiDrawerHeader">
-        <span class="genai-drawer-label">💬 Ask more about this result</span>
-        <button class="genai-drawer-toggle" id="genaiDrawerToggle" title="Collapse">▼</button>
-      </div>
-      <div class="genai-drawer-body" id="genaiDrawerBody"></div>
     </div>
 
   </div>
@@ -1430,8 +1408,9 @@ const ES_CONFIG = {
   url:                '{{ES_URL}}',
   apiKey:             '{{ES_API_KEY_READONLY}}',
   index:              '{{ES_INDEX}}',
-  inferenceUrl:    '{{ES_INFERENCE_URL}}',
-  inferenceApiKey: '{{ES_INFERENCE_API_KEY}}'
+  kibanaUrl:       '{{KIBANA_URL}}',
+  kibanaApiKey:    '{{KIBANA_API_KEY}}',
+  agentId:         '{{AGENT_ID}}'
 };
 
 // ============================================================
@@ -1664,69 +1643,8 @@ const PRODUCTS = [
 // NOTE: PRODUCTS_LEXICAL, PRODUCTS_HYBRID, and PRODUCTS_LTR mock arrays
 // have been removed. All search modes now query Elasticsearch directly.
 
-// CUSTOMIZE: GenAI mode — curated product kits per persona
-// Each persona gets: intro text, product bundle, chat response function, and an alternate product
-const GENAI_KITS = {
-  alex: {
-    intro: 'Based on your training profile, here\'s Alex\'s race day kit:',
-    sub: 'Curated for competitive runners — lightweight, fast, and performance-ready.',
-    products: [
-      { id: 1, brand: 'Nike', name: 'CloudStrike Running Shoe', price: 169.99, image: 'https://images.pexels.com/photos/6540973/pexels-photo-6540973.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 4, brand: 'On Running', name: 'PureStep Everyday Trainer', price: 139.99, image: 'https://images.pexels.com/photos/1456733/pexels-photo-1456733.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 34, brand: 'Oakley', name: 'SpeedView Sport Sunglasses', price: 189.99, image: 'https://images.pexels.com/photos/33947080/pexels-photo-33947080.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 25, brand: 'Manduka', name: 'ZenGrip Premium Yoga Mat', price: 89.99, image: 'https://images.pexels.com/photos/4325462/pexels-photo-4325462.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 22, brand: 'Hydro Flask', name: 'PureFlow Insulated Sport Bottle', price: 44.95, image: 'https://images.pexels.com/photos/5864625/pexels-photo-5864625.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 28, brand: 'TriggerPoint', name: 'DeepRelief Textured Foam Roller', price: 44.99, image: 'https://images.pexels.com/photos/6207519/pexels-photo-6207519.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' }
-    ],
-    chatResponse: (q) => `Great question\! ${q.toLowerCase().includes('shoe') || q.toLowerCase().includes('run')
-      ? 'For race day, the CloudStrike gives you maximum energy return with minimal weight. ' +
-        'Pair with the PureStep for daily training to protect your legs. Most competitive runners rotate between race and training shoes. 🏃\u200d♀️'
-      : 'Based on your profile, I\'d prioritize the CloudStrike running shoe and Oakley sunglasses first — these are the highest-impact upgrades for race day. ' +
-        'The foam roller is essential for recovery between hard sessions. Want me to adjust the kit? 🏅'
-    }`,
-    altProduct:     { id: 5, brand: 'Puma', name: 'VelocityMax Racing Flat', price: 179.99, image: 'https://images.pexels.com/photos/16947118/pexels-photo-16947118.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-  },
-
-  marcus: {
-    intro: 'Based on Marcus\'s trail running profile, here\'s the complete trail kit:',
-    sub: 'Optimized for technical terrain and all-day outdoor efforts.',
-    products: [
-      { id: 3, brand: 'TrailTech', name: 'FlexMotion Trail Runner', price: 149.99, image: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 33, brand: 'The North Face', name: 'AlpineTrail Technical Pack', price: 199.99, image: 'https://images.pexels.com/photos/19102197/pexels-photo-19102197.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 24, brand: 'CamelBak', name: 'TrailSip Outdoor Water Bottle', price: 29.99, image: 'https://images.pexels.com/photos/1342529/pexels-photo-1342529.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 17, brand: 'Bell', name: 'TrailGuard MTB Helmet', price: 129.99, image: 'https://images.pexels.com/photos/19351993/pexels-photo-19351993.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 35, brand: 'Ray-Ban', name: 'TrailShade Polarized Sunglasses', price: 163.0, image: 'https://images.pexels.com/photos/32677241/pexels-photo-32677241.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 29, brand: 'OPTP', name: 'ProRoll Muscle Recovery Roller', price: 29.99, image: 'https://images.pexels.com/photos/16513603/pexels-photo-16513603.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' }
-    ],
-    chatResponse: (q) => `Good question\! ${q.toLowerCase().includes('trail') || q.toLowerCase().includes('shoe')
-      ? 'The FlexMotion Trail Runner has aggressive lugs built for technical terrain — mud, rocks, and steep descents. ' +
-        'Pair with the AlpineTrail pack for all-day efforts where you need to carry water and gear. 🏔️'
-      : 'Based on your trail profile, I\'d start with the FlexMotion shoes and CamelBak bottle — proper footwear and hydration are the foundation. ' +
-        'The TrailGuard helmet is also key if you\'re mixing cycling into your training. Want me to adjust? 🌲'
-    }`,
-    altProduct:     { id: 31, brand: 'Osprey', name: 'SummitPack 40L Daypack', price: 159.99, image: 'https://images.pexels.com/photos/8266907/pexels-photo-8266907.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-  },
-
-  sam: {
-    intro: 'Based on Sam\'s general fitness goals, here\'s the essential starter kit:',
-    sub: 'Everything you need to get started — from cardio to strength training.',
-    products: [
-      { id: 2, brand: 'Adidas', name: 'AeroGlide Performance Runner', price: 159.99, image: 'https://images.pexels.com/photos/6748268/pexels-photo-6748268.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 6, brand: 'IronForge', name: 'HexGrip Pro Dumbbell 25lb', price: 49.99, image: 'https://images.pexels.com/photos/6550843/pexels-photo-6550843.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 19, brand: 'Venum', name: 'FitBox Training Gloves 10oz', price: 59.99, image: 'https://images.pexels.com/photos/6456153/pexels-photo-6456153.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 32, brand: 'Under Armour', name: 'UrbanFit Gym Backpack', price: 69.99, image: 'https://images.pexels.com/photos/3731256/pexels-photo-3731256.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 25, brand: 'Manduka', name: 'ZenGrip Premium Yoga Mat', price: 89.99, image: 'https://images.pexels.com/photos/4325462/pexels-photo-4325462.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-      { id: 23, brand: 'Nalgene', name: 'CrystalClear Sport Water Bottle', price: 14.99, image: 'https://images.pexels.com/photos/593099/pexels-photo-593099.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' }
-    ],
-    chatResponse: (q) => `Good question\! ${q.toLowerCase().includes('weight') || q.toLowerCase().includes('strength')
-      ? 'For strength training, the HexGrip dumbbells are a great starting point — versatile for dozens of exercises. ' +
-        'Add the FitBox gloves for cardio boxing days. The gym backpack keeps everything organized between sessions. 💪'
-      : 'Based on your fitness goals, start with 3 cardio sessions per week in the AeroGlide runners. ' +
-        'Mix in dumbbell work and boxing on alternate days for a balanced routine. The yoga mat rounds out recovery. Want a training plan? 🏃'
-    }`,
-    altProduct:     { id: 8, brand: 'Under Armour', name: 'PowerLift Rubber Dumbbell 30lb', price: 59.99, image: 'https://images.pexels.com/photos/8032962/pexels-photo-8032962.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' },
-  },
-};
+// GenAI products collected from agent tool results (populated per conversation)
+let genaiProducts = [];
 
 // ============================================================
 // APPLICATION STATE
@@ -1734,7 +1652,7 @@ const GENAI_KITS = {
 let activePersona = PERSONAS.alex;
 let activeMode = 'lexical';
 let cartItems = [];
-let genaiTurn = 0;
+let agentConversationId = null;
 
 // ============================================================
 // RENDER FUNCTIONS
@@ -1927,36 +1845,177 @@ async function searchProducts(query, mode, persona) {
   }
 }
 
-async function askAgent(question, persona) {
-  if (!ES_CONFIG.inferenceUrl || ES_CONFIG.inferenceUrl === '{{ES_INFERENCE_URL}}') {
-    return 'Inference endpoint not configured. Set ES_INFERENCE_URL in .env and regenerate.';
-  }
-  try {
-    return await callInferenceApi(question, persona);
-  } catch (err) {
-    console.error('[ES] Inference API failed:', err);
-    return 'Sorry, the AI assistant is temporarily unavailable. Please try again.';
-  }
-}
+// ─── Agent Builder API client ──────────────────────────────────────────────
 
-async function callInferenceApi(question, persona) {
-  const systemPrompt = `You are a helpful shopping assistant for an athletic/outdoor retailer. The user is ${persona.name} — ${persona.tagline}. Their preferred brands are ${(persona.preferredBrands || []).join(', ')}. Answer concisely in 2-4 sentences and recommend specific products when relevant.`;
-  const resp = await fetch(ES_CONFIG.inferenceUrl, {
+async function converseWithAgent(input, conversationId) {
+  const resp = await fetch(`${ES_CONFIG.kibanaUrl}/api/agent_builder/converse/async`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `ApiKey ${ES_CONFIG.inferenceApiKey}`
+      'Authorization': `ApiKey ${ES_CONFIG.kibanaApiKey}`,
+      'kbn-xsrf': 'true'
     },
     body: JSON.stringify({
-      input: `${systemPrompt}\n\nUser: ${question}`
+      input,
+      agent_id: ES_CONFIG.agentId,
+      ...(conversationId ? { conversation_id: conversationId } : {})
     })
   });
-  if (!resp.ok) throw new Error(`Inference API ${resp.status}`);
-  const data = await resp.json();
-  return data.completion?.[0]?.result
-    ?? data.message?.content
-    ?? data.choices?.[0]?.message?.content
-    ?? 'Sorry, I could not get a response.';
+  if (!resp.ok) throw new Error(`Agent Builder SSE ${resp.status}`);
+  return resp;
+}
+
+async function converseWithAgentSync(input, conversationId) {
+  const resp = await fetch(`${ES_CONFIG.kibanaUrl}/api/agent_builder/converse`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `ApiKey ${ES_CONFIG.kibanaApiKey}`,
+      'kbn-xsrf': 'true'
+    },
+    body: JSON.stringify({
+      input,
+      agent_id: ES_CONFIG.agentId,
+      ...(conversationId ? { conversation_id: conversationId } : {})
+    })
+  });
+  if (!resp.ok) throw new Error(`Agent Builder sync ${resp.status}`);
+  return await resp.json();
+}
+
+async function parseSSEStream(response, callbacks) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let currentEvent = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    const lines = buffer.split('\n');
+    buffer = lines.pop(); // keep incomplete line in buffer
+
+    for (const line of lines) {
+      // Track event type from "event: xxx" lines
+      if (line.startsWith('event: ')) {
+        currentEvent = line.slice(7).trim();
+        continue;
+      }
+      // Skip comments (keepalive padding)
+      if (line.startsWith(':') || !line.startsWith('data: ')) continue;
+
+      const raw = line.slice(6).trim();
+      if (!raw || raw === '[DONE]') continue;
+
+      let parsed;
+      try { parsed = JSON.parse(raw); } catch { continue; }
+
+      // Agent Builder wraps payload in a "data" key
+      const payload = parsed.data || parsed;
+
+      try {
+        if (currentEvent === 'conversation_id_set' && callbacks.onConversationId) {
+          callbacks.onConversationId(payload.conversation_id);
+        } else if (currentEvent === 'reasoning' && callbacks.onReasoning) {
+          callbacks.onReasoning(payload.text || payload.content || '');
+        } else if (currentEvent === 'tool_call' && callbacks.onToolCall) {
+          callbacks.onToolCall(payload);
+        } else if (currentEvent === 'tool_result' && callbacks.onToolResult) {
+          callbacks.onToolResult(payload);
+        } else if (currentEvent === 'message_chunk' && callbacks.onMessageChunk) {
+          callbacks.onMessageChunk(payload.text_chunk || payload.text || payload.content || '');
+        } else if (currentEvent === 'message_complete' && callbacks.onMessageComplete) {
+          callbacks.onMessageComplete(payload);
+        } else if (currentEvent === 'round_complete' && callbacks.onRoundComplete) {
+          callbacks.onRoundComplete(payload);
+        }
+      } catch (err) {
+        if (callbacks.onError) callbacks.onError(err);
+      }
+    }
+  }
+}
+
+function extractProductsFromToolResults(toolResults) {
+  const products = [];
+  for (const result of toolResults) {
+    const hits = result?.data?.hits?.hits
+      || result?.result?.hits?.hits
+      || result?.content?.hits?.hits
+      || [];
+    for (const hit of hits) {
+      const src = hit._source || hit.fields || {};
+      if (src.name && src.image) {
+        products.push({
+          name: src.name,
+          brand: src.brand || '',
+          price: src.price || 0,
+          sale: src.sale || null,
+          image: src.image || '',
+          description: src.description || '',
+          rating: src.rating || 0,
+          badge: src.badge || '',
+          tags: src.tags || [],
+          category: src.category || ''
+        });
+      }
+    }
+  }
+  return products;
+}
+
+async function askAgent(input, conversationId) {
+  if (!ES_CONFIG.kibanaUrl || ES_CONFIG.kibanaUrl === '{{KIBANA_URL}}') {
+    return { message: 'Agent Builder not configured. Set KIBANA_URL, KIBANA_API_KEY, and AGENT_ID in .env and regenerate.', conversationId: null, products: [] };
+  }
+  if (!ES_CONFIG.agentId || ES_CONFIG.agentId === '{{AGENT_ID}}') {
+    return { message: 'Agent not configured. Run npm run setup to create the agent, or set AGENT_ID in .env.', conversationId: null, products: [] };
+  }
+
+  // Try SSE first, fall back to sync
+  try {
+    const resp = await converseWithAgent(input, conversationId);
+    let message = '';
+    let newConversationId = conversationId;
+    const toolResults = [];
+
+    await parseSSEStream(resp, {
+      onConversationId: (id) => { newConversationId = id; },
+      onMessageChunk: (text) => { message += text; },
+      onMessageComplete: (event) => {
+        if (event.conversation_id) newConversationId = event.conversation_id;
+      },
+      onRoundComplete: (event) => {
+        if (event.conversation_id) newConversationId = event.conversation_id;
+      },
+      onToolResult: (event) => { toolResults.push(event); }
+    });
+
+    return {
+      message: message || 'No response from assistant.',
+      conversationId: newConversationId,
+      products: extractProductsFromToolResults(toolResults)
+    };
+  } catch (sseErr) {
+    console.warn('[Agent] SSE failed, trying sync:', sseErr.message);
+    try {
+      const data = await converseWithAgentSync(input, conversationId);
+      return {
+        message: data.response?.message || 'No response from assistant.',
+        conversationId: data.conversation_id || conversationId,
+        products: []
+      };
+    } catch (syncErr) {
+      console.error('[Agent] Sync also failed:', syncErr);
+      return {
+        message: 'Sorry, the AI assistant is temporarily unavailable. Please try again.',
+        conversationId,
+        products: []
+      };
+    }
+  }
 }
 
 // ============================================================
@@ -2056,40 +2115,124 @@ function wireFilterChips(dataset, query) {
 // GENAI OVERLAY
 // ============================================================
 
-function openGenAI(query) {
-  const kit = GENAI_KITS[activePersona.id] || GENAI_KITS.sam;
-  const products = kit.products;
+async function openGenAI(query) {
+  // Reset state for new conversation
+  agentConversationId = null;
+  genaiProducts = [];
 
-  document.getElementById('genaiIntroText').textContent = kit.intro;
-  document.getElementById('genaiSubText').textContent = kit.sub;
-  document.getElementById('genaiProductGrid').innerHTML = products.map(renderGenAIProduct).join('');
-
-  const totalPrice = products.reduce((sum, p) => sum + p.price, 0);
+  const chatArea = document.getElementById('genaiChatArea');
+  const productsArea = document.getElementById('genaiProductsArea');
   const addAllBtn = document.getElementById('genaiAddAll');
-  addAllBtn.textContent = `Add all ${products.length} items to cart — $${totalPrice.toFixed(2)}`;
-  addAllBtn.style.background = '';
-  addAllBtn.disabled = false;
 
-  // Reset chat
-  genaiTurn = 0;
+  // Clear previous conversation
+  chatArea.innerHTML = '';
+  productsArea.style.display = 'none';
+  addAllBtn.style.display = 'none';
+  document.getElementById('genaiProductGrid').innerHTML = '';
   document.getElementById('genaiChatInput').value = '';
-  document.getElementById('genaiChatInput').placeholder = 'Ask a follow-up question…';
   document.getElementById('genaiChatInput').disabled = false;
   document.getElementById('genaiAskBtn').disabled = false;
-  document.getElementById('genaiDrawerBody').innerHTML = '';
-  const drawer = document.getElementById('genaiChatDrawer');
-  drawer.classList.remove('open', 'peek');
-  document.getElementById('genaiDrawerToggle').textContent = '▼';
 
+  // Open overlay
   document.getElementById('genaiOverlay').classList.add('open');
+
+  // Build persona-contextual input
+  const input = `Shopping as ${activePersona.name} — ${activePersona.tagline}. Preferred brands: ${activePersona.preferredBrands.join(', ')}. Query: ${query}`;
+
+  // Show user query
+  appendUserMessage(chatArea, query);
+
+  // Show thinking indicator and call agent
+  const thinkingEl = appendThinking(chatArea);
+  await handleAgentResponse(input, chatArea, thinkingEl);
+}
+
+function appendUserMessage(chatArea, text) {
+  const el = document.createElement('div');
+  el.className = 'genai-msg';
+  el.innerHTML = `<div class="genai-msg-user">${escapeHtml(text)}</div>`;
+  chatArea.appendChild(el);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function appendThinking(chatArea) {
+  const el = document.createElement('div');
+  el.className = 'genai-msg';
+  el.innerHTML = `
+    <div class="genai-msg-ai-wrap">
+      <div class="genai-msg-ai-label">AI Assistant (powered by Agent Builder)</div>
+      <div class="genai-thinking">
+        <div class="genai-thinking-dot"></div>
+        <div class="genai-thinking-dot"></div>
+        <div class="genai-thinking-dot"></div>
+      </div>
+    </div>`;
+  chatArea.appendChild(el);
+  chatArea.scrollTop = chatArea.scrollHeight;
+  return el;
+}
+
+function appendAIMessage(chatArea, text) {
+  const el = document.createElement('div');
+  el.className = 'genai-msg';
+  el.innerHTML = `
+    <div class="genai-msg-ai-wrap">
+      <div class="genai-msg-ai-label">AI Assistant (powered by Agent Builder)</div>
+      <div class="genai-msg-ai">${formatAIResponse(text)}</div>
+    </div>`;
+  chatArea.appendChild(el);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+async function handleAgentResponse(input, chatArea, thinkingEl) {
+  const result = await askAgent(input, agentConversationId);
+
+  // Remove thinking indicator
+  if (thinkingEl) thinkingEl.remove();
+
+  // Update conversation ID
+  if (result.conversationId) agentConversationId = result.conversationId;
+
+  // Render AI message
+  appendAIMessage(chatArea, result.message);
+
+  // Render product cards if available
+  if (result.products.length > 0) {
+    genaiProducts = result.products;
+    renderGenAIProducts(result.products);
+  }
+}
+
+function renderGenAIProducts(products) {
+  const productsArea = document.getElementById('genaiProductsArea');
+  const grid = document.getElementById('genaiProductGrid');
+  const addAllBtn = document.getElementById('genaiAddAll');
+
+  grid.innerHTML = products.map(renderGenAIProduct).join('');
+  productsArea.style.display = 'block';
+
+  const totalPrice = products.reduce((sum, p) => sum + (p.price || 0), 0);
+  addAllBtn.textContent = `Add all ${products.length} items to cart — $${totalPrice.toFixed(2)}`;
+  addAllBtn.style.display = 'block';
+  addAllBtn.style.background = '';
+  addAllBtn.disabled = false;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function formatAIResponse(text) {
+  return escapeHtml(text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
 }
 
 // Add All to Cart
 document.getElementById('genaiAddAll').addEventListener('click', function() {
-  const kit = GENAI_KITS[activePersona.id] || GENAI_KITS.sam;
-  kit.products.forEach(p => cartItems.push({ name: p.name, brand: p.brand, price: p.price, image: p.image }));
+  genaiProducts.forEach(p => cartItems.push({ name: p.name, brand: p.brand, price: p.price, image: p.image }));
   updateCartBadge();
-  this.textContent = `✓ ${kit.products.length} items added to cart!`;
+  this.textContent = `✓ ${genaiProducts.length} items added to cart!`;
   this.style.background = 'var(--primary-dark)';
   this.disabled = true;
 });
@@ -2101,103 +2244,27 @@ document.getElementById('genaiChatInput').addEventListener('keydown', e => {
 });
 
 async function sendGenAIMessage() {
-  const input = document.getElementById('genaiChatInput');
-  const q = input.value.trim();
+  const inputEl = document.getElementById('genaiChatInput');
+  const q = inputEl.value.trim();
   if (!q) return;
-  input.value = '';
+  inputEl.value = '';
 
-  const body = document.getElementById('genaiDrawerBody');
+  const chatArea = document.getElementById('genaiChatArea');
 
-  if (genaiTurn === 0) {
-    body.innerHTML = `
-      <div class="genai-msg">
-        <div class="genai-msg-user">${q}</div>
-      </div>
-      <div class="genai-msg" id="genai-ai-turn0">
-        <div class="genai-msg-ai-wrap">
-          <div class="genai-msg-ai-label">🤖 AI Assistant (powered by Elastic Inference)</div>
-          <div class="genai-msg-ai">…</div>
-        </div>
-      </div>`;
+  // Disable input while waiting
+  inputEl.disabled = true;
+  document.getElementById('genaiAskBtn').disabled = true;
 
-    const drawer = document.getElementById('genaiChatDrawer');
-    drawer.classList.remove('peek');
-    drawer.classList.add('open');
-    document.getElementById('genaiDrawerToggle').textContent = '▼';
-    genaiTurn = 1;
-    input.placeholder = 'Reply…';
-    body.scrollTop = body.scrollHeight;
+  appendUserMessage(chatArea, q);
+  const thinkingEl = appendThinking(chatArea);
 
-    const answer = await askAgent(q, activePersona);
-    const aiEl = document.getElementById('genai-ai-turn0');
-    if (aiEl) aiEl.querySelector('.genai-msg-ai').innerHTML = formatAIResponse(answer);
-    body.scrollTop = body.scrollHeight;
+  await handleAgentResponse(q, chatArea, thinkingEl);
 
-  } else if (genaiTurn === 1) {
-    const userMsg = document.createElement('div');
-    userMsg.className = 'genai-msg';
-    userMsg.innerHTML = `<div class="genai-msg-user">${q}</div>`;
-    body.appendChild(userMsg);
-    body.scrollTop = body.scrollHeight;
-
-    input.disabled = true;
-    document.getElementById('genaiAskBtn').disabled = true;
-    genaiTurn = 2;
-
-    // If they mention adding to cart or the alt product, swap item in grid
-    if (q.toLowerCase().includes('add') || q.toLowerCase().includes('cart') || q.toLowerCase().includes('yes')) {
-      setTimeout(() => {
-        const kit = GENAI_KITS[activePersona.id] || GENAI_KITS.sam;
-        const altProduct = kit.altProduct;
-        const aiMsg = document.createElement('div');
-        aiMsg.className = 'genai-msg';
-        aiMsg.innerHTML = `
-          <div class="genai-msg-ai-wrap">
-            <div class="genai-msg-ai-label">🤖 AI Assistant</div>
-            <div class="genai-msg-ai">Done! I've updated your kit with the <strong>${altProduct.name}</strong> ($${altProduct.price.toFixed(2)}). You're all set — great choice! 🏆</div>
-          </div>`;
-        body.appendChild(aiMsg);
-        body.scrollTop = body.scrollHeight;
-
-        // Swap first product card in grid
-        const cards = document.querySelectorAll('#genaiProductGrid .genai-product-card');
-        if (cards[0]) {
-          cards[0].classList.add('swapped');
-          setTimeout(() => {
-            cards[0].innerHTML = renderGenAIProduct(altProduct).replace('<div class="genai-product-card">', '').replace('</div>', '');
-          }, 270);
-        }
-        cartItems.push({ name: altProduct.name, brand: altProduct.brand, price: altProduct.price, image: altProduct.image });
-        updateCartBadge();
-      }, 700);
-    }
-  }
+  // Re-enable input
+  inputEl.disabled = false;
+  document.getElementById('genaiAskBtn').disabled = false;
+  inputEl.focus();
 }
-
-function formatAIResponse(text) {
-  return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-}
-
-// Drawer toggle
-document.getElementById('genaiDrawerToggle').addEventListener('click', () => {
-  const drawer = document.getElementById('genaiChatDrawer');
-  const toggle = document.getElementById('genaiDrawerToggle');
-  if (drawer.classList.contains('open')) {
-    drawer.classList.replace('open', 'peek');
-    toggle.textContent = '▲';
-    toggle.title = 'Expand';
-  } else {
-    drawer.classList.remove('peek');
-    drawer.classList.add('open');
-    toggle.textContent = '▼';
-    toggle.title = 'Collapse';
-  }
-});
-document.getElementById('genaiDrawerHeader').addEventListener('click', e => {
-  if (e.target !== document.getElementById('genaiDrawerToggle')) {
-    document.getElementById('genaiDrawerToggle').click();
-  }
-});
 
 // Close overlays
 document.getElementById('genaiClose').addEventListener('click', () => document.getElementById('genaiOverlay').classList.remove('open'));
@@ -2225,6 +2292,8 @@ function buildPersonaTabs() {
   container.querySelectorAll('.persona-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       activePersona = PERSONAS[btn.dataset.persona];
+      agentConversationId = null;
+      document.getElementById('genaiOverlay').classList.remove('open');
       container.querySelectorAll('.persona-tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('personaNameDisplay').textContent = activePersona.name;

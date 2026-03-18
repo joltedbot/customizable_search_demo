@@ -9,26 +9,27 @@ A single-page HTML demo that looks like the customer's own website and walks thr
 1. **Lexical (BM25)** — Intentionally poor results; shows the limits of keyword-only search
 2. **Hybrid Search** — Relevant results via semantic (ELSER) + lexical (BM25) matching using RRF
 3. **Personalized Search** — RRF-merged results from 3 retrievers (semantic + lexical + persona affinity), ML-reranked by Jina Reranker v3
-4. **GenAI Search** — Curated "kit" + conversational AI follow-up
+4. **GenAI Chat** — Multi-turn conversational search via Elasticsearch Agent Builder, with dynamic product recommendations
 
-The demo connects to a live Elasticsearch Cloud cluster for real semantic search, AI-powered reranking, and live chat.
+The demo connects to a live Elasticsearch Cloud cluster for real semantic search, AI-powered reranking, and Kibana-hosted AI agents.
 
 ---
 
 ## Quickstart
 
-**Prerequisites:** Git, Node.js 18+, Claude Code (`claude`) or Gemini CLI, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed, Jina Reranker v3 available via Elastic Inference Service
+**Prerequisites:** Git, Node.js 18+, Claude Code (`claude`) or Gemini CLI, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed, Jina Reranker v3 available via Elastic Inference Service, Kibana URL and API key with `manage_onechat` privilege, Kibana CORS enabled for localhost, LLM connector configured in Kibana
 
 ```bash
 git clone <repo-url> my-customer-demo
 cd my-customer-demo
 
 # 1. Configure credentials and seed the index
-cp .env.template .env   # fill in ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, ES_INFERENCE_URL, ES_INFERENCE_API_KEY
+cp .env.template .env   # fill in ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, KIBANA_URL, KIBANA_API_KEY (+ AGENT_ID if reusing existing agent)
 npm install
 npm run validate        # pre-flight check — fix any ✗ failures before continuing
-npm run setup
+npm run setup           # creates ES index, products index, Agent Builder agent + tools
 # For customer-specific index: npm run setup -- --slug <customer-slug>
+# To skip agent creation: npm run setup -- --slug <customer-slug> --skip-agent
 
 # 2. Generate the branded demo (via AI agent)
 claude   # or: gemini
@@ -58,10 +59,11 @@ Open `SETUP.md` and fill in the `## Customer Config` section before running the 
 | `template/index.html` | Base demo template the AI customizes |
 | `image-library/` | Pre-curated Pexels image sets (one JSON per industry) |
 | `package.json` | npm scripts: `validate`, `dev`, `setup`, `reset` (v2 mode) |
-| `.env.template` | Credentials template — copy to `.env` and fill in (v2 mode) |
-| `scripts/validate-env.js` | Pre-flight check: validates all `.env` credentials before setup (v2 mode) |
-| `scripts/setup-index.js` | Creates the ES index, deploys ELSER, seeds products. Supports `--slug {name}` for customer-specific indices (v2 mode) |
+| `.env.template` | Credentials template — copy to `.env` and fill in (v2 mode): ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, KIBANA_URL, KIBANA_API_KEY, AGENT_ID (auto-populated) |
+| `scripts/validate-env.js` | Pre-flight check: validates all `.env` credentials before setup (v2 mode); `--skip-agent` flag to skip Agent Builder checks |
+| `scripts/setup-index.js` | Creates the ES index, deploys ELSER, seeds products, and auto-creates Agent Builder agent + tools. Supports `--slug {name}` for customer-specific indices and `--skip-agent` to reuse an existing agent (v2 mode) |
 | `scripts/data/products.json` | 46-product sporting goods base dataset (v2 mode); customer-specific data in `products-{slug}.json` (gitignored) |
+| `scripts/data/personas.json` | 3 persona documents (Alex, Marcus, Sam) seeded into `demo-personas` ES index for Agent Builder to reference (v2 mode) |
 
 ---
 
@@ -89,10 +91,10 @@ The demo tells a story in four acts: **same query, progressively better results*
 
 | Category | Lexical + Hybrid | Personalized | GenAI |
 |---|---|---|---|
-| Sporting Goods | `outdoor gear` | `gear for me` | `complete training kit` |
-| Consumer Electronics | `smart devices` | `tech for me` | `complete home office setup` |
-| Clothing & Fashion | `everyday wear` | `style for me` | `complete summer outfit` |
-| Groceries & Food | `kitchen essentials` | `picks for me` | `complete dinner party menu` |
+| Sporting Goods | `outdoor gear` | `gear for me` | `put together a training kit` |
+| Consumer Electronics | `smart devices` | `tech for me` | `build a home office setup` |
+| Clothing & Fashion | `everyday wear` | `style for me` | `create a summer outfit` |
+| Groceries & Food | `kitchen essentials` | `picks for me` | `plan a dinner party menu` |
 
 ### Key products to ad-lib with
 
@@ -124,7 +126,7 @@ The demo uses Elasticsearch Cloud (9.x with ML) for all search modes:
 
 **Personalized mode** — RRF merges 3 retrievers: ELSER semantic, BM25 keyword, and persona affinity signal. Results are then reranked by Jina Reranker v3 (a real ML cross-encoder running on Elastic Inference Service) to refine order based on persona brands, gender, and purchase history.
 
-**GenAI chat** — Live conversational responses via Elastic inference API (Claude, Bedrock, Azure OpenAI, etc.)
+**GenAI chat** — Multi-turn conversational AI via Elasticsearch Agent Builder. The agent dynamically retrieves products and answers follow-up questions. SAs can customize the agent's system prompt, tools, and LLM connector in Kibana after setup.
 
 **Dataset:** 46 products — 36 real sporting goods + 10 intentional noise products. The noise products only surface in lexical mode; all other modes filter them away.
 

@@ -81,9 +81,9 @@ When an approach is repeatedly blocked — whether by compilation errors, test f
 ## Build Commands
 
 - **Serve demo locally:** `npm run dev` — serves `output/` at `http://localhost:3000`
-- **Validate credentials:** `npm run validate` — pre-flight check before seeding (requires `.env`)
-- **Seed ES index:** `npm run setup` — creates index, deploys ELSER, loads products (requires `.env`). Pass `-- --slug {name}` to create a customer-specific index `{ES_INDEX}-{name}`
-- **Reset ES index:** `npm run reset` — wipes and reseeds (requires `.env`). Pass `-- --slug {name}` to work with customer-specific index
+- **Validate credentials:** `npm run validate` — pre-flight check before seeding (requires `.env`). Use `--skip-agent` to skip Kibana/Agent Builder checks.
+- **Seed ES index:** `npm run setup` — creates product index, persona index, deploys ELSER, loads products, and creates Agent Builder agent + tools via Kibana API (requires `.env`). Pass `-- --slug {name}` for customer-specific indexes. Use `-- --skip-agent` to skip Agent Builder setup.
+- **Reset ES index:** `npm run reset` — wipes and reseeds product + persona indexes (requires `.env`). Agent/tools are NOT deleted (SA may have customized). Pass `-- --slug {name}` for customer-specific indexes.
 - **Generate test build:** `npm run generate-test` — injects `.env` credentials into template → `output/test/demo.html`
 
 **After changing `products.json` or `products-{slug}.json`:** run `npm run reset` (or `npm run reset -- --slug {name}` for customer-specific data) to push new data to the ES index, then `npm run generate-test` to rebuild the test file. Changes are not reflected until the index is reseeded.
@@ -99,8 +99,9 @@ When an approach is repeatedly blocked — whether by compilation errors, test f
 - `template/index.html` — ~2100-line single-file demo with `{{TOKEN}}` placeholders; AI replaces these during SETUP.md execution
 - `SETUP.md` — AI execution script; the SA runs this with Claude Code or Gemini CLI
 - `image-library/` — pre-curated Pexels image sets (one JSON per industry: consumer-electronics, sporting-goods, clothing-fashion, groceries-food, outdoor-camping)
-- `scripts/setup-index.js` — seeds the ES index (run once via `npm run setup`)
+- `scripts/setup-index.js` — seeds the ES index, persona index, and creates Agent Builder agent + tools (run once via `npm run setup`)
 - `scripts/data/products.json` — 46-product sporting goods dataset (default for testing); customer-specific data goes in `scripts/data/products-{slug}.json`
+- `scripts/data/personas.json` — 3 persona documents (alex/marcus/sam) indexed into `demo-personas`
 - `scripts/generate-test.js` — dev helper: injects `.env` → `output/test/demo.html`
 - `.env.template` — credentials template; copy to `.env` before running v2 setup
 - `output/{customer-slug}/demo.html` — generated output, gitignored
@@ -109,20 +110,27 @@ When an approach is repeatedly blocked — whether by compilation errors, test f
 1. Lexical — BM25 on `name^3`, `brand^2`, `tags^1`, `category^1`, `description^0.5`; no filtering (returns noise + real products based on keyword match). Broadened fields ensure queries like "camping gear" surface relevant results.
 2. Hybrid — RRF (Reciprocal Rank Fusion) merges ELSER semantic and BM25 retrieval, filtered to real products
 3. Personalized — RRF (ELSER semantic + BM25 + persona affinity signal) followed by Jina reranker (`.jina-reranker-v3` inference endpoint), personalized by active persona's `preferredBrands`, `purchaseHistory`
-4. GenAI — Curated product kit + live chat via Elastic inference API
+4. GenAI — Dynamic multi-turn chat via Elasticsearch Agent Builder API (SSE streaming with sync fallback); product cards from agent tool results
 
 **Personas (3):** Alex (female), Marcus (male), Sam (neutral) — fixed identities, switcher in header; affect Personalized and GenAI responses
 
-**ES stack:** Cloud Hosted 9.x, `semantic_text` field + ELSER v2 (`.elser-2-elasticsearch`), Jina Reranker v3 (`.jina-reranker-v3`), index `demo-products` (or `demo-products-{slug}` for customer-specific)
+**ES stack:** Cloud Hosted 9.x, `semantic_text` field + ELSER v2 (`.elser-2-elasticsearch`), Jina Reranker v3 (`.jina-reranker-v3`), indexes `demo-products` + `demo-personas` (or `demo-products-{slug}` + `demo-personas-{slug}` for customer-specific)
 
 **Inference endpoints:**
 - **ELSER v2** — semantic embeddings (deployed automatically by `npm run setup`)
 - **Jina Reranker v3** — ML-based reranking for personalized mode (deployed via Elastic Inference Service; `npm run setup` auto-creates the endpoint)
-- **Completion API** — `POST {ES_URL}/_inference/completion/{id}` — body: `{ input: "..." }`, response: `completion[0].result`. Uses `completion` task type (not `chat_completion`).
+
+**Agent Builder API (GenAI mode):**
+- **Streaming:** `POST {KIBANA_URL}/api/agent_builder/converse/async` — SSE events: `reasoning`, `tool_call`, `tool_result`, `message_chunk`, `message_complete`, `round_complete`
+- **Sync fallback:** `POST {KIBANA_URL}/api/agent_builder/converse` — returns `{ response: { message }, conversation_id }`
+- **Headers:** `Authorization: ApiKey {key}`, `kbn-xsrf: true`, `Content-Type: application/json`
+- **Management:** `POST /api/agent_builder/agents`, `POST /api/agent_builder/tools` — used by `npm run setup` to create agent + tools
 
 **Credentials in output HTML:**
 - `ES_API_KEY_READONLY` — baked into demo.html for browser queries (read-only, scoped to index)
+- `KIBANA_API_KEY` — baked into demo.html for Agent Builder conversations (needs `read_onechat`)
 - `ES_API_KEY` — write key used only by `npm run setup`, never in output HTML
+- `KIBANA_URL` + `AGENT_ID` — baked into demo.html for GenAI mode
 
 **CORS:** Configured in Kibana with regex `/https?:\/\/localhost(:[0-9]+)?/`
 
@@ -136,6 +144,8 @@ When an approach is repeatedly blocked — whether by compilation errors, test f
 - `activePersona` — current persona object (alex/marcus/sam); set by persona switcher
 - `activeMode` — current search mode string (`'lexical'|'hybrid'|'personalized'|'genai'`); set by mode switcher pills
 - `cartItems` — array of cart item objects; drives header badge count and cart drawer
+- `agentConversationId` — Agent Builder conversation ID for multi-turn GenAI chat; reset on persona switch or new session
+- `genaiProducts` — products extracted from agent tool results; used by "Add all to cart"
 
 **Z-index layer stack (`template/index.html`):**
 header=1000 → autocomplete=2000 → search overlay=3000 → genai overlay=4000. New overlays/drawers should use z-index ≥ 5000.
@@ -153,7 +163,7 @@ No automated test suite. Manual testing only:
    - **Lexical** returns keyword-matched products (mix of noise and real)
    - **Hybrid** returns only real relevant products (RRF of semantic + keyword)
    - **Personalized** returns top 6 results ranked and reranked by persona affinity (RRF + Jina reranker)
-   - **GenAI** returns curated kit and live inference chat response
+   - **GenAI** returns streaming Agent Builder response with multi-turn conversation; product cards from tool results
 5. Switch personas and confirm Personalized and GenAI results change
 
 **Note — products come from ES, not the template:** Product data (including image URLs) is served from the Elasticsearch index. Fixing `products.json` or `template/index.html` alone won't be reflected until `npm run reset` reseeds the index.
@@ -164,8 +174,8 @@ No automated test suite. Manual testing only:
 - **Vanilla JS/HTML/CSS only** — no frameworks, no TypeScript, no build step
 - **Single-file output** — all JS and CSS must remain inline in `template/index.html`
 - **Token format:** `{{ALL_CAPS}}` for credential/config placeholders in `template/index.html`; `[BRACKET_STYLE]` in SETUP.md code examples shown to the AI agent
-- **Env vars:** `ALL_CAPS_WITH_UNDERSCORES` (e.g. `ES_INFERENCE_URL`)
-- **JS config keys:** camelCase (e.g. `inferenceUrl`, `apiKey`)
+- **Env vars:** `ALL_CAPS_WITH_UNDERSCORES` (e.g. `KIBANA_URL`)
+- **JS config keys:** camelCase (e.g. `kibanaUrl`, `apiKey`)
 - **No new dependencies** without discussion — the project intentionally has minimal deps (`@elastic/elasticsearch`, `serve`)
 - **Error handling:** ES calls must show user-friendly error messages on failure (network issues, credentials); never silently fall back
 - **Images — Pexels only:** All product images use Pexels CDN. **Never use Unsplash** — their URLs go stale/404. Format: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`. Use IDs from `image-library/*.json` files. Verify new IDs with `curl -s -o /dev/null -w "%{http_code}" https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg` before committing.

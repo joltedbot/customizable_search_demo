@@ -6,8 +6,8 @@
  * before running `npm run setup`.
  *
  * Usage:
- *   node scripts/validate-env.js                 — full check including inference
- *   node scripts/validate-env.js --skip-inference — skip inference endpoint check
+ *   node scripts/validate-env.js              — full check including Agent Builder
+ *   node scripts/validate-env.js --skip-agent — skip Kibana/Agent Builder check
  */
 
 'use strict';
@@ -20,7 +20,7 @@ const { Client } = require('@elastic/elasticsearch');
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const SKIP_INFERENCE = process.argv.includes('--skip-inference');
+const SKIP_AGENT = process.argv.includes('--skip-agent');
 
 // ─── .env loader (no dotenv dependency) ──────────────────────────────────────
 
@@ -61,7 +61,7 @@ function esError(e) {
 
 function checkEnvVars() {
   step('Checking .env variables...');
-  const required = ['ES_URL', 'ES_API_KEY', 'ES_API_KEY_READONLY', 'ES_INFERENCE_URL', 'ES_INFERENCE_API_KEY'];
+  const required = ['ES_URL', 'ES_API_KEY', 'ES_API_KEY_READONLY', 'KIBANA_URL', 'KIBANA_API_KEY'];
   for (const key of required) {
     const val = process.env[key];
     if (!val) {
@@ -150,45 +150,43 @@ async function checkReadKey() {
   }
 }
 
-// ─── Check 4: inference endpoint ─────────────────────────────────────────────
+// ─── Check 4: Kibana + Agent Builder ────────────────────────────────────────
 
-async function checkInference() {
-  if (SKIP_INFERENCE) {
-    step('Inference endpoint check skipped (--skip-inference)');
-    info('Skipping ES_INFERENCE_URL and ES_INFERENCE_API_KEY validation');
+async function checkKibana() {
+  if (SKIP_AGENT) {
+    step('Agent Builder check skipped (--skip-agent)');
+    info('Skipping KIBANA_URL, KIBANA_API_KEY, and AGENT_ID validation');
     return;
   }
 
-  step('Checking inference endpoint (ES_INFERENCE_URL)...');
+  step('Checking Kibana reachability (KIBANA_URL)...');
 
-  const inferenceUrl = process.env.ES_INFERENCE_URL;
-  const inferenceKey = process.env.ES_INFERENCE_API_KEY;
+  const kibanaUrl = process.env.KIBANA_URL;
+  const kibanaKey = process.env.KIBANA_API_KEY;
 
-  if (isPlaceholder(inferenceUrl) || isPlaceholder(inferenceKey)) {
-    fail('Skipping — ES_INFERENCE_URL or ES_INFERENCE_API_KEY not valid');
+  if (isPlaceholder(kibanaUrl) || isPlaceholder(kibanaKey)) {
+    fail('Skipping — KIBANA_URL or KIBANA_API_KEY not valid');
     return;
   }
 
   let parsedUrl;
   try {
-    parsedUrl = new URL(inferenceUrl);
+    parsedUrl = new URL(`${kibanaUrl}/api/status`);
   } catch {
-    fail(`ES_INFERENCE_URL is not a valid URL: ${inferenceUrl}`);
+    fail(`KIBANA_URL is not a valid URL: ${kibanaUrl}`);
     return;
   }
 
-  const body = JSON.stringify({ input: 'Hello. Reply with one word: ready' });
-
-  await new Promise((resolve) => {
+  // Check Kibana status endpoint
+  const reachable = await new Promise((resolve) => {
     const options = {
       hostname: parsedUrl.hostname,
       port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
-      path: parsedUrl.pathname + (parsedUrl.search || ''),
-      method: 'POST',
+      path: parsedUrl.pathname,
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `ApiKey ${inferenceKey}`,
-        'Content-Length': Buffer.byteLength(body)
+        'Authorization': `ApiKey ${kibanaKey}`,
+        'kbn-xsrf': 'true'
       }
     };
 
@@ -199,35 +197,85 @@ async function checkInference() {
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
         if (res.statusCode === 200) {
-          ok('Inference endpoint responded (200 OK)');
-          try {
-            const parsed = JSON.parse(data);
-            const result = parsed?.completion?.[0]?.result;
-            if (result) info(`Sample response: "${result.trim().slice(0, 80)}"`);
-          } catch { /* non-JSON body is fine */ }
+          ok('Kibana is reachable (200 OK)');
+          resolve(true);
         } else if (res.statusCode === 401) {
-          fail('Inference key is invalid or expired (401 Unauthorized)');
-        } else if (res.statusCode === 404) {
-          fail('Inference endpoint not found (404) — check the path in ES_INFERENCE_URL');
+          fail('KIBANA_API_KEY is invalid or expired (401 Unauthorized)');
+          resolve(false);
         } else {
-          fail(`Inference endpoint returned ${res.statusCode}: ${data.slice(0, 200)}`);
+          fail(`Kibana returned ${res.statusCode}: ${data.slice(0, 200)}`);
+          resolve(false);
+        }
+      });
+    });
+
+    req.on('error', (e) => {
+      fail(`Could not reach Kibana: ${e.message}`);
+      resolve(false);
+    });
+
+    req.setTimeout(15000, () => {
+      fail('Kibana timed out after 15s');
+      req.destroy();
+      resolve(false);
+    });
+
+    req.end();
+  });
+
+  if (!reachable) return;
+
+  // Check agent if AGENT_ID is set
+  const agentId = process.env.AGENT_ID;
+  if (!agentId) {
+    info('AGENT_ID not set — will be auto-populated by npm run setup');
+    return;
+  }
+
+  step('Checking Agent Builder agent (AGENT_ID)...');
+
+  const agentUrl = new URL(`${kibanaUrl}/api/agent_builder/agents/${agentId}`);
+
+  await new Promise((resolve) => {
+    const options = {
+      hostname: agentUrl.hostname,
+      port: agentUrl.port || (agentUrl.protocol === 'https:' ? 443 : 80),
+      path: agentUrl.pathname,
+      method: 'GET',
+      headers: {
+        'Authorization': `ApiKey ${kibanaKey}`,
+        'kbn-xsrf': 'true'
+      }
+    };
+
+    const transport = agentUrl.protocol === 'https:' ? https : http;
+
+    const req = transport.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          ok(`Agent found: ${agentId}`);
+        } else if (res.statusCode === 404) {
+          fail(`Agent not found: ${agentId} — run npm run setup or check AGENT_ID`);
+        } else {
+          fail(`Agent check returned ${res.statusCode}: ${data.slice(0, 200)}`);
         }
         resolve();
       });
     });
 
     req.on('error', (e) => {
-      fail(`Could not reach inference endpoint: ${e.message}`);
+      fail(`Could not check agent: ${e.message}`);
       resolve();
     });
 
-    req.setTimeout(15000, () => {
-      fail('Inference endpoint timed out after 15s');
+    req.setTimeout(10000, () => {
+      fail('Agent check timed out after 10s');
       req.destroy();
       resolve();
     });
 
-    req.write(body);
     req.end();
   });
 }
@@ -276,7 +324,7 @@ async function main() {
   checkEnvVars();
   await checkWriteKey();
   await checkReadKey();
-  await checkInference();
+  await checkKibana();
   await checkJinaReranker();
 
   console.log('\n──────────────────────────────────────────');

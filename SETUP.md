@@ -42,7 +42,7 @@ DEMO_NARRATIVE:
 
 The demo runs against a real Elasticsearch cluster with semantic search and live AI responses. Complete these pre-steps before proceeding to Step 1.
 
-**Prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed as an inference endpoint, Jina Reranker v3 (`.jina-reranker-v3`) deployed in Kibana ML Trained Models.
+**Prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed as an inference endpoint, Jina Reranker v3 (`.jina-reranker-v3`) deployed in Kibana ML Trained Models, Kibana URL and API key with `manage_onechat` privilege, Kibana CORS enabled for localhost origins, and an LLM connector configured in Kibana (GenAI Settings → Default AI Connector).
 
 ### v2-A — Configure credentials
 
@@ -55,8 +55,9 @@ Fill in `.env`:
 - `ES_API_KEY` — write API key (used once by `npm run setup` to seed the index)
 - `ES_INDEX` — leave as `demo-products` or choose your own name
 - `ES_API_KEY_READONLY` — read-only API key scoped to `ES_INDEX` (baked into the demo HTML)
-- `ES_INFERENCE_URL` — your Elastic inference endpoint URL, e.g. `{ES_URL}/_inference/completion/{inference_id}`
-- `ES_INFERENCE_API_KEY` — API key for the inference endpoint
+- `KIBANA_URL` — your Kibana URL (e.g., `https://cloud-deployment-id.kb.us-central1.gcp.cloud.es.io`)
+- `KIBANA_API_KEY` — API key with `manage_onechat` privilege (used by `npm run setup` to create Agent Builder agent and tools)
+- `AGENT_ID` — optional; auto-written by `npm run setup` after agent creation. Leave blank initially.
 
 ### v2-B — Validate credentials and seed the index
 
@@ -65,15 +66,15 @@ npm install
 npm run validate
 ```
 
-This checks that all `.env` values are set, the cluster is reachable, both API keys work, and the inference endpoint responds. Fix any `✗` failures before continuing.
+This checks that all `.env` values are set, the cluster is reachable, both API keys work, and Kibana is reachable. Fix any `✗` failures before continuing.
 
 ```bash
 npm run setup
 ```
 
-This creates the index, enables ELSER semantic embeddings, and bulk-loads the product dataset. Confirm the output shows `✓ All [N] products indexed successfully`. Run `npm run setup -- --reset` to wipe and reseed.
+This creates the index, enables ELSER semantic embeddings, bulk-loads the product dataset, and auto-creates the Agent Builder agent + tools via the Kibana API. Confirm the output shows `✓ All [N] products indexed successfully` and `✓ Agent Builder setup complete`. The `AGENT_ID` will be auto-written to `.env`. Run `npm run setup -- --slug {name} --skip-agent` to skip agent creation and use an existing agent.
 
-### v2-C — Configure CORS
+### v2-C — Configure CORS (Elasticsearch)
 
 In Kibana: **Stack Management → Elasticsearch → Edit deployment settings**, add:
 
@@ -83,10 +84,14 @@ http.cors.allow-origin: ["/https?:\\/\\/localhost(:[0-9]+)?/"]
 http.cors.allow-headers: "X-Requested-With, Content-Type, Content-Length, Authorization"
 ```
 
-### Pre-step D — Note for Step 3
+### v2-D — Configure Kibana CORS (for Agent Builder)
+
+In Kibana: **Stack Management → Advanced Settings**, search for `csp.strict` and set to `false` to allow Agent Builder API access from localhost demo URLs. Alternatively, verify your Kibana deployment allows CORS from localhost origins.
+
+### Pre-step E — Note for Step 3
 
 During Step 3, you (the AI agent) will inject the credentials into the output file. Before proceeding to Step 1, read `.env` and store the following values for use in step 3p:
-- `ES_URL`, `ES_API_KEY_READONLY`, `ES_INDEX`, `ES_INFERENCE_URL`, `ES_INFERENCE_API_KEY`
+- `ES_URL`, `ES_API_KEY_READONLY`, `ES_INDEX`, `KIBANA_URL`, `KIBANA_API_KEY`, `AGENT_ID`
 
 Note: `ES_INDEX` is a base name. The actual index will be `{ES_INDEX}-{CUSTOMER_SLUG}` (e.g., if `ES_INDEX=demo-products` and `CUSTOMER_SLUG=acme-sports`, the index is `demo-products-acme-sports`).
 
@@ -378,28 +383,11 @@ The "Shopping as [persona-name]" overlay is displayed at the top of search resul
 
 ---
 
-### 3l — GenAI Kit
+### 3l — GenAI Agent Query
 
-**Edit target:** the `const GENAI_KITS` object and the `DEMO_QUERIES.genai` value.
+**Edit target:** the `DEMO_QUERIES.genai` value.
 
-Replace `GENAI_KITS` with persona-specific curated kits. Each persona entry needs:
-
-**`intro`** — one sentence introducing the kit, mentioning the persona by name and their goal
-
-**`sub`** — one line describing what the kit is optimized for
-
-**`products`** — 6 products forming a complete "kit" for the persona's scenario:
-- Should tell a coherent story (e.g., shoes + apparel + accessory + nutrition)
-- Persona-appropriate gender and brand preferences
-- Include an image URL for each (use `w=300&h=300` format as in the template)
-
-**`chatResponse`** — a JavaScript arrow function `(q) => \`...\`` that returns a simulated AI response. Write 2 branches:
-- If the query mentions a specific product type or comparison keyword, give a specific recommendation
-- Otherwise, give a general persona-appropriate response with an emoji
-
-**`altProduct`** — one alternative product suggestion (shown as "or consider this" in the UI)
-
-Set `DEMO_QUERIES.genai` to a natural language "curated kit" query (e.g., `'complete training kit'`, `'build my summer workout setup'`).
+Set `DEMO_QUERIES.genai` to a natural language query that triggers multi-turn Agent Builder conversation (e.g., `'put together a complete training kit'`, `'help me build a summer outfit'`). The query will be sent to the Agent Builder agent, which will respond with product recommendations and allow follow-up questions. **No static kit arrays needed** — the agent dynamically retrieves products from the index via tool calls.
 
 ---
 
@@ -466,21 +454,22 @@ Confirm output shows `✓ All [N] products indexed successfully`.
 
 **Edit target:** the `ES_CONFIG` block near the top of the `<script>` section in `output/[CUSTOMER_SLUG]/demo.html`.
 
-Replace each `{{token}}` with the value read from `.env` in step v2-D:
+Replace each `{{token}}` with the value read from `.env` in step v2-E:
 
 ```js
 const ES_CONFIG = {
-  url:                '[ES_URL]',
-  apiKey:             '[ES_API_KEY_READONLY]',
-  index:              '[ES_INDEX]-[CUSTOMER_SLUG]',
-  inferenceUrl:    '[ES_INFERENCE_URL]',
-  inferenceApiKey: '[ES_INFERENCE_API_KEY]'
+  url:              '[ES_URL]',
+  apiKey:           '[ES_API_KEY_READONLY]',
+  index:            '[ES_INDEX]-[CUSTOMER_SLUG]',
+  kibanaUrl:        '[KIBANA_URL]',
+  kibanaApiKey:     '[KIBANA_API_KEY]',
+  agentId:          '[AGENT_ID]'
 };
 ```
 
 The `index` value is computed as `{ES_INDEX}-{CUSTOMER_SLUG}` — the base name from `.env` plus the customer slug. This matches the index created by the `npm run reset -- --slug [CUSTOMER_SLUG]` command in step 3o.
 
-All credentials are required — if any are missing, the demo cannot run.
+The `kibanaUrl`, `kibanaApiKey`, and `agentId` are required for GenAI mode — the demo will fail without them.
 
 ---
 
@@ -506,11 +495,25 @@ After completing all edits, read back `output/[CUSTOMER_SLUG]/demo.html` and ver
 - `const PERSONAS` uses Alex, Marcus, and Sam with customized `preferredBrands` and `purchaseHistory`
 - `const PRODUCTS` contains customer-specific products (not the template's trail running defaults)
 - `DEMO_QUERIES` contains all four customized query strings: `lexical`, `hybrid`, `personalized`, `genai`
-- `ES_CONFIG` is populated with the correct ES credentials and `[ES_INDEX]-[CUSTOMER_SLUG]` index name
+- `ES_CONFIG` is populated with the correct ES and Kibana credentials, agent ID, and `[ES_INDEX]-[CUSTOMER_SLUG]` index name
 - No references to the template brand names remain unless intentional
 - All image URLs are valid Pexels CDN links from the approved image set
 
 If any section was missed or still contains template defaults, apply the missing edit before proceeding.
+
+---
+
+## Post-Setup: Agent Customization (Optional)
+
+After `npm run setup` creates the Agent Builder agent, SAs can customize the agent's behavior in Kibana:
+
+1. Open **Kibana → Standalone Agents → {AGENT_ID}**
+2. Edit the agent's **System Prompt** to match the customer's brand voice and product expertise
+3. Add or remove **Tools** as needed (the setup creates default search and product-retrieval tools)
+4. Adjust the **LLM Connector** if a different model is preferred
+5. Save changes — the updated agent will be used on the next customer query
+
+No code changes required — customization is entirely through the Kibana UI.
 
 ---
 
@@ -520,6 +523,7 @@ After writing the file, print:
 
 ```
 ✅ Demo generated: output/[CUSTOMER_SLUG]/demo.html
+✅ Agent Builder agent created (ID: [AGENT_ID]) — customize in Kibana if needed
 
 Run `npm run dev` and open http://localhost:3000/[CUSTOMER_SLUG]/demo.html
 
@@ -527,10 +531,11 @@ DEMO CHEAT SHEET — queries to type during your presentation:
   1. Lexical:     "[DEMO_QUERIES.lexical]"       → bad results, wrong category
   2. Hybrid:      "[DEMO_QUERIES.hybrid]"        → relevant, semantically matched
   3. Personalized: "[DEMO_QUERIES.personalized]" → ranked by active persona preferences
-  4. GenAI:       "[DEMO_QUERIES.genai]"         → curated kit + live chat
+  4. GenAI:       "[DEMO_QUERIES.genai]"         → multi-turn Agent Builder conversation
 
 Switch personas using the avatar buttons in the top bar.
 For the Personalized and GenAI modes, switch personas and re-run the same query to show how results change.
+In GenAI mode, try follow-up questions to demonstrate multi-turn conversation.
 ```
 
 ---
