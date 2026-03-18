@@ -1,82 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Table of Contents
-1. [Critical Rules](#critical-rules)
-2. [RPI Framework](#rpi-framework-research--plan--implement)
-3. [Build Commands](#build-commands)
-4. [Architecture Overview](#architecture-overview)
-5. [Testing Guidelines](#testing-guidelines)
-6. [Code Style Guidelines](#code-style-guidelines)
-7. [Communication Style](#communication-style)
-8. [General Guidelines](#general-guidelines)
-
-## Critical Rules
-
-**Uncommitted Changes Check — Session Start:**
-- **ALWAYS run `git status` as the very first action at the start of every session**
-- If there are uncommitted changes (modified, staged, or new untracked source files):
-  - **STOP — do not modify, create, or delete any files**
-  - Show the affected files and warn: "There are uncommitted changes. Making edits now risks losing work done since the last commit."
-  - Ask: "How would you like to handle this before I proceed? (e.g., commit, stash, discard, or confirm it is safe to continue)"
-  - **Do not make any file changes until the user explicitly confirms**
-
-**Unexpected File Changes — Mid-Session Detection:**
-- If you detect changes to files you did not make in the current session:
-  - **STOP immediately — do not make any further changes**
-  - **Do NOT attempt to fix, roll back, stash, drop, reset, or otherwise "correct" this** — any automated correction risks overwriting the user's work
-  - Inform the user which files changed and that concurrent human and agent edits can cause conflicts
-  - Ask: "Did you make these changes? How would you like to proceed?"
-  - **Wait for explicit instructions before taking any further action**
-
-## RPI Framework: Research → Plan → Implement
-
-For non-trivial changes, follow this three-phase approach with explicit user approval at each phase boundary. Each STOP is a hard gate — do not proceed without explicit user approval.
-
-**Requires RPI:** Architecture changes, multi-file refactors, new features, complex bug fixes
-**Skip RPI:** Typo fixes, single-line edits, formatting changes, simple corrections
-
-Track each RPI project in a single `.md` file stored in `.claude/plans/` within the repo. Use a descriptive filename (e.g., `setup-md-plan.md`). The file should have three sections corresponding to the phases below, plus a **Phase Status** block at the bottom showing which phases are complete and whether implementation is pending/in-progress.
-
-### Phase 1: Research (What should be done)
-- Understand the request and analyze current codebase state
-- Ask clarifying questions iteratively to define scope and desired outcomes
-- Document key decisions, constraints, and critical context for later phases
-- Define **acceptance criteria** — measurable conditions that the final implementation must satisfy. These criteria inform the Plan phase (what stages are needed) and validate the Implement phase (did we succeed). Collaborate with the user to refine criteria before finalizing.
-- **STOP:** Present research findings and acceptance criteria, get user confirmation before proceeding to Plan
-
-### Phase 2: Plan (How should it be done)
-- Design implementation approach based on Research phase findings
-- Break down work into discrete, validatable stages
-- Collaborate with user to refine plan where helpful
-- Self-review holistically — does it achieve the goal? Are there issues?
-- Document the complete plan with stage-by-stage breakdown
-- **STOP:** Get explicit user approval before proceeding to Implement
-
-### Phase 3: Implement (Execute the plan)
-- **STOP FIRST:** Get explicit user approval to START work
-- Follow all standing instructions including the three-strikes rule
-- Execute plan in stages; validate success after EACH stage
-- If major deviations from plan are needed:
-  - STOP implementation immediately
-  - Analyze impact on overall plan, revise the plan document
-  - Get user approval before continuing
-- Perform final validation and testing after all stages complete
-- Document what was implemented and any deviations from plan
-
-### Implementation Verification
-- **Always ask for explicit confirmation before implementing code changes**
-- After clarifying questions are answered, ask: "Should I proceed with the implementation?"
-- Wait for explicit confirmation before writing any code
-- For non-RPI changes, the same applies — confirm approach before writing code
-
-### Three-Strike Rule
-When an approach is repeatedly blocked — whether by compilation errors, test failures, tool rejections, user interruptions, or any other blocker — count each failed or rejected attempt as a strike:
-1. **First attempt**: Try a straightforward approach
-2. **Second attempt**: Try one alternative approach
-3. **Third attempt**: Try one more focused variation
-4. **After three failures**: STOP, revert any changes, reassess, and ask the user how to proceed — do not keep retrying the same pattern
+Project-specific instructions for the Customizable Search Demo. General workflow instructions (Critical Rules, RPI Framework, Communication Style, General Guidelines, Agent Usage Policy) belong in the user's `~/.claude/CLAUDE.md`.
 
 ## Build Commands
 
@@ -169,7 +93,6 @@ No automated test suite. Manual testing only:
 
 **Note — products come from ES, not the template:** Product data (including image URLs) is served from the Elasticsearch index. Fixing `products.json` or `template/index.html` alone won't be reflected until `npm run reset` reseeds the index.
 
-
 ## Code Style Guidelines
 
 - **Vanilla JS/HTML/CSS only** — no frameworks, no TypeScript, no build step
@@ -182,22 +105,3 @@ No automated test suite. Manual testing only:
 - **Images — Pexels only:** All product images use Pexels CDN. **Never use Unsplash** — their URLs go stale/404. Format: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`. Use IDs from `image-library/*.json` files. Verify new IDs with `curl -s -o /dev/null -w "%{http_code}" https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg` before committing.
 - **Pexels search pages block automation** — `pexels.com/search/*` returns 403 to headless fetches. Find IDs by browsing manually, using the Pexels API (free key at pexels.com/api/), or verifying candidate IDs with curl as above.
 - **Bash variable naming in zsh:** `status` is read-only in zsh — use `code`, `result`, or similar instead. Relevant when writing `curl` status-checking loops.
-
-
-## Communication Style
-
-- **Concise over exhaustive** — Brief, clear answers; offer to elaborate if needed
-- **Design questions**: 2-3 options with 1-2 sentence pros/cons, clear recommendation, ask if more detail needed
-- **Implementation**: Step-by-step plans when requested; focus on what and why, not full code blocks unless asked
-- **No redundancy**: Reference earlier points rather than restating
-- **Scale to scope**: Simple questions get simple answers; complex tasks get detailed plans
-
-## General Guidelines
-
-- Prefer simple, idiomatic solutions
-- Ask questions when knowledge of intent improves the solution
-- Ask before adding new dependencies
-- If architecture makes a solution complex, discuss changes rather than working around issues
-- Recommend refactoring separately when found code isn't part of the current task
-- If a solution fails multiple times, stop and ask for input
-- **Post-task documentation sweep:** After completing any task that changes architecture, features, search modes, APIs, or user-facing behavior, proactively update all project documentation before considering the task complete: `README.md` (user-facing docs), `CLAUDE.md` (project instructions), and project memory. Delegate these updates to the project-librarian agent in a single pass.
