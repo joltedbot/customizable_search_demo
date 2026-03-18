@@ -112,6 +112,7 @@ When the audience asks "what else can I search for?", these work well for live d
 - Open `demo.html` full screen for best visual impact
 - Select a persona from the header before starting (shows "Shopping as: [Name]")
 - After the Personalized demo, click "Add all to cart" to close the loop
+- Use the "View Query" button (top right) to inspect the ES query or Agent Builder payload behind each search mode — great for technical audiences
 - The console cheat sheet (open DevTools) lists all demo queries for quick reference
 
 ---

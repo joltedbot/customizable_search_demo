@@ -146,9 +146,10 @@ When an approach is repeatedly blocked — whether by compilation errors, test f
 - `cartItems` — array of cart item objects; drives header badge count and cart drawer
 - `agentConversationId` — Agent Builder conversation ID for multi-turn GenAI chat; reset on persona switch or new session
 - `genaiProducts` — products extracted from agent tool results; used by "Add all to cart"
+- `lastSearchQuery` — last query string passed to `openScenario()`; used by View Query button
 
 **Z-index layer stack (`template/index.html`):**
-header=1000 → autocomplete=2000 → search overlay=3000 → genai overlay=4000. New overlays/drawers should use z-index ≥ 5000.
+header=1000 → autocomplete=2000 → search overlay=3000 → genai overlay=4000 → query viewer=5000. New overlays/drawers should use z-index ≥ 6000.
 
 **Empty state (zero results):** When a search returns no products, `openScenario()` displays a "0 results found" message with the search icon, query text, and suggestion to try a different search term. Improves retail demo UX.
 
