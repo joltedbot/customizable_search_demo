@@ -735,6 +735,74 @@
       line-height: 1;
     }
     .srm-close:hover { color: var(--black); }
+    .view-query-btn {
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 12px;
+      border: 1.5px solid var(--gray-200);
+      background: var(--white);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gray-600);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .view-query-btn:hover { border-color: var(--primary-light); color: var(--primary); }
+
+    /* ===================== QUERY VIEWER OVERLAY ===================== */
+    .query-viewer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 5000;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-y: auto;
+    }
+    .query-viewer-overlay.open { display: flex; }
+    .query-viewer-modal {
+      background: white;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 700px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .query-viewer-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--gray-200);
+      background: var(--gray-100);
+    }
+    .query-viewer-header h3 { font-size: 14px; font-weight: 700; flex: 1; }
+    .query-viewer-body {
+      padding: 16px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .query-viewer-code {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border-radius: 6px;
+      padding: 16px;
+      font-size: 12px;
+      line-height: 1.5;
+      font-family: 'Courier New', monospace;
+      overflow-x: auto;
+      white-space: pre;
+      margin: 0;
+    }
     .scenario-badge {
       display: inline-flex;
       align-items: center;
@@ -1326,6 +1394,7 @@
     <div class="srm-header">
       <h2>Results for <span id="searchQueryLabel"></span></h2>
       <!-- Scenario badge injected here by JS -->
+      <button class="view-query-btn" id="viewQueryBtnSearch" title="View Elasticsearch query">{ } View Query</button>
       <button class="srm-close" id="searchClose">✕</button>
     </div>
     <div class="srm-body">
@@ -1354,6 +1423,7 @@
         <span class="scenario-badge badge-genai">✨ GenAI Search</span>
         <span class="genai-title">AI Shopping Assistant</span>
       </div>
+      <button class="view-query-btn" id="viewQueryBtnGenai" title="View Agent Builder API request">{ } View Query</button>
       <button class="srm-close" id="genaiClose">✕</button>
     </div>
 
@@ -1376,6 +1446,19 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ===================== QUERY VIEWER OVERLAY ===================== -->
+<div class="query-viewer-overlay" id="queryViewerOverlay">
+  <div class="query-viewer-modal">
+    <div class="query-viewer-header">
+      <h3 id="queryViewerTitle">Query</h3>
+      <button class="srm-close" id="queryViewerClose">✕</button>
+    </div>
+    <div class="query-viewer-body">
+      <pre class="query-viewer-code" id="queryViewerCode"></pre>
+    </div>
   </div>
 </div>
 
@@ -1651,6 +1734,7 @@ let genaiProducts = [];
 // ============================================================
 let activePersona = PERSONAS.alex;
 let activeMode = 'lexical';
+let lastSearchQuery = '';
 let cartItems = [];
 let agentConversationId = null;
 
@@ -2047,6 +2131,7 @@ function skeletonCard() {
 }
 
 async function openScenario(mode, query) {
+  lastSearchQuery = query;
   if (mode === 'genai') return openGenAI(query);
 
   document.getElementById('searchQueryLabel').textContent = `"${query}"`;
@@ -2275,6 +2360,40 @@ document.getElementById('searchClose').addEventListener('click', () => document.
 document.getElementById('searchOverlay').addEventListener('click', e => {
   if (e.target === document.getElementById('searchOverlay')) document.getElementById('searchOverlay').classList.remove('open');
 });
+
+// ============================================================
+// QUERY VIEWER
+// ============================================================
+
+function openQueryViewer(mode, query, persona) {
+  const overlay = document.getElementById('queryViewerOverlay');
+  const titleEl = document.getElementById('queryViewerTitle');
+  const codeEl = document.getElementById('queryViewerCode');
+
+  if (mode === 'genai') {
+    titleEl.textContent = 'Agent Builder API Request';
+    const payload = {
+      input: `Shopping as ${persona.name} — ${persona.tagline}. Preferred brands: ${persona.preferredBrands.join(', ')}. Query: ${query}`,
+      agent_id: ES_CONFIG.agentId,
+      ...(agentConversationId ? { conversation_id: agentConversationId } : {})
+    };
+    codeEl.textContent = JSON.stringify(payload, null, 2);
+  } else {
+    const modeLabels = { lexical: 'Lexical', hybrid: 'Hybrid', personalized: 'Personalized' };
+    titleEl.textContent = `${modeLabels[mode] || mode} Query`;
+    const esQuery = buildEsQuery(query, mode, persona);
+    codeEl.textContent = JSON.stringify(esQuery, null, 2);
+  }
+
+  overlay.classList.add('open');
+}
+
+document.getElementById('queryViewerClose').addEventListener('click', () => document.getElementById('queryViewerOverlay').classList.remove('open'));
+document.getElementById('queryViewerOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('queryViewerOverlay')) document.getElementById('queryViewerOverlay').classList.remove('open');
+});
+document.getElementById('viewQueryBtnSearch').addEventListener('click', () => openQueryViewer(activeMode, lastSearchQuery, activePersona));
+document.getElementById('viewQueryBtnGenai').addEventListener('click', () => openQueryViewer('genai', lastSearchQuery, activePersona));
 
 // ============================================================
 // PERSONA SWITCHER
