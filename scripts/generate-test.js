@@ -32,13 +32,12 @@ for (const key of required) {
 const templatePath = path.join(__dirname, '..', 'template', 'index.html');
 let html = fs.readFileSync(templatePath, 'utf8');
 
-// Replace credential tokens
-html = html.replace('{{ES_URL}}',                  env.ES_URL);
-html = html.replace('{{ES_API_KEY_READONLY}}',     env.ES_API_KEY_READONLY);
-html = html.replace('{{ES_INDEX}}',                env.ES_INDEX || 'demo-products');
-html = html.replace('{{KIBANA_URL}}',      env.KIBANA_URL || '');
-html = html.replace('{{KIBANA_API_KEY}}',  env.KIBANA_API_KEY || '');
-html = html.replace('{{AGENT_ID}}',        env.AGENT_ID || '');
+// Replace credential tokens (replaceAll handles tokens that appear multiple times, e.g. in CSP)
+html = html.replaceAll('{{ES_URL}}',             env.ES_URL);
+html = html.replaceAll('{{ES_API_KEY_READONLY}}', env.ES_API_KEY_READONLY);
+html = html.replaceAll('{{ES_INDEX}}',           env.ES_INDEX || 'demo-products');
+html = html.replaceAll('{{KIBANA_URL}}',         env.KIBANA_URL || '');
+html = html.replaceAll('{{AGENT_ID}}',           env.AGENT_ID || '');
 const outDir = path.join(__dirname, '..', 'output', 'test');
 fs.mkdirSync(outDir, { recursive: true });
 const outPath = path.join(outDir, 'demo.html');

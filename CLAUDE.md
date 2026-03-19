@@ -51,8 +51,7 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 - **Management:** `POST /api/agent_builder/agents`, `POST /api/agent_builder/tools` — used by `npm run setup` to create agent + tools
 
 **Credentials in output HTML:**
-- `ES_API_KEY_READONLY` — baked into demo.html for browser queries (read-only, scoped to index)
-- `KIBANA_API_KEY` — baked into demo.html for Agent Builder conversations (needs `read_onechat`)
+- `ES_API_KEY_READONLY` — baked into demo.html for both ES queries and Agent Builder conversations (combined read key)
 - `ES_API_KEY` — write key used only by `npm run setup`, never in output HTML
 - `KIBANA_URL` + `AGENT_ID` — baked into demo.html for GenAI mode
 
@@ -105,3 +104,16 @@ No automated test suite. Manual testing only:
 - **Images — Pexels only:** All product images use Pexels CDN. **Never use Unsplash** — their URLs go stale/404. Format: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`. Use IDs from `image-library/*.json` files. Verify new IDs with `curl -s -o /dev/null -w "%{http_code}" https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg` before committing.
 - **Pexels search pages block automation** — `pexels.com/search/*` returns 403 to headless fetches. Find IDs by browsing manually, using the Pexels API (free key at pexels.com/api/), or verifying candidate IDs with curl as above.
 - **Bash variable naming in zsh:** `status` is read-only in zsh — use `code`, `result`, or similar instead. Relevant when writing `curl` status-checking loops.
+
+## Security Guidelines
+
+- **Content-Security-Policy header** — `template/index.html` includes a CSP meta tag that enforces:
+  - Inline scripts/styles allowed (`'unsafe-inline'` for demo context; fine for internal template)
+  - External resources restricted to `fonts.googleapis.com`, `fonts.gstatic.com` (fonts only)
+  - Elasticsearch and Kibana API calls allowed via `connect-src` with `{{ES_URL}}` and `{{KIBANA_URL}}` tokens
+  - Images only from Pexels CDN (`https://images.pexels.com`) + data URIs for generated content
+- **XSS protection:** All user-facing product data rendered via `renderProduct()` and `renderGenAIProduct()` must use `escapeHtml()` before inserting into the DOM. This includes: product name, brand, and badge fields.
+- **Credentials in output HTML:**
+  - `ES_API_KEY_READONLY` — combined read-only key covering both ES index queries and Kibana Agent Builder conversations; safe to embed in browser
+  - `ES_API_KEY` (write) — **never embed in output HTML**; use only server-side during `npm run setup`
+  - Credential tokens are replaced during SETUP.md execution; never commit `.env` or generated `demo.html` files

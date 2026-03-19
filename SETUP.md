@@ -42,7 +42,7 @@ DEMO_NARRATIVE:
 
 The demo runs against a real Elasticsearch cluster with semantic search and live AI responses. Complete these pre-steps before proceeding to Step 1.
 
-**Prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed as an inference endpoint, Jina Reranker v3 (`.jina-reranker-v3`) deployed in Kibana ML Trained Models, Kibana URL and API key with `manage_onechat` privilege, Kibana CORS enabled for localhost origins, and an LLM connector configured in Kibana (GenAI Settings → Default AI Connector).
+**Prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed as an inference endpoint, Jina Reranker v3 (`.jina-reranker-v3`) deployed in Kibana ML Trained Models, two API keys (exact JSON provided below), Kibana CORS enabled for localhost origins, and an LLM connector configured in Kibana (GenAI Settings → Default AI Connector).
 
 ### v2-A — Configure credentials
 
@@ -50,14 +50,44 @@ The demo runs against a real Elasticsearch cluster with semantic search and live
 cp .env.template .env
 ```
 
-Fill in `.env`:
+Fill in `.env` — you need exactly **two API keys** and a Kibana URL:
+
 - `ES_URL` — your Cloud deployment URL
-- `ES_API_KEY` — write API key (used once by `npm run setup` to seed the index)
 - `ES_INDEX` — leave as `demo-products` or choose your own name
-- `ES_API_KEY_READONLY` — read-only API key scoped to `ES_INDEX` (baked into the demo HTML)
 - `KIBANA_URL` — your Kibana URL (e.g., `https://cloud-deployment-id.kb.us-central1.gcp.cloud.es.io`)
-- `KIBANA_API_KEY` — API key with `manage_onechat` privilege (used by `npm run setup` to create Agent Builder agent and tools)
-- `AGENT_ID` — optional; auto-written by `npm run setup` after agent creation. Leave blank initially.
+- `AGENT_ID` — leave blank; auto-written by `npm run setup` after agent creation
+
+**`ES_API_KEY` — write key, used only by `npm run setup`. Never baked into HTML.**
+Create in Kibana: Stack Management → API Keys → Create API key, paste this JSON into "Restrict privileges":
+```json
+{
+  "demo-setup": {
+    "cluster": ["monitor_inference"],
+    "indices": [
+      { "names": ["*"], "privileges": ["all"] }
+    ],
+    "applications": [
+      { "application": "kibana-.kibana", "privileges": ["manage_onechat"], "resources": ["*"] }
+    ]
+  }
+}
+```
+
+**`ES_API_KEY_READONLY` — read-only key, baked into the demo HTML for ES queries and Agent Builder conversations.**
+Create in Kibana: Stack Management → API Keys → Create API key, paste this JSON into "Restrict privileges":
+```json
+{
+  "demo-readonly": {
+    "cluster": ["monitor_inference"],
+    "indices": [
+      { "names": ["*"], "privileges": ["read", "view_index_metadata"] }
+    ],
+    "applications": [
+      { "application": "kibana-.kibana", "privileges": ["feature_agentBuilder.read", "feature_actions.read"], "resources": ["*"] }
+    ]
+  }
+}
+```
 
 ### v2-B — Validate credentials and seed the index
 
@@ -91,7 +121,7 @@ In Kibana: **Stack Management → Advanced Settings**, search for `csp.strict` a
 ### Pre-step E — Note for Step 3
 
 During Step 3, you (the AI agent) will inject the credentials into the output file. Before proceeding to Step 1, read `.env` and store the following values for use in step 3p:
-- `ES_URL`, `ES_API_KEY_READONLY`, `ES_INDEX`, `KIBANA_URL`, `KIBANA_API_KEY`, `AGENT_ID`
+- `ES_URL`, `ES_API_KEY_READONLY`, `ES_INDEX`, `KIBANA_URL`, `AGENT_ID`
 
 Note: `ES_INDEX` is a base name. The actual index will be `{ES_INDEX}-{CUSTOMER_SLUG}` (e.g., if `ES_INDEX=demo-products` and `CUSTOMER_SLUG=acme-sports`, the index is `demo-products-acme-sports`).
 
@@ -462,7 +492,7 @@ const ES_CONFIG = {
   apiKey:           '[ES_API_KEY_READONLY]',
   index:            '[ES_INDEX]-[CUSTOMER_SLUG]',
   kibanaUrl:        '[KIBANA_URL]',
-  kibanaApiKey:     '[KIBANA_API_KEY]',
+  kibanaApiKey:     '[KIBANA_API_KEY_READONLY]',
   agentId:          '[AGENT_ID]'
 };
 ```

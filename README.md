@@ -17,14 +17,14 @@ The demo connects to a live Elasticsearch Cloud cluster for real semantic search
 
 ## Quickstart
 
-**Prerequisites:** Git, Node.js 18+, Claude Code (`claude`) or Gemini CLI, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed, Jina Reranker v3 available via Elastic Inference Service, Kibana URL and API key with `manage_onechat` privilege, Kibana CORS enabled for localhost, LLM connector configured in Kibana
+**Prerequisites:** Git, Node.js 18+, Claude Code (`claude`) or Gemini CLI, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed, Jina Reranker v3 available via Elastic Inference Service, two API keys (write + read-only — exact JSON in `.env.template`), Kibana CORS enabled for localhost, LLM connector configured in Kibana
 
 ```bash
 git clone <repo-url> my-customer-demo
 cd my-customer-demo
 
 # 1. Configure credentials and seed the index
-cp .env.template .env   # fill in ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, KIBANA_URL, KIBANA_API_KEY (+ AGENT_ID if reusing existing agent)
+cp .env.template .env   # fill in ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, KIBANA_URL (+ AGENT_ID if reusing existing agent; exact key JSON in .env.template)
 npm install
 npm run validate        # pre-flight check — fix any ✗ failures before continuing
 npm run setup           # creates ES index, products index, Agent Builder agent + tools
@@ -59,7 +59,7 @@ Open `SETUP.md` and fill in the `## Customer Config` section before running the 
 | `template/index.html` | Base demo template the AI customizes |
 | `image-library/` | Pre-curated Pexels image sets (one JSON per industry) |
 | `package.json` | npm scripts: `validate`, `dev`, `setup`, `reset` (v2 mode) |
-| `.env.template` | Credentials template — copy to `.env` and fill in (v2 mode): ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, KIBANA_URL, KIBANA_API_KEY, AGENT_ID (auto-populated) |
+| `.env.template` | Credentials template — copy to `.env` and fill in: ES_URL, ES_API_KEY (write), ES_INDEX, ES_API_KEY_READONLY (read — covers ES + Kibana), KIBANA_URL, AGENT_ID (auto-populated). Exact permission JSON for both keys is in the template comments. |
 | `scripts/validate-env.js` | Pre-flight check: validates all `.env` credentials before setup (v2 mode); `--skip-agent` flag to skip Agent Builder checks |
 | `scripts/setup-index.js` | Creates the ES index, deploys ELSER, seeds products, and auto-creates Agent Builder agent + tools. Supports `--slug {name}` for customer-specific indices and `--skip-agent` to reuse an existing agent (v2 mode) |
 | `scripts/data/products.json` | 46-product sporting goods base dataset (v2 mode); customer-specific data in `products-{slug}.json` (gitignored) |
@@ -114,6 +114,13 @@ When the audience asks "what else can I search for?", these work well for live d
 - After the Personalized demo, click "Add all to cart" to close the loop
 - Use the "View Query" button (top right) to inspect the ES query or Agent Builder payload behind each search mode — great for technical audiences
 - The console cheat sheet (open DevTools) lists all demo queries for quick reference
+
+### Security
+
+The template includes:
+- **Content-Security-Policy header** — restricts inline scripts, external resources, and enforces HTTPS for Elasticsearch and Kibana connections
+- **XSS protection** — all user-facing product data (name, brand, badge) is HTML-escaped before rendering to prevent injection attacks
+- **Read-only credentials in browser** — only `ES_API_KEY_READONLY` (read-only, scoped to index) and `KIBANA_API_KEY` are exposed in the generated demo; the write key (`ES_API_KEY`) is used only server-side during setup and never baked into output HTML
 
 ---
 

@@ -18,6 +18,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com; connect-src {{ES_URL}} {{KIBANA_URL}}; img-src 'self' https://images.pexels.com data: blob:;">
   <!-- CUSTOMIZE: page title -->
   <title>DEMO STORE | Find Everything You Need</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1492,7 +1493,7 @@ const ES_CONFIG = {
   apiKey:             '{{ES_API_KEY_READONLY}}',
   index:              '{{ES_INDEX}}',
   kibanaUrl:       '{{KIBANA_URL}}',
-  kibanaApiKey:    '{{KIBANA_API_KEY}}',
+  kibanaApiKey:    '{{ES_API_KEY_READONLY}}',
   agentId:         '{{AGENT_ID}}'
 };
 
@@ -1746,21 +1747,22 @@ let agentConversationId = null;
 function renderProduct(p) {
   const hasSale = p.sale != null;
   const displayPrice = hasSale ? p.sale : p.price;
+  const safeBadge = p.badge ? escapeHtml(p.badge) : '';
   const badgeHtml = p.badge
-    ? `<div class="product-badge ${p.badge === 'New' ? 'new' : p.badge === 'Bestseller' ? 'bestseller' : ''}">${p.badge}</div>`
+    ? `<div class="product-badge ${p.badge === 'New' ? 'new' : p.badge === 'Bestseller' ? 'bestseller' : ''}">${safeBadge}</div>`
     : '';
   const imgSrc = p.image || '';
   const productData = encodeURIComponent(JSON.stringify({ name: p.name, brand: p.brand, price: displayPrice, image: imgSrc }));
   return `
     <div class="product-card">
       <div class="product-img">
-        <img src="${imgSrc}" alt="${p.name}" loading="lazy"
+        <img src="${imgSrc}" alt="${escapeHtml(p.name)}" loading="lazy"
              onerror="this.parentElement.style.background='var(--gray-200)';this.style.display='none'">
         ${badgeHtml}
       </div>
       <div class="product-info">
-        <div class="product-brand">${p.brand}</div>
-        <div class="product-name">${p.name}</div>
+        <div class="product-brand">${escapeHtml(p.brand)}</div>
+        <div class="product-name">${escapeHtml(p.name)}</div>
         <div class="product-price">
           <span class="price-current">$${displayPrice.toFixed(2)}</span>
           ${hasSale ? `<span class="price-original">$${p.price.toFixed(2)}</span><span class="price-sale">Save $${(p.price - p.sale).toFixed(2)}</span>` : ''}
@@ -1777,10 +1779,10 @@ function renderProduct(p) {
 function renderGenAIProduct(p) {
   return `
     <div class="genai-product-card">
-      <img class="genai-product-img" src="${p.image}" alt="${p.name}" loading="lazy"
+      <img class="genai-product-img" src="${p.image}" alt="${escapeHtml(p.name)}" loading="lazy"
            onerror="this.style.background='var(--gray-200)';this.style.display='none'">
-      <div class="genai-product-name">${p.name}</div>
-      <div class="genai-product-brand">${p.brand}</div>
+      <div class="genai-product-name">${escapeHtml(p.name)}</div>
+      <div class="genai-product-brand">${escapeHtml(p.brand)}</div>
       <div class="genai-product-price">$${p.price.toFixed(2)}</div>
     </div>`;
 }

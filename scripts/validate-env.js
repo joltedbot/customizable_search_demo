@@ -61,7 +61,7 @@ function esError(e) {
 
 function checkEnvVars() {
   step('Checking .env variables...');
-  const required = ['ES_URL', 'ES_API_KEY', 'ES_API_KEY_READONLY', 'KIBANA_URL', 'KIBANA_API_KEY'];
+  const required = ['ES_URL', 'ES_API_KEY', 'ES_API_KEY_READONLY', 'KIBANA_URL'];
   for (const key of required) {
     const val = process.env[key];
     if (!val) {
@@ -126,15 +126,6 @@ async function checkReadKey() {
   }
 
   const client = new Client({ node: url, auth: { apiKey: key } });
-
-  try {
-    await client.info();
-    ok('Read-only key accepted by cluster');
-  } catch (e) {
-    fail(`Connection failed with read-only key: ${esError(e)}`);
-    return;
-  }
-
   const index = process.env.ES_INDEX || 'demo-products';
   try {
     await client.search({ index, body: { query: { match_all: {} }, size: 1 } });
@@ -155,17 +146,17 @@ async function checkReadKey() {
 async function checkKibana() {
   if (SKIP_AGENT) {
     step('Agent Builder check skipped (--skip-agent)');
-    info('Skipping KIBANA_URL, KIBANA_API_KEY, and AGENT_ID validation');
+    info('Skipping KIBANA_URL and AGENT_ID validation');
     return;
   }
 
   step('Checking Kibana reachability (KIBANA_URL)...');
 
   const kibanaUrl = process.env.KIBANA_URL;
-  const kibanaKey = process.env.KIBANA_API_KEY;
+  const kibanaKey = process.env.ES_API_KEY;
 
   if (isPlaceholder(kibanaUrl) || isPlaceholder(kibanaKey)) {
-    fail('Skipping — KIBANA_URL or KIBANA_API_KEY not valid');
+    fail('Skipping — KIBANA_URL or ES_API_KEY not valid');
     return;
   }
 
@@ -234,6 +225,7 @@ async function checkKibana() {
 
   step('Checking Agent Builder agent (AGENT_ID)...');
 
+  const kibanaReadKey = process.env.ES_API_KEY_READONLY;
   const agentUrl = new URL(`${kibanaUrl}/api/agent_builder/agents/${agentId}`);
 
   await new Promise((resolve) => {
@@ -243,7 +235,7 @@ async function checkKibana() {
       path: agentUrl.pathname,
       method: 'GET',
       headers: {
-        'Authorization': `ApiKey ${kibanaKey}`,
+        'Authorization': `ApiKey ${kibanaReadKey}`,
         'kbn-xsrf': 'true'
       }
     };

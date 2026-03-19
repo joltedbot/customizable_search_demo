@@ -116,9 +116,9 @@ async function checkConnection(client) {
     ok(`Connected to: ${info.cluster_name}`);
     ok(`Elasticsearch version: ${info.version.number}`);
 
-    const major = parseInt(info.version.number.split('.')[0], 10);
-    if (major < 8) {
-      warn(`ES ${info.version.number} detected. semantic_text requires ES 8.x+. Proceed with caution.`);
+    const [major, minor] = info.version.number.split('.').map(n => parseInt(n, 10));
+    if (major < 8 || (major === 8 && minor < 15)) {
+      warn(`ES ${info.version.number} detected. semantic_text requires ES 8.15+. Proceed with caution.`);
     }
   } catch (err) {
     fatal(`Cannot connect to Elasticsearch: ${err.message}\nCheck ES_URL and ES_API_KEY in .env`);
@@ -633,12 +633,12 @@ async function main() {
 
   // Agent Builder setup (Kibana API)
   const kibanaUrl = process.env.KIBANA_URL;
-  const kibanaApiKey = process.env.KIBANA_API_KEY;
+  const kibanaApiKey = process.env.ES_API_KEY;
 
   if (skipAgent) {
     log('Agent Builder setup skipped (--skip-agent)');
   } else if (!kibanaUrl || kibanaUrl.includes('your-deployment') || !kibanaApiKey || kibanaApiKey.startsWith('your_')) {
-    warn('KIBANA_URL or KIBANA_API_KEY not set — skipping Agent Builder setup.');
+    warn('KIBANA_URL or ES_API_KEY not set — skipping Agent Builder setup.');
     warn('GenAI mode will not work until Kibana credentials are configured and npm run setup is re-run.');
   } else {
     const toolIds = await createAgentTools(kibanaUrl, kibanaApiKey, esIndex, personaIndex, slug);
