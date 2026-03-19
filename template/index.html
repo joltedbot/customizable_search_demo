@@ -1890,7 +1890,7 @@ function buildEsQuery(query, mode, persona) {
           rank_window_size: 20
         }
       },
-      size: 8
+      size: 6
     };
   }
 
@@ -1907,11 +1907,32 @@ function buildEsQuery(query, mode, persona) {
   };
 }
 
+function buildPersonaCrossSellQuery(persona, excludeIds = []) {
+  const should = [];
+  (persona.preferredBrands || []).forEach((brand, i) => {
+    should.push({ term: { 'brand.keyword': { value: brand, boost: 4 - i } } });
+  });
+  const genderMap = { female: "Women's", male: "Men's" };
+  const genderVal = genderMap[persona.gender];
+  if (genderVal) should.push({ term: { gender: { value: genderVal, boost: 3 } } });
+  (persona.purchaseHistory || []).slice(0, 3).forEach(tag => {
+    should.push({ match: { tags: { query: tag, boost: 2 } } });
+  });
+  const filters = [{ term: { is_noise: false } }];
+  if (excludeIds.length) {
+    filters.push({ bool: { must_not: { ids: { values: excludeIds } } } });
+  }
+  return {
+    query: { bool: { should, minimum_should_match: 1, filter: filters } },
+    size: 2
+  };
+}
+
 function parseEsResponse(resp, mode) {
   const hits = (resp.hits && resp.hits.hits) || [];
   const products = hits.map(hit => hit._source);
   if (mode === 'personalized') {
-    return { products: products.slice(0, 6), xsell: products.slice(6) };
+    return { products, xsell: [] };
   }
   return { products, xsell: [] };
 }
@@ -1922,7 +1943,18 @@ async function searchProducts(query, mode, persona) {
   try {
     const esQuery = buildEsQuery(query, mode, persona);
     const resp = await esSearch(esQuery);
-    return parseEsResponse(resp, mode);
+    const result = parseEsResponse(resp, mode);
+    if (mode === 'personalized' && persona) {
+      try {
+        const excludeIds = (resp.hits?.hits || []).map(h => h._id);
+        const xsellQuery = buildPersonaCrossSellQuery(persona, excludeIds);
+        const xsellResp = await esSearch(xsellQuery);
+        result.xsell = (xsellResp.hits?.hits || []).map(h => h._source);
+      } catch (xsellErr) {
+        console.error('[ES] Cross-sell query failed:', xsellErr);
+      }
+    }
+    return result;
   } catch (err) {
     console.error('[ES] Search failed:', err);
     return { products: [], xsell: [] };
@@ -2170,7 +2202,7 @@ async function openScenario(mode, query) {
     wireFilterChips(products, query);
   } else if (mode === 'personalized') {
     const xsellHtml = xsell.length
-      ? `<div class="personalized-xsell-header">Based on ${activePersona.name}'s profile — you might also need: <span class="personalized-persona-tag">(cross-sell via personalization signals)</span></div>` + xsell.map(renderProduct).join('')
+      ? `<div class="personalized-xsell-header">Picked for ${activePersona.name} — based on your brand preferences:</div>` + xsell.map(renderProduct).join('')
       : '';
     grid.innerHTML = products.map(renderProduct).join('') + xsellHtml;
     wireFilterChips(products, query);
