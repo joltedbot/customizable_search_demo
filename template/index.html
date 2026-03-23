@@ -2085,10 +2085,10 @@ function extractProductsFromToolResults(toolResults) {
 }
 
 async function askAgent(input, conversationId) {
-  if (!ES_CONFIG.kibanaUrl || ES_CONFIG.kibanaUrl === '{{KIBANA_URL}}') {
+  if (!ES_CONFIG.kibanaUrl || ES_CONFIG.kibanaUrl.startsWith('{{')) {
     return { message: 'Agent Builder not configured. Set KIBANA_URL, KIBANA_API_KEY, and AGENT_ID in .env and regenerate.', conversationId: null, products: [] };
   }
-  if (!ES_CONFIG.agentId || ES_CONFIG.agentId === '{{AGENT_ID}}') {
+  if (!ES_CONFIG.agentId || ES_CONFIG.agentId.startsWith('{{')) {
     return { message: 'Agent not configured. Run npm run setup to create the agent, or set AGENT_ID in .env.', conversationId: null, products: [] };
   }
 
