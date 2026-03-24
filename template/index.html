@@ -1897,7 +1897,7 @@ function buildEsQuery(query, mode, persona) {
           },
           field: 'description',
           inference_id: '.jina-reranker-v3',
-          inference_text: query,
+          inference_text: semanticQueryPersona,
           rank_window_size: 20
         }
       },

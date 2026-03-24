@@ -89,12 +89,30 @@ The demo tells a story in four acts: **same query, progressively better results*
 
 ### Recommended queries by category
 
-| Category | Lexical + Hybrid | Personalized | GenAI |
-|---|---|---|---|
-| Sporting Goods | `outdoor gear` | `gear for me` | `put together a training kit` |
-| Consumer Electronics | `smart devices` | `tech for me` | `build a home office setup` |
-| Clothing & Fashion | `everyday wear` | `style for me` | `create a summer outfit` |
-| Groceries & Food | `kitchen essentials` | `picks for me` | `plan a dinner party menu` |
+Use these queries to demonstrate each search mode. The **Lexical + Hybrid** query should produce visibly different results between the two modes. The **Personalized** queries show how persona brands and activity history drive results; switch personas to see different recommendations.
+
+| Category | Lexical + Hybrid | Personalized (Query 1) | Personalized (Query 2) | GenAI |
+|---|---|---|---|---|
+| **Sporting Goods** | `outdoor gear` | `training gear` | `shoes and accessories` | `put together a training kit` |
+| **Consumer Electronics** | `smart devices` | `office equipment` | `audio gear` | `build a home office setup` |
+| **Clothing & Fashion** | `everyday wear` | `footwear and bags` | `outerwear` | `create a summer outfit` |
+| **Groceries & Food** | `kitchen essentials` | `beverages and snacks` | `cooking ingredients` | `plan a dinner party menu` |
+| **Outdoor & Camping** | `camping gear` | `sleeping and shelter` | `hiking and adventure` | `prepare a camping trip` |
+
+#### Persona-Driven Personalized Results
+
+The three personas have distinct preferred brands and activity histories:
+
+- **Alex** (Competitive runner) — Nike, On Running, Puma, Oakley — sports and performance focus
+- **Marcus** (Trail runner & adventurer) — TrailTech, The North Face, Osprey, Hydro Flask — rugged outdoor gear
+- **Sam** (Home fitness) — Nike, Under Armour, Adidas, IronForge — gym equipment and training gear
+
+For example, with `training gear`:
+- **Alex** gets running shoes, athletic apparel, and performance accessories
+- **Marcus** gets trail boots, outdoor packs, and adventure-grade equipment
+- **Sam** gets dumbbells, mats, gym apparel, and home fitness gear
+
+Switch personas in the header before searching to see how the same query returns different personalized results.
 
 ### Key products to ad-lib with
 
