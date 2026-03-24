@@ -7,7 +7,7 @@ A cloneable repo for Elastic SAs to quickly build a branded, interactive search 
 A single-page HTML demo that looks like the customer's own website and walks through four search scenarios:
 
 1. **Lexical (BM25)** — Intentionally poor results; shows the limits of keyword-only search
-2. **Hybrid Search** — Relevant results via semantic (ELSER) + lexical (BM25) matching using RRF
+2. **Hybrid Search** — Relevant results via semantic (Jina Embeddings) + lexical (BM25) matching using RRF
 3. **Personalized Search** — RRF-merged results from 3 retrievers (semantic + lexical + persona affinity), ML-reranked by Jina Reranker v3
 4. **GenAI Chat** — Multi-turn conversational search via Elasticsearch Agent Builder, with dynamic product recommendations
 
@@ -17,7 +17,7 @@ The demo connects to a live Elasticsearch Cloud cluster for real semantic search
 
 ## Quickstart
 
-**Prerequisites:** Git, Node.js 18+, Claude Code (`claude`) or Gemini CLI, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed, Jina Reranker v3 available via Elastic Inference Service, two API keys (write + read-only — exact JSON in `.env.template`), Kibana CORS enabled for localhost, LLM connector configured in Kibana
+**Prerequisites:** Git, Node.js 18+, Claude Code (`claude`) or Gemini CLI, Elastic Cloud deployment (ES 9.x with ML), Jina Embeddings v5 Text-Small available via Elastic Inference Service, Jina Reranker v3 available via Elastic Inference Service, two API keys (write + read-only — exact JSON in `.env.template`), Kibana CORS enabled for localhost, LLM connector configured in Kibana
 
 ```bash
 git clone <repo-url> my-customer-demo
@@ -61,7 +61,7 @@ Open `SETUP.md` and fill in the `## Customer Config` section before running the 
 | `package.json` | npm scripts: `validate`, `dev`, `setup`, `reset` (v2 mode) |
 | `.env.template` | Credentials template — copy to `.env` and fill in: ES_URL, ES_API_KEY (write), ES_INDEX, ES_API_KEY_READONLY (read — covers ES + Kibana), KIBANA_URL, AGENT_ID (auto-populated). Exact permission JSON for both keys is in the template comments. |
 | `scripts/validate-env.js` | Pre-flight check: validates all `.env` credentials before setup (v2 mode); `--skip-agent` flag to skip Agent Builder checks |
-| `scripts/setup-index.js` | Creates the ES index, deploys ELSER, seeds products, and auto-creates Agent Builder agent + tools. Supports `--slug {name}` for customer-specific indices and `--skip-agent` to reuse an existing agent (v2 mode) |
+| `scripts/setup-index.js` | Creates the ES index, deploys Jina Embeddings inference endpoint, seeds products, and auto-creates Agent Builder agent + tools. Supports `--slug {name}` for customer-specific indices and `--skip-agent` to reuse an existing agent (v2 mode) |
 | `scripts/data/products.json` | 46-product sporting goods base dataset (v2 mode); customer-specific data in `products-{slug}.json` (gitignored) |
 | `scripts/data/personas.json` | 3 persona documents (Alex, Marcus, Sam) seeded into `demo-personas` ES index for Agent Builder to reference (v2 mode) |
 
@@ -83,7 +83,7 @@ The demo tells a story in four acts: **same query, progressively better results*
 ### Story arc
 
 1. **Lexical** — Type a broad, natural query (e.g., `outdoor gear`). Results are noise: wrong-category products that happen to keyword-match. Point out how keyword search fails for natural language.
-2. **Hybrid** — Type the **exact same query**. Results flip to relevant products. Explain how semantic search (ELSER) combined with keyword search (BM25) via RRF understands intent, not just keywords.
+2. **Hybrid** — Type the **exact same query**. Results flip to relevant products. Explain how semantic search (Jina Embeddings) combined with keyword search (BM25) via RRF understands intent, not just keywords.
 3. **Personalized** — Switch persona, type a personalization query (e.g., `gear for me`). Results are tailored to that persona's brands, gender, and purchase history, reranked by the Jina ML model. Switch personas again to show different results.
 4. **GenAI** — Type a kit-building query (e.g., `complete training kit`). Show the curated product bundle + use the chat box for a live follow-up question.
 
@@ -130,9 +130,9 @@ The demo uses Elasticsearch Cloud (9.x with ML) for all search modes:
 
 **Lexical mode** — BM25 on `name`, `brand`, `tags`, `category`, `description` fields, no filtering. Noise products surface naturally for broad queries.
 
-**Hybrid mode** — RRF (Reciprocal Rank Fusion) merges ELSER semantic embeddings and BM25 keyword retrieval, filtered to real products only.
+**Hybrid mode** — RRF (Reciprocal Rank Fusion) merges Jina Embeddings semantic vectors and BM25 keyword retrieval, filtered to real products only.
 
-**Personalized mode** — RRF merges 3 retrievers: ELSER semantic, BM25 keyword, and persona affinity signal. Results are then reranked by Jina Reranker v3 (a real ML cross-encoder running on Elastic Inference Service) to refine order based on persona brands, gender, and purchase history.
+**Personalized mode** — RRF merges 3 retrievers: Jina Embeddings semantic, BM25 keyword, and persona affinity signal. Results are then reranked by Jina Reranker v3 (a real ML cross-encoder running on Elastic Inference Service) to refine order based on persona brands, gender, and purchase history.
 
 **GenAI chat** — Multi-turn conversational AI via Elasticsearch Agent Builder. The agent dynamically retrieves products and answers follow-up questions. SAs can customize the agent's system prompt, tools, and LLM connector in Kibana after setup.
 

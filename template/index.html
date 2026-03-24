@@ -1848,44 +1848,53 @@ function buildEsQuery(query, mode, persona) {
     };
   }
 
-  // ── Personalized: RRF (semantic + BM25 + persona affinity) → Jina reranker ──
+  // ── Personalized: linear retriever (persona-first brand filtering) → Jina reranker ──
+  // Branch 1 (weight 3.0): semantic search restricted to persona's preferred brands +
+  //   activity-aware query expansion using persona tagline. Products from preferred
+  //   brands score ~2.7× higher than non-brand products, biasing the reranker candidate
+  //   pool toward persona-relevant results without arbitrary per-product overrides.
+  // Branch 2 (weight 1.0): general semantic search — fallback and quality signal.
+  // Branch 3 (weight 0.8): BM25 keyword match — ensures keyword-relevant products surface.
+  // minmax normalization puts all branches on the same 0–1 scale before weighting.
   if (mode === 'personalized') {
-    // Build persona affinity signal
-    const personaShould = [];
-    (persona.preferredBrands || []).forEach((brand, i) => {
-      personaShould.push({ term: { 'brand.keyword': { value: brand, boost: 4 - i } } });
-    });
-    const genderMap = { female: "Women's", male: "Men's" };
-    const genderVal = genderMap[persona.gender];
-    if (genderVal) {
-      personaShould.push({ term: { gender: { value: genderVal, boost: 3 } } });
-    }
-    (persona.purchaseHistory || []).slice(0, 3).forEach(tag => {
-      personaShould.push({ match: { tags: { query: tag, boost: 2 } } });
-    });
-    // match_all ensures this retriever returns results even when no persona signals match
-    personaShould.push({ match_all: { boost: 0.1 } });
+    const semanticQueryPersona = persona
+      ? `${query} for ${persona.tagline}`
+      : query;
 
-    const personaRetriever = {
-      standard: {
-        query: { bool: { should: personaShould, minimum_should_match: 0 } },
-        filter: noiseFilter
-      }
-    };
-
-    const rrfRetriever = {
-      rrf: {
-        retrievers: [semanticRetriever, bm25Retriever, personaRetriever],
-        rank_window_size: 30,
-        rank_constant: 60
-      }
-    };
-
-    // Wrap in Jina reranker for ML-based relevance reranking
     return {
       retriever: {
         text_similarity_reranker: {
-          retriever: rrfRetriever,
+          retriever: {
+            linear: {
+              retrievers: [
+                // Branch 1: persona-brand filtered + activity-aware semantic (dominant signal)
+                {
+                  retriever: {
+                    standard: {
+                      query: { semantic: { field: 'description.semantic', query: semanticQueryPersona } },
+                      filter: [
+                        { term: { is_noise: false } },
+                        { terms: { 'brand.keyword': persona.preferredBrands || [] } }
+                      ]
+                    }
+                  },
+                  weight: 3.0
+                },
+                // Branch 2: general semantic (raw query, no brand filter)
+                {
+                  retriever: semanticRetriever,
+                  weight: 1.0
+                },
+                // Branch 3: BM25 keyword match (raw query, no brand filter)
+                {
+                  retriever: bm25Retriever,
+                  weight: 0.8
+                }
+              ],
+              normalizer: 'minmax',
+              rank_window_size: 30
+            }
+          },
           field: 'description',
           inference_id: '.jina-reranker-v3',
           inference_text: query,

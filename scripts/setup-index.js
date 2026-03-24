@@ -2,7 +2,7 @@
 
 /**
  * setup-index.js
- * Bootstraps the Elasticsearch demo index: creates mappings, deploys ELSER,
+ * Bootstraps the Elasticsearch demo index: creates mappings, configures Jina embeddings,
  * and bulk-indexes the product dataset.
  *
  * Usage:
@@ -29,7 +29,7 @@ const { Client } = require('@elastic/elasticsearch');
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const ELSER_INFERENCE_ID = '.elser-2-elasticsearch';
+const JINA_EMBEDDINGS_INFERENCE_ID = '.jina-embeddings-v5-text-small';
 const JINA_RERANKER_INFERENCE_ID = '.jina-reranker-v3';
 
 // ─── .env loader (no dotenv dependency) ──────────────────────────────────────
@@ -97,7 +97,7 @@ function indexMapping() {
           fields: {
             semantic: {
               type: 'semantic_text',
-              inference_id: ELSER_INFERENCE_ID
+              inference_id: JINA_EMBEDDINGS_INFERENCE_ID
             }
           }
         },
@@ -125,18 +125,18 @@ async function checkConnection(client) {
   }
 }
 
-async function checkElser(client) {
-  step('Checking ELSER inference endpoint...');
+async function checkJinaEmbeddings(client) {
+  step('Checking Jina embeddings inference endpoint...');
   try {
-    await client.inference.get({ inference_id: ELSER_INFERENCE_ID });
-    ok(`ELSER inference endpoint found: ${ELSER_INFERENCE_ID}`);
+    await client.inference.get({ inference_id: JINA_EMBEDDINGS_INFERENCE_ID });
+    ok(`Jina embeddings inference endpoint found: ${JINA_EMBEDDINGS_INFERENCE_ID}`);
   } catch (err) {
     if (err.statusCode === 404) {
-      warn(`ELSER inference endpoint not found: ${ELSER_INFERENCE_ID}`);
-      warn('If you have ML nodes, create it in Kibana: Analytics → Machine Learning → Trained Models → ELSER → Deploy');
-      warn('The index will still be created, but semantic_text fields will not work until ELSER is deployed.');
+      warn(`Jina embeddings inference endpoint not found: ${JINA_EMBEDDINGS_INFERENCE_ID}`);
+      warn('This endpoint is EIS-managed. Verify it is available on your cluster via: GET _inference/text_embedding/.jina-embeddings-v5-text-small');
+      warn('The index will still be created, but semantic_text fields will not work until the endpoint is available.');
     } else {
-      warn(`Could not verify ELSER endpoint: ${err.message}`);
+      warn(`Could not verify Jina embeddings endpoint: ${err.message}`);
     }
   }
 }
@@ -287,7 +287,7 @@ async function verifyIndex(client, indexName) {
       }
     });
     if (pendingResult.count > 0) {
-      warn(`${pendingResult.count} documents are still awaiting ELSER inference (this is normal — background processing continues after setup).`);
+      warn(`${pendingResult.count} documents are still awaiting Jina embeddings inference (this is normal — background processing continues after setup).`);
     } else {
       ok('All documents have semantic embeddings');
     }
@@ -548,7 +548,7 @@ function printSummary(indexName) {
      npm run dev
      Then open http://localhost:3000
 
-  Note: ELSER generates embeddings asynchronously after indexing.
+  Note: Jina embeddings are generated asynchronously after indexing.
   Hybrid and Personalized search modes will improve as embeddings complete.
   Full processing typically takes 1-5 minutes.
 `);
@@ -600,7 +600,7 @@ async function main() {
   });
 
   await checkConnection(client);
-  await checkElser(client);
+  await checkJinaEmbeddings(client);
   await checkJinaReranker(client);
 
   if (isCheckOnly) {

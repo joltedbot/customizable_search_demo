@@ -6,7 +6,7 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 
 - **Serve demo locally:** `npm run dev` — serves `output/` at `http://localhost:3000`
 - **Validate credentials:** `npm run validate` — pre-flight check before seeding (requires `.env`). Use `--skip-agent` to skip Kibana/Agent Builder checks.
-- **Seed ES index:** `npm run setup` — creates product index, persona index, deploys ELSER, loads products, and creates Agent Builder agent + tools via Kibana API (requires `.env`). Pass `-- --slug {name}` for customer-specific indexes. Use `-- --skip-agent` to skip Agent Builder setup.
+- **Seed ES index:** `npm run setup` — creates product index, persona index, deploys Jina Embeddings inference endpoint, loads products, and creates Agent Builder agent + tools via Kibana API (requires `.env`). Pass `-- --slug {name}` for customer-specific indexes. Use `-- --skip-agent` to skip Agent Builder setup.
 - **Reset ES index:** `npm run reset` — wipes and reseeds product + persona indexes (requires `.env`). Agent/tools are NOT deleted (SA may have customized). Pass `-- --slug {name}` for customer-specific indexes.
 - **Generate test build:** `npm run generate-test` — injects `.env` credentials into template → `output/test/demo.html`
 
@@ -32,16 +32,16 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 
 **Search modes (4):**
 1. Lexical — BM25 on `name^3`, `brand^2`, `tags^1`, `category^1`, `description^0.5`; no filtering (returns noise + real products based on keyword match). Broadened fields ensure queries like "camping gear" surface relevant results.
-2. Hybrid — RRF (Reciprocal Rank Fusion) merges ELSER semantic and BM25 retrieval, filtered to real products
-3. Personalized — RRF (ELSER semantic + BM25 + persona affinity signal) followed by Jina reranker (`.jina-reranker-v3` inference endpoint), personalized by active persona's `preferredBrands`, `purchaseHistory`
+2. Hybrid — RRF (Reciprocal Rank Fusion) merges Jina semantic embeddings and BM25 retrieval, filtered to real products
+3. Personalized — RRF (Jina semantic + BM25 + persona affinity signal) followed by Jina reranker (`.jina-reranker-v3` inference endpoint), personalized by active persona's `preferredBrands`, `purchaseHistory`
 4. GenAI — Dynamic multi-turn chat via Elasticsearch Agent Builder API (SSE streaming with sync fallback); product cards from agent tool results
 
 **Personas (3):** Alex (female), Marcus (male), Sam (neutral) — fixed identities, switcher in header; affect Personalized and GenAI responses
 
-**ES stack:** Cloud Hosted 9.x, `semantic_text` field + ELSER v2 (`.elser-2-elasticsearch`), Jina Reranker v3 (`.jina-reranker-v3`), indexes `demo-products` + `demo-personas` (or `demo-products-{slug}` + `demo-personas-{slug}` for customer-specific)
+**ES stack:** Cloud Hosted 9.x, `semantic_text` field + Jina Embeddings v5 Text-Small (`.jina-embeddings-v5-text-small`), Jina Reranker v3 (`.jina-reranker-v3`), indexes `demo-products` + `demo-personas` (or `demo-products-{slug}` + `demo-personas-{slug}` for customer-specific)
 
 **Inference endpoints:**
-- **ELSER v2** — semantic embeddings (deployed automatically by `npm run setup`)
+- **Jina Embeddings v5 Text-Small** — semantic embeddings for `semantic_text` field (deployed via Elastic Inference Service; `npm run setup` auto-creates the endpoint)
 - **Jina Reranker v3** — ML-based reranking for personalized mode (deployed via Elastic Inference Service; `npm run setup` auto-creates the endpoint)
 
 **Agent Builder API (GenAI mode):**
