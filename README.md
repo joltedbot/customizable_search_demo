@@ -8,7 +8,7 @@ A single-page HTML demo that looks like the customer's own website and walks thr
 
 1. **Lexical (BM25)** — Intentionally poor results; shows the limits of keyword-only search
 2. **Hybrid Search** — Relevant results via semantic (Jina Embeddings) + lexical (BM25) matching using RRF
-3. **Personalized Search** — RRF-merged results from 3 retrievers (semantic + lexical + persona affinity), ML-reranked by Jina Reranker v3
+3. **Personalized Search** — Linear retriever with 3 weighted branches (persona-brand semantic, general semantic, BM25 keyword), ML-reranked by Jina Reranker v3
 4. **GenAI Chat** — Multi-turn conversational search via Elasticsearch Agent Builder, with dynamic product recommendations
 
 The demo connects to a live Elasticsearch Cloud cluster for real semantic search, AI-powered reranking, and Kibana-hosted AI agents.
@@ -132,7 +132,7 @@ The demo uses Elasticsearch Cloud (9.x with ML) for all search modes:
 
 **Hybrid mode** — RRF (Reciprocal Rank Fusion) merges Jina Embeddings semantic vectors and BM25 keyword retrieval, filtered to real products only.
 
-**Personalized mode** — RRF merges 3 retrievers: Jina Embeddings semantic, BM25 keyword, and persona affinity signal. Results are then reranked by Jina Reranker v3 (a real ML cross-encoder running on Elastic Inference Service) to refine order based on persona brands, gender, and purchase history.
+**Personalized mode** — Linear retriever with 3 weighted branches: (1) persona-brand-filtered semantic search with activity-aware query expansion (e.g., "running shoes for trail runner and outdoor adventurer"), weight 3.0; (2) general semantic search, weight 1.0; (3) BM25 keyword search, weight 0.8. Scores normalized via minmax, then reranked by Jina Reranker v3 (a real ML cross-encoder running on Elastic Inference Service) to refine order based on persona brands, gender, and purchase history.
 
 **GenAI chat** — Multi-turn conversational AI via Elasticsearch Agent Builder. The agent dynamically retrieves products and answers follow-up questions. SAs can customize the agent's system prompt, tools, and LLM connector in Kibana after setup.
 

@@ -33,7 +33,7 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 **Search modes (4):**
 1. Lexical — BM25 on `name^3`, `brand^2`, `tags^1`, `category^1`, `description^0.5`; no filtering (returns noise + real products based on keyword match). Broadened fields ensure queries like "camping gear" surface relevant results.
 2. Hybrid — RRF (Reciprocal Rank Fusion) merges Jina semantic embeddings and BM25 retrieval, filtered to real products
-3. Personalized — RRF (Jina semantic + BM25 + persona affinity signal) followed by Jina reranker (`.jina-reranker-v3` inference endpoint), personalized by active persona's `preferredBrands`, `purchaseHistory`
+3. Personalized — Linear retriever with 3 weighted branches: (1) persona-brand-filtered semantic search w/ activity-aware query expansion (weight 3.0), (2) general semantic search (weight 1.0), (3) BM25 keyword search (weight 0.8). Results normalized via minmax, then reranked by Jina Reranker v3 (`.jina-reranker-v3` inference endpoint). Personalized by active persona's `preferredBrands` and `tagline`
 4. GenAI — Dynamic multi-turn chat via Elasticsearch Agent Builder API (SSE streaming with sync fallback); product cards from agent tool results
 
 **Personas (3):** Alex (female), Marcus (male), Sam (neutral) — fixed identities, switcher in header; affect Personalized and GenAI responses
@@ -86,7 +86,7 @@ No automated test suite. Manual testing only:
 4. Verify:
    - **Lexical** returns keyword-matched products (mix of noise and real)
    - **Hybrid** returns only real relevant products (RRF of semantic + keyword)
-   - **Personalized** returns top 6 results ranked and reranked by persona affinity (RRF + Jina reranker)
+   - **Personalized** returns top 6 results reranked by persona affinity (linear retriever with persona-brand weighting + Jina reranker)
    - **GenAI** returns streaming Agent Builder response with multi-turn conversation; product cards from tool results
 5. Switch personas and confirm Personalized and GenAI results change
 
