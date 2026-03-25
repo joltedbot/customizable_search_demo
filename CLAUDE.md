@@ -109,10 +109,28 @@ No automated test suite. Manual testing only:
 
 - **Content-Security-Policy header** — `template/index.html` includes a CSP meta tag that enforces:
   - Inline scripts/styles allowed (`'unsafe-inline'` for demo context; fine for internal template)
-  - External resources restricted to `fonts.googleapis.com`, `fonts.gstatic.com` (fonts only)
+  - `'unsafe-eval'` removed — no eval of untrusted code
+  - Explicit separate directives for `script-src`, `style-src`, `font-src` for granular control
+  - External resources restricted to `fonts.googleapis.com` (styles), `fonts.gstatic.com` (fonts only)
   - Elasticsearch and Kibana API calls allowed via `connect-src` with `{{ES_URL}}` and `{{KIBANA_URL}}` tokens
   - Images only from Pexels CDN (`https://images.pexels.com`) + data URIs for generated content
-- **XSS protection:** All user-facing product data rendered via `renderProduct()` and `renderGenAIProduct()` must use `escapeHtml()` before inserting into the DOM. This includes: product name, brand, and badge fields.
+
+- **XSS protection — DOM rendering patterns:**
+  - Use `createElement()` + `appendChild()` for building dynamic HTML (e.g., cart drawer, autocomplete items)
+  - Use `textContent` property for plain text to prevent HTML interpretation
+  - Use `escapeHtml()` for any user-facing data that will be rendered as HTML, including product names, brands, descriptions, image URLs, and search highlighting
+  - Examples of safe patterns in codebase:
+    - `renderCartDrawer()` — builds cart items with DOM methods, sets text via `textContent`
+    - `buildAutoComplete()` — uses event delegation with `data-query` attributes instead of inline `onclick` handlers
+    - `highlight()` — escapes both search term and text before inserting `<em>` tags
+    - `renderGenAIProduct()` — escapes image src attribute via `escapeHtml(p.image)`
+
+- **Event handling for dynamic content:**
+  - Avoid inline event handlers like `onclick="doSearch(...)"` in template strings
+  - Use event delegation: add listener to parent, check `event.target` or use `closest()` to find relevant elements
+  - Store query values in `data-*` attributes, never inline in handler text
+  - Example: `acPanel.addEventListener('click', e => { const target = e.target.closest('[data-query]'); if (target) doSearch(target.dataset.query); })`
+
 - **Credentials in output HTML:**
   - `ES_API_KEY_READONLY` — combined read-only key covering both ES index queries and Kibana Agent Builder conversations; safe to embed in browser
   - `ES_API_KEY` (write) — **never embed in output HTML**; use only server-side during `npm run setup`

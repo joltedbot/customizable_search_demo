@@ -18,7 +18,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com; connect-src {{ES_URL}} {{KIBANA_URL}}; img-src 'self' https://images.pexels.com data: blob:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src {{ES_URL}} {{KIBANA_URL}}; img-src 'self' https://images.pexels.com data: blob:;">
   <!-- CUSTOMIZE: page title -->
   <title>DEMO STORE | Find Everything You Need</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1752,11 +1752,11 @@ function renderProduct(p) {
     ? `<div class="product-badge ${p.badge === 'New' ? 'new' : p.badge === 'Bestseller' ? 'bestseller' : ''}">${safeBadge}</div>`
     : '';
   const imgSrc = p.image || '';
-  const productData = encodeURIComponent(JSON.stringify({ name: p.name, brand: p.brand, price: displayPrice, image: imgSrc }));
+  const productData = encodeURIComponent(JSON.stringify({ name: p.name, brand: p.brand, price: displayPrice, image: escapeHtml(imgSrc) }));
   return `
     <div class="product-card">
       <div class="product-img">
-        <img src="${imgSrc}" alt="${escapeHtml(p.name)}" loading="lazy"
+        <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(p.name)}" loading="lazy"
              onerror="this.parentElement.style.background='var(--gray-200)';this.style.display='none'">
         ${badgeHtml}
       </div>
@@ -1779,7 +1779,7 @@ function renderProduct(p) {
 function renderGenAIProduct(p) {
   return `
     <div class="genai-product-card">
-      <img class="genai-product-img" src="${p.image}" alt="${escapeHtml(p.name)}" loading="lazy"
+      <img class="genai-product-img" src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)}" loading="lazy"
            onerror="this.style.background='var(--gray-200)';this.style.display='none'">
       <div class="genai-product-name">${escapeHtml(p.name)}</div>
       <div class="genai-product-brand">${escapeHtml(p.brand)}</div>
@@ -2200,7 +2200,7 @@ async function openScenario(mode, query) {
   if (!products || products.length === 0) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;">
       <div style="font-size:48px;margin-bottom:16px;opacity:0.3;">&#128269;</div>
-      <div style="font-size:18px;font-weight:600;color:var(--black);margin-bottom:8px;">0 results found for "${query}"</div>
+      <div style="font-size:18px;font-weight:600;color:var(--black);margin-bottom:8px;">0 results found for "${escapeHtml(query)}"</div>
       <div style="font-size:14px;color:var(--gray-600);">Try a different search term or check your spelling.</div>
     </div>`;
     return;
@@ -2213,7 +2213,7 @@ async function openScenario(mode, query) {
     wireFilterChips(products, query);
   } else if (mode === 'personalized') {
     const xsellHtml = xsell.length
-      ? `<div class="personalized-xsell-header">Picked for ${activePersona.name} — based on your brand preferences:</div>` + xsell.map(renderProduct).join('')
+      ? `<div class="personalized-xsell-header">Picked for ${escapeHtml(activePersona.name)} — based on your brand preferences:</div>` + xsell.map(renderProduct).join('')
       : '';
     grid.innerHTML = products.map(renderProduct).join('') + xsellHtml;
     wireFilterChips(products, query);
@@ -2444,14 +2444,13 @@ document.getElementById('viewQueryBtnGenai').addEventListener('click', () => ope
 
 function buildPersonaTabs() {
   const container = document.getElementById('personaTabs');
-  container.innerHTML = Object.values(PERSONAS).map(p => `
-    <button class="persona-tab ${p.id === activePersona.id ? 'active' : ''}"
-            data-persona="${p.id}"
-            title="${p.name} — ${p.tagline}">
-      ${p.initials}
-    </button>`).join('');
-
-  container.querySelectorAll('.persona-tab').forEach(btn => {
+  while (container.firstChild) container.removeChild(container.firstChild);
+  Object.values(PERSONAS).forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'persona-tab' + (p.id === activePersona.id ? ' active' : '');
+    btn.dataset.persona = p.id;
+    btn.title = p.name + ' \u2014 ' + p.tagline;
+    btn.textContent = p.initials;
     btn.addEventListener('click', () => {
       activePersona = PERSONAS[btn.dataset.persona];
       agentConversationId = null;
@@ -2460,6 +2459,7 @@ function buildPersonaTabs() {
       btn.classList.add('active');
       document.getElementById('personaNameDisplay').textContent = activePersona.name;
     });
+    container.appendChild(btn);
   });
 }
 
@@ -2520,21 +2520,47 @@ function emptyCart() {
 function renderCartDrawer() {
   const body = document.getElementById('cartDrawerBody');
   const footer = document.getElementById('cartDrawerFooter');
+  body.textContent = '';
   if (cartItems.length === 0) {
-    body.innerHTML = '<div class="cart-empty-msg">Your cart is empty</div>';
+    const msg = document.createElement('div');
+    msg.className = 'cart-empty-msg';
+    msg.textContent = 'Your cart is empty';
+    body.appendChild(msg);
     footer.style.display = 'none';
     return;
   }
-  body.innerHTML = cartItems.map(p => `
-    <div class="cart-item">
-      <img class="cart-item-img" src="${p.image}" alt="${p.name}"
-           onerror="this.style.background='var(--gray-200)';this.style.display='none'">
-      <div class="cart-item-info">
-        <div class="cart-item-brand">${p.brand}</div>
-        <div class="cart-item-name">${p.name}</div>
-        <div class="cart-item-price">$${Number(p.price).toFixed(2)}</div>
-      </div>
-    </div>`).join('');
+  cartItems.forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'cart-item';
+
+    const img = document.createElement('img');
+    img.className = 'cart-item-img';
+    img.src = p.image;
+    img.alt = p.name;
+    img.onerror = function() { this.style.background = 'var(--gray-200)'; this.style.display = 'none'; };
+
+    const info = document.createElement('div');
+    info.className = 'cart-item-info';
+
+    const brand = document.createElement('div');
+    brand.className = 'cart-item-brand';
+    brand.textContent = p.brand;
+
+    const name = document.createElement('div');
+    name.className = 'cart-item-name';
+    name.textContent = p.name;
+
+    const price = document.createElement('div');
+    price.className = 'cart-item-price';
+    price.textContent = `$${Number(p.price).toFixed(2)}`;
+
+    info.appendChild(brand);
+    info.appendChild(name);
+    info.appendChild(price);
+    item.appendChild(img);
+    item.appendChild(info);
+    body.appendChild(item);
+  });
   const total = cartItems.reduce((sum, p) => sum + Number(p.price), 0);
   document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
   footer.style.display = 'block';
@@ -2548,22 +2574,47 @@ const searchInput  = document.getElementById('searchInput');
 const acPanel      = document.getElementById('autocompletePanel');
 
 function highlight(text, q) {
-  if (!q) return text;
-  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-  return text.replace(re, '<em>$1</em>');
+  const safe = escapeHtml(text);
+  if (!q) return safe;
+  const re = new RegExp(`(${escapeHtml(q).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return safe.replace(re, '<em>$1</em>');
 }
 
 function buildAutoComplete(q) {
   const trimmed = q.trim().toLowerCase();
+  const frag = document.createDocumentFragment();
+
+  function makeItem(query, buildFn) {
+    const el = document.createElement('div');
+    el.className = 'ac-item';
+    el.dataset.query = query;
+    buildFn(el);
+    return el;
+  }
+
+  function makeTitle(text) {
+    const el = document.createElement('div');
+    el.className = 'ac-section-title';
+    el.textContent = text;
+    return el;
+  }
 
   if (!trimmed) {
-    acPanel.innerHTML = `
-      <div class="ac-section-title">🔥 Trending Searches</div>
-      ${SUGGESTIONS.trending.map(s => `
-        <div class="ac-item" onclick="doSearch('${s}')">
-          <span class="ac-icon">🔍</span>
-          <span class="ac-label">${s}</span>
-        </div>`).join('')}`;
+    frag.appendChild(makeTitle('🔥 Trending Searches'));
+    SUGGESTIONS.trending.forEach(s => {
+      frag.appendChild(makeItem(s, el => {
+        const icon = document.createElement('span');
+        icon.className = 'ac-icon';
+        icon.textContent = '🔍';
+        const label = document.createElement('span');
+        label.className = 'ac-label';
+        label.textContent = s;
+        el.appendChild(icon);
+        el.appendChild(label);
+      }));
+    });
+    acPanel.textContent = '';
+    acPanel.appendChild(frag);
     acPanel.classList.add('open');
     return;
   }
@@ -2572,43 +2623,93 @@ function buildAutoComplete(q) {
   const matchedProds = PRODUCTS.filter(p => p.name.toLowerCase().includes(trimmed) || p.brand.toLowerCase().includes(trimmed));
   const matchedTerms = SUGGESTIONS.trending.filter(t => t.includes(trimmed));
 
-  let html = '';
   if (matchedTerms.length) {
-    html += `<div class="ac-section-title">Suggestions</div>`;
-    html += matchedTerms.slice(0, 3).map(t => `
-      <div class="ac-item" onclick="doSearch('${t}')">
-        <span class="ac-icon">🔍</span>
-        <span class="ac-label">${highlight(t, trimmed)}</span>
-      </div>`).join('');
+    frag.appendChild(makeTitle('Suggestions'));
+    matchedTerms.slice(0, 3).forEach(t => {
+      frag.appendChild(makeItem(t, el => {
+        const icon = document.createElement('span');
+        icon.className = 'ac-icon';
+        icon.textContent = '🔍';
+        const label = document.createElement('span');
+        label.className = 'ac-label';
+        label.innerHTML = highlight(t, trimmed);
+        el.appendChild(icon);
+        el.appendChild(label);
+      }));
+    });
   }
   if (matchedCats.length) {
-    html += `<div class="ac-section-title">Categories</div>`;
-    html += matchedCats.slice(0, 3).map(c => `
-      <div class="ac-item" onclick="doSearch('${c.label}')">
-        <span class="ac-icon">📂</span>
-        <span class="ac-label">${highlight(c.label, trimmed)}</span>
-        <span class="ac-category">${c.cat}</span>
-      </div>`).join('');
+    frag.appendChild(makeTitle('Categories'));
+    matchedCats.slice(0, 3).forEach(c => {
+      frag.appendChild(makeItem(c.label, el => {
+        const icon = document.createElement('span');
+        icon.className = 'ac-icon';
+        icon.textContent = '📂';
+        const label = document.createElement('span');
+        label.className = 'ac-label';
+        label.innerHTML = highlight(c.label, trimmed);
+        const cat = document.createElement('span');
+        cat.className = 'ac-category';
+        cat.textContent = c.cat;
+        el.appendChild(icon);
+        el.appendChild(label);
+        el.appendChild(cat);
+      }));
+    });
   }
   if (matchedProds.length) {
-    html += `<div class="ac-section-title">Products</div>`;
-    html += matchedProds.slice(0, 3).map(p => `
-      <div class="ac-item" onclick="doSearch('${p.name}')">
-        <img class="ac-img" src="${p.image}" alt="${p.name}"
-             onerror="this.style.display='none'">
-        <div class="ac-product-info">
-          <div class="name">${highlight(p.name, trimmed)}</div>
-          <div class="price">$${(p.sale ?? p.price).toFixed(2)}</div>
-        </div>
-      </div>`).join('');
+    frag.appendChild(makeTitle('Products'));
+    matchedProds.slice(0, 3).forEach(p => {
+      frag.appendChild(makeItem(p.name, el => {
+        const img = document.createElement('img');
+        img.className = 'ac-img';
+        img.src = p.image;
+        img.alt = p.name;
+        img.onerror = function() { this.style.display = 'none'; };
+        const info = document.createElement('div');
+        info.className = 'ac-product-info';
+        const nameEl = document.createElement('div');
+        nameEl.className = 'name';
+        nameEl.innerHTML = highlight(p.name, trimmed);
+        const priceEl = document.createElement('div');
+        priceEl.className = 'price';
+        priceEl.textContent = `$${(p.sale ?? p.price).toFixed(2)}`;
+        info.appendChild(nameEl);
+        info.appendChild(priceEl);
+        el.appendChild(img);
+        el.appendChild(info);
+      }));
+    });
   }
-  if (!html) {
-    html = `<div class="ac-item"><span class="ac-icon">🔍</span><span class="ac-label">Search for "<em>${trimmed}</em>"</span></div>`;
+  if (!frag.childElementCount) {
+    frag.appendChild(makeItem(trimmed, el => {
+      const icon = document.createElement('span');
+      icon.className = 'ac-icon';
+      icon.textContent = '🔍';
+      const label = document.createElement('span');
+      label.className = 'ac-label';
+      const em = document.createElement('em');
+      em.textContent = trimmed;
+      label.append('Search for "', em, '"');
+      el.appendChild(icon);
+      el.appendChild(label);
+    }));
   }
-  html += `<div class="ac-footer" onclick="doSearch('${trimmed}')">See all results for "${trimmed}" →</div>`;
-  acPanel.innerHTML = html;
+  const footer = document.createElement('div');
+  footer.className = 'ac-footer';
+  footer.dataset.query = trimmed;
+  footer.textContent = `See all results for "${trimmed}" →`;
+  frag.appendChild(footer);
+
+  acPanel.textContent = '';
+  acPanel.appendChild(frag);
   acPanel.classList.add('open');
 }
+
+acPanel.addEventListener('click', e => {
+  const target = e.target.closest('[data-query]');
+  if (target && target.dataset.query) doSearch(target.dataset.query);
+});
 
 searchInput.addEventListener('focus', () => buildAutoComplete(searchInput.value));
 searchInput.addEventListener('input', () => buildAutoComplete(searchInput.value));
