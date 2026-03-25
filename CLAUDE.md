@@ -6,7 +6,7 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 
 - **Serve demo locally:** `npm run dev` — serves `output/` at `http://localhost:3000`
 - **Validate credentials:** `npm run validate` — pre-flight check before seeding (requires `.env`). Use `--skip-agent` to skip Kibana/Agent Builder checks.
-- **Seed ES index:** `npm run setup` — creates product index, persona index, deploys Jina Embeddings inference endpoint, loads products, and creates Agent Builder agent + tools via Kibana API (requires `.env`). Pass `-- --slug {name}` for customer-specific indexes. Use `-- --skip-agent` to skip Agent Builder setup.
+- **Seed ES index:** `npm run setup` — creates product index, persona index, deploys Jina Embeddings inference endpoint, loads products, and creates or updates Agent Builder agent + tools via Kibana API (requires `.env`). Existing agents/tools are updated in-place with new configuration (not skipped); new deployments create fresh. Pass `-- --slug {name}` for customer-specific indexes. Use `-- --skip-agent` to skip Agent Builder setup.
 - **Reset ES index:** `npm run reset` — wipes and reseeds product + persona indexes (requires `.env`). Agent/tools are NOT deleted (SA may have customized). Pass `-- --slug {name}` for customer-specific indexes.
 - **Generate test build:** `npm run generate-test` — injects `.env` credentials into template → `output/test/demo.html`
 
@@ -48,7 +48,9 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 - **Streaming:** `POST {KIBANA_URL}/api/agent_builder/converse/async` — SSE events: `reasoning`, `tool_call`, `tool_result`, `message_chunk`, `message_complete`, `round_complete`
 - **Sync fallback:** `POST {KIBANA_URL}/api/agent_builder/converse` — returns `{ response: { message }, conversation_id }`
 - **Headers:** `Authorization: ApiKey {key}`, `kbn-xsrf: true`, `Content-Type: application/json`
-- **Management:** `POST /api/agent_builder/agents`, `POST /api/agent_builder/tools` — used by `npm run setup` to create agent + tools
+- **Management:** `POST /api/agent_builder/agents`, `PUT /api/agent_builder/agents/{id}`, `POST /api/agent_builder/tools`, `PUT /api/agent_builder/tools/{id}` — used by `npm run setup` to create or update agent + tools in-place
+- **Agent tools:** Agent has 1 tool: `demo-product-search` (searches product index with query and persona brand filters). Persona context is pre-injected into the input string (format: `[Persona: {name} | Brands: {brands} | Style: {tagline}]\nFind: {query}`), making a separate persona search tool unnecessary.
+- **Progressive rendering:** Products appear on `tool_result` SSE event (before text finishes); AI text streams incrementally on `message_chunk` events. Improves perceived latency by 2-5s vs. buffering all results until `round_complete`.
 
 **Credentials in output HTML:**
 - `ES_API_KEY_READONLY` — baked into demo.html for both ES queries and Agent Builder conversations (combined read key)
@@ -70,6 +72,10 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 - `agentConversationId` — Agent Builder conversation ID for multi-turn GenAI chat; reset on persona switch or new session
 - `genaiProducts` — products extracted from agent tool results; used by "Add all to cart"
 - `lastSearchQuery` — last query string passed to `openScenario()`; used by View Query button
+
+**Helper functions for GenAI streaming (added for progressive rendering):**
+- `setFormattedContent(el, text)` — DOM-safe renderer: escapes text, applies formatting (bold, links), sets via `innerHTML` (safe because `formatAIResponse()` calls `escapeHtml()` first)
+- `appendTextWithLineBreaks(el, text)` — appends text to an element while preserving newlines as `<br>` tags, escaping dangerous characters
 
 **Z-index layer stack (`template/index.html`):**
 header=1000 → autocomplete=2000 → search overlay=3000 → genai overlay=4000 → query viewer=5000. New overlays/drawers should use z-index ≥ 6000.

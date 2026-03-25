@@ -991,6 +991,7 @@
       0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
       40% { opacity: 1; transform: scale(1); }
     }
+    .genai-searching { font-size: 0.875rem; color: #666; font-style: italic; padding: 12px 14px; display: block; }
 
     /* Products area (populated from agent tool results) */
     .genai-products-area {
@@ -2093,7 +2094,7 @@ function extractProductsFromToolResults(toolResults) {
   return products;
 }
 
-async function askAgent(input, conversationId) {
+async function askAgent(input, conversationId, streamCallbacks = {}) {
   if (!ES_CONFIG.kibanaUrl || ES_CONFIG.kibanaUrl.startsWith('{{')) {
     return { message: 'Agent Builder not configured. Set KIBANA_URL, KIBANA_API_KEY, and AGENT_ID in .env and regenerate.', conversationId: null, products: [] };
   }
@@ -2110,14 +2111,21 @@ async function askAgent(input, conversationId) {
 
     await parseSSEStream(resp, {
       onConversationId: (id) => { newConversationId = id; },
-      onMessageChunk: (text) => { message += text; },
+      onToolCall: (event) => { if (streamCallbacks.onToolCall) streamCallbacks.onToolCall(event); },
+      onToolResult: (event) => {
+        toolResults.push(event);
+        if (streamCallbacks.onToolResult) streamCallbacks.onToolResult(event);
+      },
+      onMessageChunk: (text) => {
+        message += text;
+        if (streamCallbacks.onMessageChunk) streamCallbacks.onMessageChunk(text);
+      },
       onMessageComplete: (event) => {
         if (event.conversation_id) newConversationId = event.conversation_id;
       },
       onRoundComplete: (event) => {
         if (event.conversation_id) newConversationId = event.conversation_id;
-      },
-      onToolResult: (event) => { toolResults.push(event); }
+      }
     });
 
     return {
@@ -2264,8 +2272,8 @@ async function openGenAI(query) {
   // Open overlay
   document.getElementById('genaiOverlay').classList.add('open');
 
-  // Build persona-contextual input
-  const input = `Shopping as ${activePersona.name} — ${activePersona.tagline}. Preferred brands: ${activePersona.preferredBrands.join(', ')}. Query: ${query}`;
+  // Build persona-contextual input (structured format reduces token count)
+  const input = `[Persona: ${activePersona.name} | Brands: ${activePersona.preferredBrands.join(', ')} | Style: ${activePersona.tagline}]\nFind: ${query}`;
 
   // Show user query
   appendUserMessage(chatArea, query);
@@ -2312,20 +2320,95 @@ function appendAIMessage(chatArea, text) {
   chatArea.scrollTop = chatArea.scrollHeight;
 }
 
+// DOM-safe text renderer: applies **bold** and \n → <br> without innerHTML.
+// Equivalent to formatAIResponse() but operates directly on a DOM element.
+function setFormattedContent(el, text) {
+  while (el.firstChild) el.removeChild(el.firstChild);
+  const parts = text.split(/(\*\*[^*]*\*\*)/);
+  for (const part of parts) {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const strong = document.createElement('strong');
+      appendTextWithLineBreaks(strong, part.slice(2, -2));
+      el.appendChild(strong);
+    } else {
+      appendTextWithLineBreaks(el, part);
+    }
+  }
+}
+
+function appendTextWithLineBreaks(el, text) {
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (i > 0) el.appendChild(document.createElement('br'));
+    if (lines[i]) el.appendChild(document.createTextNode(lines[i]));
+  }
+}
+
 async function handleAgentResponse(input, chatArea, thinkingEl) {
-  const result = await askAgent(input, agentConversationId);
+  let aiTextEl = null;      // the .genai-msg-ai div for streaming text
+  let streamedText = '';
+  let productsRendered = false;
 
-  // Remove thinking indicator
+  // Creates the AI response bubble on first streamed content, removes thinking indicator
+  function ensureAIMsgEl() {
+    if (!aiTextEl) {
+      if (thinkingEl) { thinkingEl.remove(); thinkingEl = null; }
+      const wrap = document.createElement('div');
+      wrap.className = 'genai-msg';
+      const inner = document.createElement('div');
+      inner.className = 'genai-msg-ai-wrap';
+      const label = document.createElement('div');
+      label.className = 'genai-msg-ai-label';
+      label.textContent = 'AI Assistant (powered by Agent Builder)';
+      aiTextEl = document.createElement('div');
+      aiTextEl.className = 'genai-msg-ai';
+      inner.appendChild(label);
+      inner.appendChild(aiTextEl);
+      wrap.appendChild(inner);
+      chatArea.appendChild(wrap);
+    }
+    return aiTextEl;
+  }
+
+  const result = await askAgent(input, agentConversationId, {
+    onToolCall: () => {
+      // Swap thinking dots for "Searching..." status while tool runs
+      if (thinkingEl) {
+        const dotsEl = thinkingEl.querySelector('.genai-thinking');
+        if (dotsEl) {
+          const span = document.createElement('span');
+          span.className = 'genai-searching';
+          span.textContent = 'Searching products\u2026';
+          dotsEl.replaceWith(span);
+        }
+      }
+    },
+    onToolResult: (event) => {
+      const products = extractProductsFromToolResults([event]);
+      if (products.length > 0 && !productsRendered) {
+        productsRendered = true;
+        genaiProducts = products;
+        renderGenAIProducts(products);
+      }
+    },
+    onMessageChunk: (text) => {
+      streamedText += text;
+      setFormattedContent(ensureAIMsgEl(), streamedText);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+  });
+
+  // Finalize: remove any remaining thinking indicator
   if (thinkingEl) thinkingEl.remove();
-
-  // Update conversation ID
   if (result.conversationId) agentConversationId = result.conversationId;
 
-  // Render AI message
-  appendAIMessage(chatArea, result.message);
+  // Sync fallback path: render text if SSE streaming did not fire
+  if (!streamedText && result.message) {
+    appendAIMessage(chatArea, result.message);
+  }
 
-  // Render product cards if available
-  if (result.products.length > 0) {
+  // Sync fallback path: render products if streaming did not fire
+  if (!productsRendered && result.products.length > 0) {
     genaiProducts = result.products;
     renderGenAIProducts(result.products);
   }

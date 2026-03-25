@@ -425,29 +425,24 @@ async function createAgentTools(kibanaUrl, kibanaApiKey, productIndex, personaIn
   step('Creating Agent Builder tools...');
 
   const suffix = slug ? `-${slug}` : '';
+  // Persona search tool removed: persona context is pre-injected into the query input,
+  // so a separate tool call is redundant and adds latency.
   const tools = [
     {
       id: `demo-product-search${suffix}`,
       type: 'index_search',
       description: 'Search the product catalog for items matching customer queries',
       configuration: { pattern: productIndex }
-    },
-    {
-      id: `demo-persona-search${suffix}`,
-      type: 'index_search',
-      description: 'Look up customer persona profiles including preferences and purchase history',
-      configuration: { pattern: personaIndex }
     }
   ];
 
   const toolIds = [];
   for (const tool of tools) {
-    // Idempotency: check if tool exists
+    // Check if tool exists — update if so, create if not
+    let exists = false;
     try {
       await kibanaRequest('GET', `/api/agent_builder/tools/${tool.id}`, null, kibanaUrl, kibanaApiKey);
-      ok(`Tool already exists: ${tool.id} (skipping)`);
-      toolIds.push(tool.id);
-      continue;
+      exists = true;
     } catch (e) {
       if (e.status !== 404) {
         warn(`Could not check tool ${tool.id}: ${JSON.stringify(e.body)}`);
@@ -455,11 +450,18 @@ async function createAgentTools(kibanaUrl, kibanaApiKey, productIndex, personaIn
     }
 
     try {
-      await kibanaRequest('POST', '/api/agent_builder/tools', tool, kibanaUrl, kibanaApiKey);
-      ok(`Tool created: ${tool.id}`);
+      if (exists) {
+        // PUT only accepts mutable fields (id and type are immutable)
+        const toolBody = { description: tool.description, configuration: tool.configuration };
+        await kibanaRequest('PUT', `/api/agent_builder/tools/${tool.id}`, toolBody, kibanaUrl, kibanaApiKey);
+        ok(`Tool updated: ${tool.id}`);
+      } else {
+        await kibanaRequest('POST', '/api/agent_builder/tools', tool, kibanaUrl, kibanaApiKey);
+        ok(`Tool created: ${tool.id}`);
+      }
       toolIds.push(tool.id);
     } catch (e) {
-      fatal(`Failed to create tool ${tool.id}: ${JSON.stringify(e.body)}`);
+      fatal(`Failed to ${exists ? 'update' : 'create'} tool ${tool.id}: ${JSON.stringify(e.body)}`);
     }
   }
 
@@ -472,11 +474,11 @@ async function createAgent(kibanaUrl, kibanaApiKey, toolIds, slug) {
   const suffix = slug ? `-${slug}` : '';
   const agentId = `demo-shopping-assistant${suffix}`;
 
-  // Idempotency: check if agent exists
+  // Check if agent exists — update if so, create if not
+  let exists = false;
   try {
     await kibanaRequest('GET', `/api/agent_builder/agents/${agentId}`, null, kibanaUrl, kibanaApiKey);
-    ok(`Agent already exists: ${agentId} (skipping)`);
-    return agentId;
+    exists = true;
   } catch (e) {
     if (e.status !== 404) {
       warn(`Could not check agent ${agentId}: ${JSON.stringify(e.body)}`);
@@ -489,25 +491,32 @@ async function createAgent(kibanaUrl, kibanaApiKey, toolIds, slug) {
     description: 'AI shopping assistant for product discovery and recommendations',
     configuration: {
       instructions: [
-        'You are a shopping assistant for an online retail store.',
-        'Help customers find products, make recommendations, and answer questions about the catalog.',
+        'You are a shopping assistant. The customer\'s persona (name, tagline, preferred brands) is already provided in their message — do NOT search for persona information.',
         '',
-        'When a customer asks about products:',
-        '1. Search the product index for relevant items',
-        '2. If a persona name is mentioned, look up their profile in the persona index to understand their preferences and purchase history',
-        '3. Recommend products that match both the query and the customer\'s preferences',
-        '4. Be conversational, helpful, and concise'
+        'When the customer asks about products:',
+        '1. Call demo-product-search ONCE with a concise search query.',
+        '2. Recommend the top 3-5 products that best match their query and the persona preferences already provided.',
+        '3. Keep responses under 100 words. Be direct — briefly introduce the recommendations, no preamble or conclusion.',
+        '',
+        'Do NOT call multiple search tools or make multiple search calls for the same query.'
       ].join('\n'),
       tools: [{ tool_ids: toolIds }]
     }
   };
 
   try {
-    await kibanaRequest('POST', '/api/agent_builder/agents', agent, kibanaUrl, kibanaApiKey);
-    ok(`Agent created: ${agentId}`);
+    if (exists) {
+      // PUT only accepts mutable fields (id is immutable)
+      const agentBody = { name: agent.name, description: agent.description, configuration: agent.configuration };
+      await kibanaRequest('PUT', `/api/agent_builder/agents/${agentId}`, agentBody, kibanaUrl, kibanaApiKey);
+      ok(`Agent updated: ${agentId}`);
+    } else {
+      await kibanaRequest('POST', '/api/agent_builder/agents', agent, kibanaUrl, kibanaApiKey);
+      ok(`Agent created: ${agentId}`);
+    }
     return agentId;
   } catch (e) {
-    fatal(`Failed to create agent: ${JSON.stringify(e.body)}`);
+    fatal(`Failed to ${exists ? 'update' : 'create'} agent: ${JSON.stringify(e.body)}`);
   }
 }
 
