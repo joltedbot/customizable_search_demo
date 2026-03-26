@@ -9,6 +9,7 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 - **Seed ES index:** `npm run setup` — creates product index, persona index, deploys Jina Embeddings inference endpoint, loads products, and creates or updates Agent Builder agent + tools via Kibana API (requires `.env`). Existing agents/tools are updated in-place with new configuration (not skipped); new deployments create fresh. Pass `-- --slug {name}` for customer-specific indexes. Use `-- --skip-agent` to skip Agent Builder setup.
 - **Reset ES index:** `npm run reset` — wipes and reseeds product + persona indexes (requires `.env`). Agent/tools are NOT deleted (SA may have customized). Pass `-- --slug {name}` for customer-specific indexes.
 - **Generate test build:** `npm run generate-test` — injects `.env` credentials into template → `output/test/demo.html`
+- **Generate SBOM:** `npm run sbom` — generates CycloneDX SBOM file (`sbom.cdx.json`) with all project dependencies for security/compliance audits
 
 **After changing `products.json` or `products-{slug}.json`:** run `npm run reset` (or `npm run reset -- --slug {name}` for customer-specific data) to push new data to the ES index, then `npm run generate-test` to rebuild the test file. Changes are not reflected until the index is reseeded.
 

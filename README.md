@@ -174,6 +174,7 @@ All commands are run from the repo root. Customer-specific commands use the `--s
 | `npm run reset` | Wipes and reseeds product + persona indexes (does **not** delete the Agent Builder agent/tools) | After editing `products.json` or `products-{slug}.json` to push updated data to ES. Add `-- --slug <name>` for customer-specific indexes |
 | `npm run generate-test` | Injects `.env` credentials into the template and writes `output/test/demo.html` | For local testing — run after `npm run setup` or `npm run reset` to get a working demo without running the AI agent |
 | `npm run dev` | Starts a local web server serving the `output/` directory on `http://localhost:3000` | Whenever you want to view the demo in a browser (works for both test and customer builds) |
+| `npm run sbom` | Generates a CycloneDX SBOM file (`sbom.cdx.json`) listing all project dependencies | For security and compliance audits; output is gitignored |
 
 **Typical workflows:**
 

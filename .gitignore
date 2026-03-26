@@ -5,3 +5,4 @@ node_modules/
 .agents
 .DS_Store
 scripts/data/products-*.json
+sbom.cdx.json

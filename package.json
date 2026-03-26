@@ -7,9 +7,11 @@
     "validate": "node scripts/validate-env.js",
     "setup": "node scripts/setup-index.js",
     "reset": "node scripts/setup-index.js --reset",
-    "generate-test": "node scripts/generate-test.js"
+    "generate-test": "node scripts/generate-test.js",
+    "sbom": "cyclonedx-npm --output-file sbom.cdx.json"
   },
   "devDependencies": {
+    "@cyclonedx/cyclonedx-npm": "^4.2.1",
     "@elastic/elasticsearch": "^8.0.0",
     "serve": "^14.0.0"
   }
