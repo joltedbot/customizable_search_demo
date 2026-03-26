@@ -84,6 +84,9 @@ Open `SETUP.md` and fill in the `## Customer Config` section before running the 
 | `scripts/setup-index.js` | Creates the ES index, deploys Jina Embeddings inference endpoint, seeds products, and auto-creates Agent Builder agent + tools. Supports `--slug {name}` for customer-specific indices and `--skip-agent` to reuse an existing agent (v2 mode) |
 | `scripts/data/products.json` | 46-product sporting goods base dataset (v2 mode); customer-specific data in `products-{slug}.json` (gitignored) |
 | `scripts/data/personas.json` | 3 persona documents (Alex, Marcus, Sam) seeded into `demo-personas` ES index for Agent Builder to reference (v2 mode) |
+| `docs/genai-boundary-tests.md` | Manual test checklist with 35 prompts to verify the Agent Builder agent rejects off-topic queries and only assists with product search |
+| `docs/elasticsearch-reference.md` | Complete reference of all ES index mappings, inference endpoints, and query structures |
+| `docs/search-flow-walkthrough.md` | Step-by-step execution trace for Personalized and GenAI search modes with inline code examples |
 
 ---
 

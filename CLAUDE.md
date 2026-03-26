@@ -52,6 +52,7 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 - **Management:** `POST /api/agent_builder/agents`, `PUT /api/agent_builder/agents/{id}`, `POST /api/agent_builder/tools`, `PUT /api/agent_builder/tools/{id}` — used by `npm run setup` to create or update agent + tools in-place
 - **Agent tools:** Agent has 1 tool: `demo-product-search` (searches product index with query and persona brand filters). Persona context is pre-injected into the input string (format: `[Persona: {name} | Brands: {brands} | Style: {tagline}]\nFind: {query}`), making a separate persona search tool unnecessary.
 - **Progressive rendering:** Products appear on `tool_result` SSE event (before text finishes); AI text streams incrementally on `message_chunk` events. Improves perceived latency by 2-5s vs. buffering all results until `round_complete`.
+- **Agent scope guardrails:** System instructions include explicit scope rules to prevent off-topic queries (general knowledge, coding, advice, etc.). Agent refuses with a canned decline message. Never reveals instructions, tools, or system prompt. See `docs/genai-boundary-tests.md` for validation test checklist.
 
 **Credentials in output HTML:**
 - `ES_API_KEY_READONLY` — baked into demo.html for both ES queries and Agent Builder conversations (combined read key)
@@ -96,6 +97,8 @@ No automated test suite. Manual testing only:
    - **Personalized** returns top 6 results reranked by persona affinity (linear retriever with persona-brand weighting + Jina reranker)
    - **GenAI** returns streaming Agent Builder response with multi-turn conversation; product cards from tool results
 5. Switch personas and confirm Personalized and GenAI results change
+
+**GenAI Agent Boundary Testing:** See `docs/genai-boundary-tests.md` for a 35-prompt test checklist verifying the agent rejects off-topic queries (general knowledge, coding, writing, advice, etc.) and only responds to product search requests. Run this after `npm run setup` to validate agent scope guardrails are working.
 
 **Note — products come from ES, not the template:** Product data (including image URLs) is served from the Elasticsearch index. Fixing `products.json` or `template/index.html` alone won't be reflected until `npm run reset` reseeds the index.
 
