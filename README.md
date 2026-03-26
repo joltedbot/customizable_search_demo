@@ -15,9 +15,29 @@ The demo connects to a live Elasticsearch Cloud cluster for real semantic search
 
 ---
 
+## Requirements
+
+Install the following before starting:
+
+| Requirement | Why | Install |
+|---|---|---|
+| **Node.js 18+** | Runs setup scripts, seeds Elasticsearch, serves the demo locally | [nodejs.org](https://nodejs.org/) or `brew install node` |
+| **npm** | Installs dependencies and runs project scripts | Included with Node.js |
+| **Claude Code** or **Gemini CLI** | AI agent that reads `SETUP.md` and generates the branded demo | `npm install -g @anthropic-ai/claude-code` or [Gemini CLI docs](https://github.com/google-gemini/gemini-cli) |
+| **Elastic Cloud deployment** | ES 9.x with ML nodes enabled — hosts the search index, inference endpoints, and Agent Builder | [cloud.elastic.co](https://cloud.elastic.co/) |
+| **Jina Embeddings v5 Text-Small** | Semantic embeddings for hybrid and personalized search | Deployed via Elastic Inference Service in your cluster |
+| **Jina Reranker v3** | ML cross-encoder reranking for personalized search | Deployed via Elastic Inference Service in your cluster |
+| **Two Elasticsearch API keys** | Write key (setup only) + read-only key (baked into demo HTML) — exact JSON permissions are in `.env.template` | Created in Kibana → Stack Management → API Keys |
+| **Kibana CORS enabled** | Allows `localhost` to call ES and Agent Builder APIs | See `SETUP.md` → Elasticsearch Setup for the regex pattern |
+| **LLM connector in Kibana** | Powers the GenAI chat mode via Agent Builder | Configured in Kibana → Stack Management → Connectors |
+
+> **Already have git?** You're good — it's the only tool we assume is pre-installed.
+
+---
+
 ## Quickstart
 
-**Prerequisites:** Git, Node.js 18+, Claude Code (`claude`) or Gemini CLI, Elastic Cloud deployment (ES 9.x with ML), Jina Embeddings v5 Text-Small available via Elastic Inference Service, Jina Reranker v3 available via Elastic Inference Service, two API keys (write + read-only — exact JSON in `.env.template`), Kibana CORS enabled for localhost, LLM connector configured in Kibana
+**Prerequisites:** See [Requirements](#requirements) above.
 
 ```bash
 git clone <repo-url> my-customer-demo
@@ -139,6 +159,27 @@ The template includes:
 - **Content-Security-Policy header** — restricts inline scripts, external resources, and enforces HTTPS for Elasticsearch and Kibana connections
 - **XSS protection** — all user-facing product data (name, brand, badge) is HTML-escaped before rendering to prevent injection attacks
 - **Read-only credentials in browser** — only `ES_API_KEY_READONLY` (read-only, scoped to index) and `KIBANA_API_KEY` are exposed in the generated demo; the write key (`ES_API_KEY`) is used only server-side during setup and never baked into output HTML
+
+---
+
+## NPM Commands Reference
+
+All commands are run from the repo root. Customer-specific commands use the `--slug` flag.
+
+| Command | What it does | When to use |
+|---|---|---|
+| `npm install` | Installs project dependencies (`@elastic/elasticsearch`, `serve`) | Once after cloning, or after pulling changes that update `package.json` |
+| `npm run validate` | Pre-flight check — verifies all `.env` credentials, ES connectivity, inference endpoints, and Agent Builder access | Before first `npm run setup`, or after changing `.env` values. Add `-- --skip-agent` to skip Kibana/Agent Builder checks |
+| `npm run setup` | Creates ES product + persona indexes, deploys Jina Embeddings inference endpoint, seeds products, and creates/updates Agent Builder agent + tools | Once per customer to initialize the cluster. Add `-- --slug <name>` for customer-specific indexes, `-- --skip-agent` to skip Agent Builder setup |
+| `npm run reset` | Wipes and reseeds product + persona indexes (does **not** delete the Agent Builder agent/tools) | After editing `products.json` or `products-{slug}.json` to push updated data to ES. Add `-- --slug <name>` for customer-specific indexes |
+| `npm run generate-test` | Injects `.env` credentials into the template and writes `output/test/demo.html` | For local testing — run after `npm run setup` or `npm run reset` to get a working demo without running the AI agent |
+| `npm run dev` | Starts a local web server serving the `output/` directory on `http://localhost:3000` | Whenever you want to view the demo in a browser (works for both test and customer builds) |
+
+**Typical workflows:**
+
+- **First-time setup:** `npm install` → `npm run validate` → `npm run setup` → run AI agent with `SETUP.md` → `npm run dev`
+- **Updated product data:** Edit `products.json` → `npm run reset` → `npm run generate-test` (for test build) → `npm run dev`
+- **Quick local test (no AI agent):** `npm run generate-test` → `npm run dev` → open `http://localhost:3000/test/demo.html`
 
 ---
 

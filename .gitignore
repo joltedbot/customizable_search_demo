@@ -1,6 +1,7 @@
-output/
+output/*
 .env
 node_modules/
 .claude
+.agents
 .DS_Store
 scripts/data/products-*.json
