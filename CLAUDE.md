@@ -51,7 +51,8 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 - **Headers:** `Authorization: ApiKey {key}`, `kbn-xsrf: true`, `Content-Type: application/json`
 - **Management:** `POST /api/agent_builder/agents`, `PUT /api/agent_builder/agents/{id}`, `POST /api/agent_builder/tools`, `PUT /api/agent_builder/tools/{id}` — used by `npm run setup` to create or update agent + tools in-place
 - **Agent tools:** Agent has 1 tool: `demo-product-search` (searches product index with query and persona brand filters). Persona context is pre-injected into the input string (format: `[Persona: {name} | Brands: {brands} | Style: {tagline}]\nFind: {query}`), making a separate persona search tool unnecessary.
-- **Progressive rendering:** Products appear on `tool_result` SSE event (before text finishes); AI text streams incrementally on `message_chunk` events. Improves perceived latency by 2-5s vs. buffering all results until `round_complete`.
+- **tool_result format (current):** `{ results: [ { data: { reference: { id: "doc-id" } } } ] }`. Legacy format `hits.hits[]._source` may appear in older API versions.
+- **Progressive rendering:** Products appear on `tool_result` SSE event (before text finishes); AI text streams incrementally on `message_chunk` events. `tool_result` triggers `extractProductIdsFromToolResults()` → `fetchProductsByIds()` to populate right panel. Improves perceived latency by 2-5s vs. buffering all results until `round_complete`.
 - **Agent scope guardrails:** System instructions include explicit scope rules to prevent off-topic queries (general knowledge, coding, advice, etc.). Agent refuses with a canned decline message. Never reveals instructions, tools, or system prompt. See `docs/genai-boundary-tests.md` for validation test checklist.
 
 **Credentials in output HTML:**
@@ -72,12 +73,22 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 - `activeMode` — current search mode string (`'lexical'|'hybrid'|'personalized'|'genai'`); set by mode switcher pills
 - `cartItems` — array of cart item objects; drives header badge count and cart drawer
 - `agentConversationId` — Agent Builder conversation ID for multi-turn GenAI chat; reset on persona switch or new session
-- `genaiProducts` — products extracted from agent tool results; used by "Add all to cart"
+- `genaiProducts` — products extracted from agent tool results; used by "Add all to cart"; reset at start of each `handleAgentResponse()`
 - `lastSearchQuery` — last query string passed to `openScenario()`; used by View Query button
+- `searchAbortController` — AbortController for cancelling prior ES searches when a new search is initiated
+- `agentAbortController` — AbortController for cancelling prior Agent Builder SSE streams when new chat starts
 
-**Helper functions for GenAI streaming (added for progressive rendering):**
+**Helper functions for GenAI streaming and product rendering:**
 - `setFormattedContent(el, text)` — DOM-safe renderer: escapes text, applies formatting (bold, links), sets via `innerHTML` (safe because `formatAIResponse()` calls `escapeHtml()` first)
 - `appendTextWithLineBreaks(el, text)` — appends text to an element while preserving newlines as `<br>` tags, escaping dangerous characters
+- `extractProductIdsFromToolResults(sseEvent)` — parses Agent Builder tool_result event to extract product IDs from new format (`results[].data.reference.id`); includes legacy fallback for older API versions
+- `fetchProductsByIds(ids)` — queries ES with `ids` query to retrieve full product documents (name, brand, price, image) from IDs provided by agent tool results; capped at 5 results
+
+**GenAI overlay layout (side-by-side):**
+- Left panel (flex: 1): chat conversation area + input bar at bottom (flex direction: column)
+- Right panel (340px fixed width): product cards grid with scrollable area + "Recommended Products" header + "Add all to cart" button at footer
+- Modal width: 1060px; height: 80vh (max 700px). Both panels scroll independently to allow chat and product browsing in parallel.
+- Products rendered from Agent Builder tool_result events using `extractProductIdsFromToolResults()` + `fetchProductsByIds()` to get full document data
 
 **Z-index layer stack (`template/index.html`):**
 header=1000 → autocomplete=2000 → search overlay=3000 → genai overlay=4000 → query viewer=5000. New overlays/drawers should use z-index ≥ 6000.
@@ -111,6 +122,7 @@ No automated test suite. Manual testing only:
 - **JS config keys:** camelCase (e.g. `kibanaUrl`, `apiKey`)
 - **No new dependencies** without discussion — the project intentionally has minimal deps (`@elastic/elasticsearch`, `serve`)
 - **Error handling:** ES calls must show user-friendly error messages on failure (network issues, credentials); never silently fall back
+- **Concurrent search safety:** Use `searchAbortController` and `agentAbortController` to cancel prior requests when new search/chat starts. Call `.abort()` before instantiating a new AbortController to ensure only the latest request renders results.
 - **Images — Pexels only:** All product images use Pexels CDN. **Never use Unsplash** — their URLs go stale/404. Format: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop`. Use IDs from `image-library/*.json` files. Verify new IDs with `curl -s -o /dev/null -w "%{http_code}" https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg` before committing.
 - **Pexels search pages block automation** — `pexels.com/search/*` returns 403 to headless fetches. Find IDs by browsing manually, using the Pexels API (free key at pexels.com/api/), or verifying candidate IDs with curl as above.
 - **Bash variable naming in zsh:** `status` is read-only in zsh — use `code`, `result`, or similar instead. Relevant when writing `curl` status-checking loops.
