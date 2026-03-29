@@ -49,6 +49,9 @@
       --red:           #cc0000;
       --badge-personalized:     #0a6ebd;
       --badge-genai:   #7b2d8b;
+      --header-bg:      #ffffff;   /* Customer header background — set in SETUP.md */
+      --header-text:    #1a1a1a;   /* Header text color — light or dark to contrast --header-bg */
+      --header-divider: rgba(0,0,0,0.1); /* Header border/separator color */
     }
 
     /* ===================== TOP UTILITY BAR ===================== */
@@ -98,8 +101,8 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
     .header {
-      background: var(--white);
-      border-bottom: 1px solid var(--gray-200);
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--header-divider);
     }
     .header-inner {
       max-width: 1440px;
@@ -118,7 +121,7 @@
       font-size: 22px;
       font-weight: 900;
       letter-spacing: -0.5px;
-      color: var(--primary);
+      color: var(--header-text);
     }
 
     /* Search */
@@ -222,17 +225,17 @@
       gap: 2px;
       padding: 6px 10px;
       border-radius: 4px;
-      color: var(--black);
+      color: var(--header-text);
       font-size: 10px;
       font-weight: 600;
       transition: color 0.2s;
       cursor: pointer;
       white-space: nowrap;
     }
-    .header-action:hover { color: var(--primary); }
+    .header-action:hover { color: var(--accent); }
     .header-action .icon { font-size: 20px; line-height: 1; }
-    .header-action .action-label { font-size: 11px; font-weight: 700; color: var(--black); }
-    .header-action .action-sub { font-size: 10px; color: var(--gray-600); font-weight: 400; }
+    .header-action .action-label { font-size: 11px; font-weight: 700; color: var(--header-text); }
+    .header-action .action-sub { font-size: 10px; color: var(--header-text); opacity: 0.7; font-weight: 400; }
 
     .cart-badge { position: relative; cursor: pointer; }
     .cart-badge .badge {
@@ -351,13 +354,14 @@
       align-items: center;
       gap: 8px;
       padding: 0 12px;
-      border-left: 1px solid var(--gray-200);
-      border-right: 1px solid var(--gray-200);
+      border-left: 1px solid var(--header-divider);
+      border-right: 1px solid var(--header-divider);
       height: 100%;
     }
     .persona-label {
       font-size: 11px;
-      color: var(--gray-600);
+      color: var(--header-text);
+      opacity: 0.7;
       white-space: nowrap;
     }
     .persona-tabs {
@@ -368,24 +372,26 @@
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      border: 2px solid var(--gray-200);
-      background: var(--gray-100);
+      border: 2px solid var(--header-divider);
+      background: rgba(128,128,128,0.15);
       font-size: 11px;
       font-weight: 800;
-      color: var(--gray-600);
+      color: var(--header-text);
+      opacity: 0.7;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      transition: border-color 0.15s, background 0.15s, color 0.15s, opacity 0.15s;
       overflow: hidden;
       padding: 0;
     }
-    .persona-tab:hover { border-color: var(--primary-light); color: var(--primary); }
+    .persona-tab:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
     .persona-tab.active {
       border-color: var(--primary);
       background: var(--primary);
       color: white;
+      opacity: 1;
     }
     .persona-tab img {
       width: 100%;
@@ -396,7 +402,7 @@
     .persona-name-display {
       font-size: 11px;
       font-weight: 700;
-      color: var(--primary);
+      color: var(--header-text);
       white-space: nowrap;
     }
 
@@ -406,12 +412,13 @@
       align-items: center;
       gap: 8px;
       padding: 0 12px;
-      border-right: 1px solid var(--gray-200);
+      border-right: 1px solid var(--header-divider);
       height: 100%;
     }
     .mode-switcher-label {
       font-size: 11px;
-      color: var(--gray-600);
+      color: var(--header-text);
+      opacity: 0.7;
       white-space: nowrap;
     }
     .mode-tabs {
@@ -422,16 +429,17 @@
       height: 26px;
       padding: 0 10px;
       border-radius: 13px;
-      border: 1.5px solid var(--gray-200);
-      background: var(--gray-100);
+      border: 1.5px solid var(--header-divider);
+      background: rgba(128,128,128,0.15);
       font-size: 11px;
       font-weight: 700;
-      color: var(--gray-600);
+      color: var(--header-text);
+      opacity: 0.7;
       cursor: pointer;
       white-space: nowrap;
-      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      transition: border-color 0.15s, background 0.15s, color 0.15s, opacity 0.15s;
     }
-    .mode-tab:hover { border-color: var(--primary-light); color: var(--primary); }
+    .mode-tab:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
     .mode-tab.active {
       border-color: var(--primary);
       background: var(--primary);

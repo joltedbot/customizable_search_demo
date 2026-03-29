@@ -13,6 +13,7 @@ CUSTOMER_NAME:
 CUSTOMER_SLUG:
 PRIMARY_COLOR:
 SECONDARY_COLOR:
+HEADER_BG_COLOR:
 LOGO:
 INDUSTRY:
 PRODUCT_FOCUS:
@@ -30,6 +31,7 @@ DEMO_NARRATIVE:
 | `CUSTOMER_SLUG` | URL-safe folder name (derive from name if blank) | `acme-sports` |
 | `PRIMARY_COLOR` | Main brand color — buttons, active states | `#006150` |
 | `SECONDARY_COLOR` | Accent color — CTAs, highlights | `#F5A623` |
+| `HEADER_BG_COLOR` | Header/nav bar background from customer's website (defaults to `#ffffff`) | `#1a1a1a` |
 | `LOGO` | One of: SVG URL, raw SVG code, or `"generate wordmark"` | `generate wordmark` |
 | `INDUSTRY` | Short description of what the company does | `outdoor sporting goods` |
 | `PRODUCT_FOCUS` | 1–2 sentences on what the customer sells | `Premium trail running and outdoor apparel` |
@@ -149,32 +151,45 @@ Use the answer to fill both `INDUSTRY` and `PRODUCT_FOCUS`.
 
 ### 1b — Brand Colors
 
-**Try to fetch colors automatically before asking.** Once you know the customer name, attempt to fetch their website (e.g., `https://www.[brand].com`) and extract CSS color values (hex codes, CSS custom properties, button/background/link colors).
+**Try to fetch the customer's website automatically before asking.** Once you know the customer name, attempt to fetch their website (e.g., `https://www.[brand].com`) and extract:
+- CSS color values (hex codes, CSS custom properties, button/background/link colors)
+- The header/nav bar background color (`background-color` of the site's `<header>`, `<nav>`, or top navigation bar). This becomes `HEADER_BG_COLOR`.
+- The logo SVG (look for `<svg>` elements with logo-related classes, or `<img>` tags in the header pointing to SVG files)
 
-- **If successful:** Present the colors you found and ask the SA to confirm or adjust before using them.
-- **If the site blocks the fetch or times out:** Do not ask for hex codes directly — most SAs won't know them. Instead offer these practical options:
+- **If successful:** Present the colors and logo you found and ask the SA to confirm or adjust before using them.
+- **If the site blocks the fetch or times out:** Ask the SA to save the webpage locally so you can extract the branding directly:
 
-  > "I wasn't able to read their website directly. Here are a few easy ways to grab the brand colors — whichever is easiest for you:
+  > "I wasn't able to read their website directly. The easiest way to get accurate branding is:
   >
-  > 1. **Screenshot** — take a screenshot of their homepage or any branded page and share the file path. I can read images and identify the colors visually.
-  > 2. **macOS Color Picker** — open **Digital Color Meter** (Applications → Utilities), browse their site, and hover over any brand element. It shows the hex value live.
-  > 3. **Browser DevTools** — right-click any colored element on their site → Inspect → look in the Styles panel for `color`, `background-color`, or CSS variables like `--primary`.
-  > 4. **Brand press page** — their investor or press page (e.g., `corporate.[brand].com`) often loads faster and may mention brand colors.
+  > 1. **Save the webpage** — open the customer's homepage in your browser, then **File → Save As → Webpage, Complete** (or **Save Page As**). This saves the HTML and all assets (CSS, images, SVGs) into a folder. Drop that folder into this repo directory and tell me the folder name. I'll extract the logo, colors, and header styling directly from the saved page.
   >
-  > If none of these work, just describe the brand vibe (e.g., 'dark green and gold', 'black and white with a red accent') and I'll suggest hex values for your approval."
+  > This is the recommended approach because it gives me the actual logo SVG, exact brand colors, and header background — all from one step.
+  >
+  > Alternatively:
+  > 2. **Logo file** — if you have the customer's logo as an SVG file, drop it into the repo folder or paste the SVG code.
+  > 3. **Screenshot** — take a screenshot of their homepage and share the file path. I can read images and identify colors visually (but I won't be able to extract a vector logo this way)."
+
+- **Extracting from a saved webpage:** When the SA provides a saved webpage folder:
+  1. Search the HTML file for `<svg>` elements in the header/nav area — look for logo-related class names, `data-testid` attributes containing "logo", or SVGs near the top of `<header>` elements. Extract the full SVG markup.
+  2. Look for `<meta name="theme-color">` for the primary brand color.
+  3. Search CSS files and inline styles for header/nav `background-color` values.
+  4. Present what you found and ask the SA to confirm before using.
 
 - **If the SA provides a description** (not a hex code): suggest 2–3 plausible hex options with a recommendation and ask them to pick.
 - **If a logo file is already in the repo:** inspect it for color values and use those as the primary color candidate.
+- **`HEADER_BG_COLOR` default:** If the header color can't be determined, default to `#ffffff` (white). The demo header will match the customer's site when set, and looks clean when left as white. Only accept plain color values (hex or rgb/rgba). Do not use extracted values that contain semicolons, braces, `url()`, `@import`, or any non-color CSS syntax.
 
 ---
 
 ### 1c — Logo
 
-Ask:
-> "Do you have a logo file? You can drop an SVG file into the repo folder, paste a URL, or paste SVG code directly. If not, I can generate a simple text wordmark."
+The logo should come from the customer's actual website — either extracted from a saved webpage (step 1b) or provided directly by the SA. **Do not generate a text wordmark** unless the SA explicitly asks for one. The customer's real logo is critical for brand authenticity.
 
+- **If a logo was already extracted in step 1b** (from a saved webpage or direct fetch): confirm it with the SA and use it.
+- **If no logo yet:** Ask:
+  > "I still need the customer's logo. The best option is to save their webpage (File → Save As → Webpage, Complete) — I can extract the SVG logo directly. Or you can drop an SVG file into the repo folder, paste a URL, or paste SVG code."
 - If the SA provides a file path, URL, or SVG code: use it as-is.
-- If no logo is available: generate a simple inline SVG wordmark — the company name in a bold sans-serif font, colored in `PRIMARY_COLOR`, optionally with a minimal geometric mark to the left.
+- **Last resort only:** If the SA explicitly says they don't have a logo and can't save the webpage, generate a simple inline SVG wordmark — the company name in a bold sans-serif font, colored with `--header-text` so it contrasts with the header background.
 
 ---
 
@@ -193,6 +208,7 @@ From the personas, derive `DEMO_NARRATIVE` automatically based on one of the per
 **General defaults (apply silently unless the SA asks):**
 - `CUSTOMER_SLUG`: derived from `CUSTOMER_NAME`
 - `SECONDARY_COLOR`: a warm gold, amber, or contrasting accent that complements the primary
+- `HEADER_BG_COLOR`: defaults to `#ffffff` (white) if not determined from the customer's site
 - `DEMO_NARRATIVE`: derived from one of the persona profiles and the industry
 
 ---
@@ -207,6 +223,7 @@ Ready to generate the demo. Here's what I have:
   Customer:    [CUSTOMER_NAME]
   Output:      output/[CUSTOMER_SLUG]/demo.html
   Colors:      [PRIMARY_COLOR] / [SECONDARY_COLOR]
+  Header:      [HEADER_BG_COLOR] (text: [white if dark bg, dark if light bg])
   Industry:    [INDUSTRY]
   Personas:    [list names + one-line profiles]
   Narrative:   [DEMO_NARRATIVE]
@@ -249,15 +266,22 @@ Now apply each customization below as a **targeted Edit** to the copied file. Ea
 
 **Edit target:** the `:root { }` block near the top of the `<style>` section.
 
-Replace the five color custom property values:
+Replace the color custom property values:
 
 ```css
---primary:       [PRIMARY_COLOR];
---primary-dark:  [darken PRIMARY_COLOR by ~15%];
---primary-light: [lighten PRIMARY_COLOR by ~25%];
---accent:        [SECONDARY_COLOR];
---accent-dark:   [darken SECONDARY_COLOR by ~15%];
+--primary:        [PRIMARY_COLOR];
+--primary-dark:   [darken PRIMARY_COLOR by ~15%];
+--primary-light:  [lighten PRIMARY_COLOR by ~25%];
+--accent:         [SECONDARY_COLOR];
+--accent-dark:    [darken SECONDARY_COLOR by ~15%];
+--header-bg:      [HEADER_BG_COLOR];
+--header-text:    [#ffffff if HEADER_BG_COLOR is dark (luminance < 0.5), else #1a1a1a];
+--header-divider: [rgba(255,255,255,0.2) if HEADER_BG_COLOR is dark, else rgba(0,0,0,0.1)];
 ```
+
+**Determining light vs dark:** Compute relative luminance from the header background hex value. If luminance < 0.5, use white text and light dividers; otherwise use dark text and dark dividers.
+
+**Color value validation:** All color values must be plain CSS color literals only — hex (`#RGB` or `#RRGGBB`), `rgb(N, N, N)`, `rgba(N, N, N, D)`, or named CSS colors. Do not accept values containing semicolons, braces, `url()`, `@import`, quotes, or any non-color CSS syntax. If an extracted value is not a plain color literal, default to `#ffffff`.
 
 ---
 
@@ -267,8 +291,8 @@ Replace the five color custom property values:
 
 - `<title>`: `[CUSTOMER_NAME] | Find Everything You Need`
 - Logo: Replace the placeholder SVG/text in the `<!-- CUSTOMIZE: Logo -->` section with either:
-  - The provided SVG or URL, **or**
-  - A generated inline SVG wordmark using the company name and `PRIMARY_COLOR`
+  - The provided SVG or URL (the logo should be designed for the header background color — this is the main reason we match `HEADER_BG_COLOR` to the customer's site), **or**
+  - A generated inline SVG wordmark using the company name, colored with `--header-text` (not `PRIMARY_COLOR`) so it contrasts with the header background
 - Utility bar promo text: write a short seasonal promotion appropriate to the industry (e.g., "Free shipping on orders over $75 — Shop Summer Essentials →")
 
 ---

@@ -10,7 +10,7 @@
     "rating": 4.9,
     "reviews": 2341,
     "badge": "Best Seller",
-    "tags": ["running", "shoes", "sneakers", "athletic", "training", "footwear", "women"],
+    "tags": ["running", "shoes", "sneakers", "athletic", "training", "women"],
     "description": "Lightweight women's running shoe with responsive cushioning and breathable mesh upper. Designed for race day performance with energy-return foam and a sleek aerodynamic profile. Perfect for competitive runners training for half-marathons and 10Ks.",
     "image": "https://images.pexels.com/photos/6540973/pexels-photo-6540973.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
     "is_noise": false
@@ -26,7 +26,7 @@
     "rating": 4.7,
     "reviews": 1456,
     "badge": null,
-    "tags": ["running", "shoes", "sneakers", "athletic", "performance", "footwear", "men"],
+    "tags": ["running", "shoes", "sneakers", "athletic", "performance", "men"],
     "description": "Men's performance running shoe with Boost midsole technology for maximum energy return. Engineered mesh upper provides breathability and support during long runs. Ideal for daily training and tempo workouts.",
     "image": "https://images.pexels.com/photos/6748268/pexels-photo-6748268.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
     "is_noise": false
@@ -42,7 +42,7 @@
     "rating": 4.6,
     "reviews": 987,
     "badge": null,
-    "tags": ["running", "shoes", "sneakers", "lightweight", "training", "trail", "footwear", "men"],
+    "tags": ["running", "shoes", "sneakers", "lightweight", "training", "trail", "men"],
     "description": "Versatile trail running shoe with aggressive lugs for grip on technical terrain. Lightweight construction with protective rock plate and cushioned midsole. Built for mountain trails, mud, and steep descents.",
     "image": "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
     "is_noise": false
@@ -58,7 +58,7 @@
     "rating": 4.8,
     "reviews": 1823,
     "badge": "New",
-    "tags": ["running", "shoes", "sneakers", "minimalist", "casual", "footwear", "women"],
+    "tags": ["running", "shoes", "sneakers", "minimalist", "casual", "women"],
     "description": "Women's everyday training shoe with CloudTec cushioning for a soft landing and explosive takeoff. Minimalist design transitions seamlessly from gym to street. Breathable upper with supportive heel counter.",
     "image": "https://images.pexels.com/photos/1456733/pexels-photo-1456733.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
     "is_noise": false
@@ -74,7 +74,7 @@
     "rating": 4.5,
     "reviews": 678,
     "badge": null,
-    "tags": ["running", "shoes", "sneakers", "athletic", "sport", "racing", "footwear", "men"],
+    "tags": ["running", "shoes", "sneakers", "athletic", "sport", "racing", "men"],
     "description": "Ultra-lightweight racing flat designed for speed on race day. Carbon fiber plate and nitrogen-infused foam deliver explosive propulsion. Low-profile design minimizes drag for competitive runners chasing PRs.",
     "image": "https://images.pexels.com/photos/16947118/pexels-photo-16947118.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
     "is_noise": false

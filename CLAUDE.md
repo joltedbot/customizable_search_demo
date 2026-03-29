@@ -90,6 +90,8 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 - Modal width: 1060px; height: 80vh (max 700px). Both panels scroll independently to allow chat and product browsing in parallel.
 - Products rendered from Agent Builder tool_result events using `extractProductIdsFromToolResults()` + `fetchProductsByIds()` to get full document data
 
+**Header color matching:** The demo header background can match the customer's website header via `--header-bg`, `--header-text`, and `--header-divider` CSS variables (set during SETUP.md step 3a). All header child elements (logo, actions, persona/mode switchers) use `--header-text` for contrast. Defaults to white (`#ffffff`) with dark text — identical to the original look when not customized.
+
 **Z-index layer stack (`template/index.html`):**
 header=1000 → autocomplete=2000 → search overlay=3000 → genai overlay=4000 → query viewer=5000. New overlays/drawers should use z-index ≥ 6000.
 
