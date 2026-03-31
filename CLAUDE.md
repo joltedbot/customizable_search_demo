@@ -34,7 +34,7 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 **Search modes (4):**
 1. Lexical — BM25 on `name^3`, `brand^2`, `tags^1`, `category^1`, `description^0.5`; no filtering (returns noise + real products based on keyword match). Broadened fields ensure queries like "camping gear" surface relevant results.
 2. Hybrid — RRF (Reciprocal Rank Fusion) merges Jina semantic embeddings and BM25 retrieval, filtered to real products
-3. Personalized — Linear retriever with 3 weighted branches: (1) persona-brand-filtered semantic search w/ activity-aware query expansion (weight 3.0), (2) general semantic search (weight 1.0), (3) BM25 keyword search (weight 0.8). Results normalized via minmax, then reranked by Jina Reranker v3 (`.jina-reranker-v3` inference endpoint). Personalized by active persona's `preferredBrands` and `tagline`
+3. Personalized — Linear retriever with 4 weighted branches: (1) persona-brand-filtered semantic search w/ activity-aware query expansion (weight 3.0), (2) persona-category-filtered semantic search (weight 2.0), (3) general semantic search (weight 1.0), (4) BM25 keyword search (weight 0.8). Results normalized via minmax, then reranked by Jina Reranker v3 (`.jina-reranker-v3` inference endpoint). Personalized by active persona's `preferredBrands`, `preferredCategories`, and `tagline`
 4. GenAI — Dynamic multi-turn chat via Elasticsearch Agent Builder API (SSE streaming with sync fallback); product cards from agent tool results
 
 **Personas (3):** Alex (female), Marcus (male), Sam (neutral) — fixed identities, switcher in header; affect Personalized and GenAI responses

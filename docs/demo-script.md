@@ -113,7 +113,7 @@ This query is intentionally vague — there's no strong keyword or category sign
 - "Two dimensions of personalization working together: **brand affinity** decides *which* running shoe you see, **category affinity** decides *whether* you see running shoes at all vs. dumbbells or backpacks"
 
 ### Key talking points
-- Three-branch retriever: persona-brand semantic (dominant), general semantic, BM25 keyword
+- Four-branch retriever: persona-brand semantic (dominant), persona-category semantic, general semantic, BM25 keyword
 - Jina Reranker rescores the top candidates against the persona's style
 - Cross-sell recommendations require zero manual merchandising rules
 - No query expansion visible to the user — it all happens behind the scenes
