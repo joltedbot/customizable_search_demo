@@ -2005,6 +2005,9 @@ function buildPersonaCrossSellQuery(persona, excludeIds = []) {
   const genderMap = { female: "Women's", male: "Men's" };
   const genderVal = genderMap[persona.gender];
   if (genderVal) should.push({ term: { gender: { value: genderVal, boost: 3 } } });
+  (persona.preferredCategories || []).forEach(cat => {
+    should.push({ term: { category: { value: cat, boost: 2 } } });
+  });
   (persona.purchaseHistory || []).slice(0, 3).forEach(tag => {
     should.push({ match: { tags: { query: tag, boost: 2 } } });
   });
