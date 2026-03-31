@@ -35,7 +35,7 @@ DEMO_NARRATIVE:
 | `LOGO` | One of: SVG URL, raw SVG code, or `"generate wordmark"` | `generate wordmark` |
 | `INDUSTRY` | Short description of what the company does | `outdoor sporting goods` |
 | `PRODUCT_FOCUS` | 1–2 sentences on what the customer sells | `Premium trail running and outdoor apparel` |
-| `PERSONA_1/2/3` | Name, gender (female/male/neutral), and buyer profile — or `"use defaults"` | `Jordan, female, competitive trail runner` |
+| `PERSONA_1/2/3` | Name and buyer profile — or `"use defaults"` | `Jordan, competitive trail runner` |
 | `DEMO_NARRATIVE` | One sentence about the demo scenario goal | `preparing for a summer trail race` |
 
 ---
@@ -253,12 +253,35 @@ Wait for the SA to confirm before proceeding to Step 3.
    - `clothing-fashion.json` — shirts, tops, sneakers, jackets, dresses, sunglasses, etc.
    - `groceries-food.json` — coffee, bread, cheese, chocolate, pasta, craft beverages, etc.
    - `outdoor-camping.json` — tents, sleeping bags, hiking boots, backpacks, camp stoves, lanterns, etc.
+   - `insurance.json` — auto, home, tenant, life, travel, business, farm, and specialty insurance
 
    Each file contains ~50 pre-curated image entries with Pexels CDN URLs, suggested product names, brands, and tags. Ask the SA which set best matches their customer, or recommend the closest one. The SA can mix images across sets if needed.
 
 3. Read `output/[CUSTOMER_SLUG]/demo.html` to confirm the copy succeeded before editing.
 
 Now apply each customization below as a **targeted Edit** to the copied file. Each section is an independent edit — complete them in order.
+
+---
+
+### 3a-pre — Industry-Specific Labels (Non-Retail Only)
+
+**Edit target:** the configurable constants block at the top of the JS `CONFIGURATION` section.
+
+For non-retail industries (insurance, financial services, etc.), update these constants:
+
+| Constant | Retail Default | Insurance Example |
+|---|---|---|
+| `CTA_LABEL` | `'Add to Cart'` | `'Get a Quote'` |
+| `CART_TITLE` | `'Your Cart'` | `'Your Quotes'` |
+| `CART_EMPTY_MSG` | `'Your cart is empty'` | `'No quotes saved'` |
+| `GENAI_TITLE` | `'AI Shopping Assistant'` | `'AI Insurance Advisor'` |
+| `PERSONA_LABEL` | `'Shopping as:'` | `'Browsing as:'` |
+| `STORE_LABEL` | `'Find a Store'` | `'Find a Broker'` |
+| `FILTER_CHIPS` | `['All', 'On Sale', 'Under $50', '$50–$150', '$150+']` | `['All', 'Auto', 'Home', 'Life', 'Business']` |
+
+For retail customers, **skip this step** — the defaults are already correct.
+
+**No-price industries:** If the customer's industry doesn't use prices (insurance, consulting, etc.), the template automatically hides price displays when `price` is `null` in the product data. No template edits needed — just set prices to `null` in the product dataset (step 3o).
 
 ---
 
@@ -336,7 +359,7 @@ The personas are fixed as Alex (female), Marcus (male), and Sam (neutral). Custo
   id: 'alex' | 'marcus' | 'sam',
   name: 'Alex' | 'Marcus' | 'Sam',
   initials: 'AX' | 'MR' | 'SM',
-  gender: 'female' | 'male' | 'neutral',
+  gender: 'female' | 'male' | 'neutral',  // used for avatar display only
   tagline: 'One sentence buyer profile',
   preferredBrands: [...],  // 3–5 brand names relevant to the industry
   preferredCategories: [...],   // 3–4 category slugs from the product index (e.g. 'running-shoes', 'backpacks')
@@ -380,8 +403,7 @@ Once approved, use the selected images for all product data in steps 3h–3l bel
 **Edit target:** the `const PRODUCTS` array in the JS (between its opening `[` and closing `];`).
 
 Replace with 12–15 products using SA-approved images from step 3g. Requirements:
-- Mix of genders: roughly ⅓ women's, ⅓ men's, ⅓ unisex
-- Mix of price points: entry-level, mid-range, and premium
+- Mix of price points: entry-level, mid-range, and premium (skip for no-price industries)
 - Varied categories: not all the same product type
 - Use image URLs from the approved set — all must be Pexels CDN URLs
 - Write product names, brands, prices, ratings, and review counts to match the images
@@ -408,6 +430,7 @@ The most compelling demo story uses the **same query** for lexical and hybrid mo
 | Consumer Electronics | `'smart devices'` | Returns noise: toasters, car stereos — technically "devices" but not what shoppers mean |
 | Clothing & Fashion | `'everyday wear'` | Returns noise: fabric bolts, costumes — keyword match on "wear" but wrong category |
 | Groceries & Food | `'kitchen essentials'` | Returns noise: cleaning supplies, garden tools — keyword match on "kitchen" but not food |
+| Insurance | `'coverage options'` | Returns noise: legal services, financial planning — keyword match on "coverage" but not insurance products |
 
 ---
 
@@ -477,7 +500,6 @@ In v2 mode, search results come from Elasticsearch — not the template constant
   "name": "Product Name",
   "brand": "Brand",
   "category": "category-slug",
-  "gender": "Women's" | "Men's" | null,
   "price": 99.99,
   "sale": null,
   "rating": 4.7,
@@ -489,6 +511,8 @@ In v2 mode, search results come from Elasticsearch — not the template constant
   "is_noise": false
 }
 ```
+
+**No-price industries:** Set `"price": null` and `"sale": null` for all products. The template automatically hides price displays, cart totals, and price-based filter chips when prices are null.
 
 2. Include all products from the homepage grid, search modes, and GenAI kits. Also include noise products with `"is_noise": true`.
 3. Real product IDs: 1–50. Noise product IDs: 101+.

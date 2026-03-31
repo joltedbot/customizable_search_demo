@@ -1455,13 +1455,7 @@
       <div id="scenarioNote"></div>
       <div class="srm-filters" id="srmFilters">
         <span class="filter-label">Filter:</span>
-        <button class="filter-chip active">All</button>
-        <button class="filter-chip">On Sale</button>
-        <button class="filter-chip">Under $50</button>
-        <button class="filter-chip">$50–$150</button>
-        <button class="filter-chip">$150+</button>
-        <button class="filter-chip">Men's</button>
-        <button class="filter-chip">Women's</button>
+        <!-- Chips rendered from FILTER_CHIPS config by JS init -->
       </div>
       <div class="search-results-grid" id="searchResultsGrid"></div>
     </div>
@@ -1559,8 +1553,19 @@ const ES_CONFIG = {
 // with customer-specific content.
 // ============================================================
 
+// CUSTOMIZE: Industry-specific labels (defaults are retail)
+const CTA_LABEL = 'Add to Cart';        // Insurance: 'Get a Quote'
+const CART_TITLE = 'Your Cart';          // Insurance: 'Your Quotes'
+const CART_EMPTY_MSG = 'Your cart is empty';  // Insurance: 'No quotes saved'
+const GENAI_TITLE = 'AI Shopping Assistant';  // Insurance: 'AI Insurance Advisor'
+const PERSONA_LABEL = 'Shopping as:';    // Insurance: 'Browsing as:'
+const STORE_LABEL = 'Find a Store';      // Insurance: 'Find a Broker'
+
+// CUSTOMIZE: Filter chips displayed in search results overlay
+const FILTER_CHIPS = ['All', 'On Sale', 'Under $50', '$50–$150', '$150+'];
+// Insurance example: ['All', 'Auto', 'Home', 'Life', 'Business']
+
 // CUSTOMIZE: Persona definitions
-// gender: 'female' | 'male' | 'neutral'
 // preferredBrands: used to rank products in Personalized mode
 // preferredCategories: used to rank product categories in Personalized mode
 // purchaseHistory: cross-sell relevance signals
@@ -1807,7 +1812,8 @@ let agentConversationId = null;
 // ============================================================
 
 function renderProduct(p) {
-  const hasSale = p.sale != null;
+  const hasPrice = p.price != null && p.price > 0;
+  const hasSale = hasPrice && p.sale != null;
   const displayPrice = hasSale ? p.sale : p.price;
   const safeBadge = p.badge ? escapeHtml(p.badge) : '';
   const badgeHtml = p.badge
@@ -1825,20 +1831,21 @@ function renderProduct(p) {
       <div class="product-info">
         <div class="product-brand">${escapeHtml(p.brand)}</div>
         <div class="product-name">${escapeHtml(p.name)}</div>
-        <div class="product-price">
+        ${hasPrice ? `<div class="product-price">
           <span class="price-current">$${displayPrice.toFixed(2)}</span>
           ${hasSale ? `<span class="price-original">$${p.price.toFixed(2)}</span><span class="price-sale">Save $${(p.price - p.sale).toFixed(2)}</span>` : ''}
-        </div>
+        </div>` : ''}
         <div class="product-rating">
           <span class="stars">${'★'.repeat(Math.round(p.rating))}${'☆'.repeat(5 - Math.round(p.rating))}</span>
           <span class="rating-count">(${p.reviews.toLocaleString()})</span>
         </div>
-        <button class="add-to-cart-btn" onclick="addToCart(decodeURIComponent('${productData}'), this)">Add to Cart</button>
+        <button class="add-to-cart-btn" onclick="addToCart(decodeURIComponent('${productData}'), this)">${escapeHtml(CTA_LABEL)}</button>
       </div>
     </div>`;
 }
 
 function renderGenAIProduct(p, index) {
+  const hasPrice = p.price != null && p.price > 0;
   return `
     <div class="genai-product-card">
       <img class="genai-product-img" src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)}" loading="lazy"
@@ -1846,8 +1853,8 @@ function renderGenAIProduct(p, index) {
       <div class="genai-product-info">
         <div class="genai-product-name">${escapeHtml(p.name)}</div>
         <div class="genai-product-brand">${escapeHtml(p.brand)}</div>
-        <div class="genai-product-price">$${p.price.toFixed(2)}</div>
-        <button class="genai-product-cart-btn" data-product-index="${index}">Add to Cart</button>
+        ${hasPrice ? `<div class="genai-product-price">$${p.price.toFixed(2)}</div>` : ''}
+        <button class="genai-product-cart-btn" data-product-index="${index}">${escapeHtml(CTA_LABEL)}</button>
       </div>
     </div>`;
 }
@@ -2002,9 +2009,6 @@ function buildPersonaCrossSellQuery(persona, excludeIds = []) {
   (persona.preferredBrands || []).forEach((brand, i) => {
     should.push({ term: { 'brand.keyword': { value: brand, boost: 4 - i } } });
   });
-  const genderMap = { female: "Women's", male: "Men's" };
-  const genderVal = genderMap[persona.gender];
-  if (genderVal) should.push({ term: { gender: { value: genderVal, boost: 3 } } });
   (persona.preferredCategories || []).forEach(cat => {
     should.push({ term: { category: { value: cat, boost: 2 } } });
   });
@@ -2347,6 +2351,14 @@ async function openScenario(mode, query) {
 }
 
 function wireFilterChips(dataset, query) {
+  // Known price-based filters
+  const priceFilters = {
+    'On Sale': p => p.sale != null,
+    'Under $50': p => (p.sale ?? p.price) < 50,
+    '$50–$150': p => { const pr = p.sale ?? p.price; return pr >= 50 && pr <= 150; },
+    '$150+': p => (p.sale ?? p.price) > 150,
+  };
+
   document.querySelectorAll('.filter-chip').forEach((chip, i) => {
     chip.classList.toggle('active', i === 0);
     chip.onclick = function() {
@@ -2354,12 +2366,15 @@ function wireFilterChips(dataset, query) {
       this.classList.add('active');
       const f = this.textContent;
       let items = [...dataset];
-      if (f === 'On Sale')       items = items.filter(p => p.sale != null);
-      else if (f === 'Under $50') items = items.filter(p => (p.sale ?? p.price) < 50);
-      else if (f === '$50–$150')  items = items.filter(p => { const pr = p.sale ?? p.price; return pr >= 50 && pr <= 150; });
-      else if (f === '$150+')     items = items.filter(p => (p.sale ?? p.price) > 150);
-      else if (f === "Men's")    items = items.filter(p => p.gender === "Men's" || !p.gender);
-      else if (f === "Women's")  items = items.filter(p => p.gender === "Women's" || !p.gender);
+      if (f !== 'All') {
+        if (priceFilters[f]) {
+          items = items.filter(priceFilters[f]);
+        } else {
+          // Category-based filter: match chip label against product category
+          const label = f.toLowerCase();
+          items = items.filter(p => p.category && p.category.toLowerCase().includes(label));
+        }
+      }
       document.getElementById('searchResultsGrid').innerHTML = (items.length ? items : dataset).map(renderProduct).join('');
     };
   });
@@ -2568,7 +2583,9 @@ function renderGenAIProducts(products) {
   productsArea.style.display = 'flex';
 
   const totalPrice = products.reduce((sum, p) => sum + (p.price || 0), 0);
-  addAllBtn.textContent = `Add all ${products.length} to cart — $${totalPrice.toFixed(2)}`;
+  addAllBtn.textContent = totalPrice > 0
+    ? `${CTA_LABEL} — all ${products.length} — $${totalPrice.toFixed(2)}`
+    : `${CTA_LABEL} — all ${products.length}`;
   addAllBtn.style.display = 'block';
   addAllBtn.style.background = '';
   addAllBtn.disabled = false;
@@ -2662,7 +2679,7 @@ function openQueryViewer(mode, query, persona) {
   if (mode === 'genai') {
     titleEl.textContent = 'Agent Builder API Request';
     const payload = {
-      input: `Shopping as ${persona.name} — ${persona.tagline}. Preferred brands: ${persona.preferredBrands.join(', ')}. Query: ${query}`,
+      input: `${PERSONA_LABEL} ${persona.name} — ${persona.tagline}. Preferred brands: ${persona.preferredBrands.join(', ')}. Query: ${query}`,
       agent_id: ES_CONFIG.agentId,
       ...(agentConversationId ? { conversation_id: agentConversationId } : {})
     };
@@ -2742,7 +2759,7 @@ function addToCart(productJson, btn) {
   if (btn) {
     btn.textContent = '✓ Added';
     btn.classList.add('added');
-    setTimeout(() => { btn.textContent = 'Add to Cart'; btn.classList.remove('added'); }, 1500);
+    setTimeout(() => { btn.textContent = CTA_LABEL; btn.classList.remove('added'); }, 1500);
   }
 }
 
@@ -2770,7 +2787,7 @@ function renderCartDrawer() {
   if (cartItems.length === 0) {
     const msg = document.createElement('div');
     msg.className = 'cart-empty-msg';
-    msg.textContent = 'Your cart is empty';
+    msg.textContent = CART_EMPTY_MSG;
     body.appendChild(msg);
     footer.style.display = 'none';
     return;
@@ -2796,19 +2813,24 @@ function renderCartDrawer() {
     name.className = 'cart-item-name';
     name.textContent = p.name;
 
-    const price = document.createElement('div');
-    price.className = 'cart-item-price';
-    price.textContent = `$${Number(p.price).toFixed(2)}`;
-
     info.appendChild(brand);
     info.appendChild(name);
-    info.appendChild(price);
+    if (p.price != null && p.price > 0) {
+      const price = document.createElement('div');
+      price.className = 'cart-item-price';
+      price.textContent = `$${Number(p.price).toFixed(2)}`;
+      info.appendChild(price);
+    }
     item.appendChild(img);
     item.appendChild(info);
     body.appendChild(item);
   });
-  const total = cartItems.reduce((sum, p) => sum + Number(p.price), 0);
-  document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+  const total = cartItems.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
+  if (total > 0) {
+    document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+  } else {
+    document.getElementById('cartTotal').textContent = '';
+  }
   footer.style.display = 'block';
 }
 
@@ -2997,6 +3019,22 @@ heroTimer = setInterval(() => goToSlide(currentSlide + 1), 5500);
 // ============================================================
 // INITIALIZE
 // ============================================================
+
+// Apply configurable labels to HTML elements
+document.querySelector('.persona-label').textContent = PERSONA_LABEL;
+document.querySelector('.action-label').textContent = STORE_LABEL;
+document.querySelector('.cart-drawer-title').textContent = CART_TITLE;
+document.querySelector('.genai-title').textContent = GENAI_TITLE;
+
+// Render filter chips from config
+const filtersContainer = document.getElementById('srmFilters');
+filtersContainer.textContent = '';
+FILTER_CHIPS.forEach((label, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'filter-chip' + (i === 0 ? ' active' : '');
+  btn.textContent = label;
+  filtersContainer.appendChild(btn);
+});
 
 buildPersonaTabs();
 document.getElementById('personaNameDisplay').textContent = activePersona.name;

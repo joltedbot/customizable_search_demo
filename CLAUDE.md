@@ -31,10 +31,21 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 - `.env.template` — credentials template; copy to `.env` before running v2 setup
 - `output/{customer-slug}/demo.html` — generated output, gitignored
 
+**Configurable industry labels (in CONFIGURATION section):**
+- `CTA_LABEL` — button text (default: `'Add to Cart'`; insurance: `'Get a Quote'`)
+- `CART_TITLE` — cart/quote drawer title (default: `'Your Cart'`)
+- `CART_EMPTY_MSG` — empty cart message (default: `'Your cart is empty'`)
+- `GENAI_TITLE` — GenAI overlay title (default: `'AI Shopping Assistant'`)
+- `PERSONA_LABEL` — persona switcher label (default: `'Shopping as:'`)
+- `STORE_LABEL` — store/broker link text (default: `'Find a Store'`)
+- `FILTER_CHIPS` — array of filter chip labels (default: price-based; insurance: category-based like `['All', 'Auto', 'Home', 'Life', 'Business']`)
+
+All labels default to retail values. Non-retail industries override them during SETUP.md execution. Price display is automatically hidden when `price` is `null`.
+
 **Search modes (4):**
 1. Lexical — BM25 on `name^3`, `brand^2`, `tags^1`, `category^1`, `description^0.5`; no filtering (returns noise + real products based on keyword match). Broadened fields ensure queries like "camping gear" surface relevant results.
 2. Hybrid — RRF (Reciprocal Rank Fusion) merges Jina semantic embeddings and BM25 retrieval, filtered to real products
-3. Personalized — Linear retriever with 4 weighted branches: (1) persona-brand-filtered semantic search w/ activity-aware query expansion (weight 3.0), (2) persona-category-filtered semantic search (weight 2.0), (3) general semantic search (weight 1.0), (4) BM25 keyword search (weight 0.8). Results normalized via minmax, then reranked by Jina Reranker v3 (`.jina-reranker-v3` inference endpoint). Personalized by active persona's `preferredBrands`, `preferredCategories`, and `tagline`
+3. Personalized — Linear retriever with 4 weighted branches: (1) persona-brand-filtered semantic search w/ activity-aware query expansion (weight 3.0), (2) persona-category-filtered semantic search (weight 2.0), (3) general semantic search (weight 1.0), (4) BM25 keyword search (weight 0.8). Results normalized via minmax, then reranked by Jina Reranker v3 (`.jina-reranker-v3` inference endpoint). Personalized by active persona's `preferredBrands`, `preferredCategories`, and `tagline`. Gender removed from query signals — personalization is brand + category driven only
 4. GenAI — Dynamic multi-turn chat via Elasticsearch Agent Builder API (SSE streaming with sync fallback); product cards from agent tool results
 
 **Personas (3):** Alex (female), Marcus (male), Sam (neutral) — fixed identities, switcher in header; affect Personalized and GenAI responses
@@ -62,11 +73,15 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 
 **CORS:** Configured in Kibana with regex `/https?:\/\/localhost(:[0-9]+)?/`
 
-**Dataset:** 46 products — 36 real sporting goods + 10 noise (`is_noise: true`). Lexical mode searches all products (noise surfaces naturally for broad queries); all other modes filter AWAY from noise. SAs generate custom datasets during SETUP.md from the `image-library/` JSON files. Each customer gets their own `products-{slug}.json` file and ES index `{ES_INDEX}-{slug}`.
+**Dataset:** 46 products — 36 real sporting goods + 10 noise (`is_noise: true`) as the default dataset. Lexical mode searches all products (noise surfaces naturally for broad queries); all other modes filter AWAY from noise. SAs generate custom datasets during SETUP.md from the `image-library/` JSON files. Each customer gets their own `products-{slug}.json` file and ES index `{ES_INDEX}-{slug}`. Non-retail datasets (e.g., `products-icbc.json` for insurance) use `price: null` and `sale: null` — the template automatically hides price displays.
 
-**Image library:** 5 pre-curated category sets in `image-library/` (~50 images each). SAs pick a set matching their customer's industry. Images are Pexels CDN links — no local storage, no API keys needed. Extensible: add a new industry by adding a new JSON file.
+**Image library:** 6 pre-curated category sets in `image-library/` (~50 images each). SAs pick a set matching their customer's industry. Images are Pexels CDN links — no local storage, no API keys needed. Extensible: add a new industry by adding a new JSON file. Available sets: consumer-electronics, sporting-goods, clothing-fashion, groceries-food, outdoor-camping, insurance.
 
 **RPI plans:** stored in `.claude/plans/` within the repo.
+
+**Key JS config constants in `template/index.html`:**
+- `CTA_LABEL`, `CART_TITLE`, `CART_EMPTY_MSG`, `GENAI_TITLE`, `PERSONA_LABEL`, `STORE_LABEL` — industry-specific labels with retail defaults
+- `FILTER_CHIPS` — array of filter chip labels; price-based by default, category-based for non-retail
 
 **Key JS state variables in `template/index.html`:**
 - `activePersona` — current persona object (alex/marcus/sam); set by persona switcher
