@@ -1914,13 +1914,13 @@ function buildEsQuery(query, mode, persona) {
     };
   }
 
-  // ── Personalized: linear retriever (persona-first brand filtering) → Jina reranker ──
+  // ── Personalized: linear retriever (persona brand + category filtering) → Jina reranker ──
   // Branch 1 (weight 3.0): semantic search restricted to persona's preferred brands +
-  //   activity-aware query expansion using persona tagline. Products from preferred
-  //   brands score ~2.7× higher than non-brand products, biasing the reranker candidate
-  //   pool toward persona-relevant results without arbitrary per-product overrides.
-  // Branch 2 (weight 1.0): general semantic search — fallback and quality signal.
-  // Branch 3 (weight 0.8): BM25 keyword match — ensures keyword-relevant products surface.
+  //   activity-aware query expansion using persona tagline. Dominant signal.
+  // Branch 2 (weight 2.0): semantic search restricted to persona's preferred categories.
+  //   Ensures results skew toward product types the persona cares about.
+  // Branch 3 (weight 1.0): general semantic search — fallback and quality signal.
+  // Branch 4 (weight 0.8): BM25 keyword match — ensures keyword-relevant products surface.
   // minmax normalization puts all branches on the same 0–1 scale before weighting.
   if (mode === 'personalized') {
     const semanticQueryPersona = persona
@@ -1946,12 +1946,25 @@ function buildEsQuery(query, mode, persona) {
                   },
                   weight: 3.0
                 },
-                // Branch 2: general semantic (raw query, no brand filter)
+                // Branch 2: persona-category filtered semantic (category affinity signal)
+                {
+                  retriever: {
+                    standard: {
+                      query: { semantic: { field: 'description.semantic', query: semanticQueryPersona } },
+                      filter: [
+                        { term: { is_noise: false } },
+                        { terms: { category: persona.preferredCategories || [] } }
+                      ]
+                    }
+                  },
+                  weight: 2.0
+                },
+                // Branch 3: general semantic (raw query, no brand filter)
                 {
                   retriever: semanticRetriever,
                   weight: 1.0
                 },
-                // Branch 3: BM25 keyword match (raw query, no brand filter)
+                // Branch 4: BM25 keyword match (raw query, no brand filter)
                 {
                   retriever: bm25Retriever,
                   weight: 0.8
