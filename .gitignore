@@ -6,4 +6,5 @@ node_modules/
 .agents
 .DS_Store
 scripts/data/products-*.json
+scripts/data/personas-*.json
 sbom.cdx.json

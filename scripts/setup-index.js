@@ -16,6 +16,7 @@
  *
  * The --slug flag:
  *   - Reads product data from scripts/data/products-{slug}.json instead of products.json
+ *   - Reads persona data from scripts/data/personas-{slug}.json instead of personas.json
  *   - Appends -{slug} to index names (e.g. demo-products → demo-products-sportchek, demo-personas → demo-personas-sportchek)
  *   - Agent Builder tools/agent IDs are also suffixed
  *   - Without --slug, behaviour is unchanged (uses products.json and base index names)
@@ -334,9 +335,11 @@ async function createPersonaIndex(client, indexName) {
   }
 }
 
-async function seedPersonas(client, indexName) {
+async function seedPersonas(client, indexName, slug) {
   step('Indexing personas...');
-  const personasPath = path.join(__dirname, 'data', 'personas.json');
+  const personasPath = slug
+    ? path.join(__dirname, 'data', `personas-${slug}.json`)
+    : path.join(__dirname, 'data', 'personas.json');
   let personas;
   try {
     personas = JSON.parse(fs.readFileSync(personasPath, 'utf8'));
@@ -649,7 +652,7 @@ async function main() {
     await createPersonaIndex(client, personaIndex);
   }
 
-  await seedPersonas(client, personaIndex);
+  await seedPersonas(client, personaIndex, slug);
 
   // Agent Builder setup (Kibana API)
   const kibanaUrl = process.env.KIBANA_URL;
