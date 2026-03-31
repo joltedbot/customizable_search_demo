@@ -329,7 +329,7 @@ Replace `SUGGESTIONS.trending` with 7 search terms appropriate to the industry a
 
 **Edit target:** the `const PERSONAS` object and the `let activePersona` initialisation line in the JS.
 
-The personas are fixed as Alex (female), Marcus (male), and Sam (neutral). Customize only `preferredBrands` and `purchaseHistory` to match the customer's product set. Each persona must have:
+The personas are fixed as Alex (female), Marcus (male), and Sam (neutral). Customize `preferredBrands`, `preferredCategories`, and `purchaseHistory` to match the customer's product set. Each persona must have:
 
 ```js
 {
@@ -339,13 +339,14 @@ The personas are fixed as Alex (female), Marcus (male), and Sam (neutral). Custo
   gender: 'female' | 'male' | 'neutral',
   tagline: 'One sentence buyer profile',
   preferredBrands: [...],  // 3–5 brand names relevant to the industry
+  preferredCategories: [...],   // 3–4 category slugs from the product index (e.g. 'running-shoes', 'backpacks')
   purchaseHistory: [...],  // 4–6 product types they've bought
   clickHistory: [...],     // 3–5 product types they've browsed
   season: 'summer',
 }
 ```
 
-Customize `preferredBrands` and `purchaseHistory` to reflect the customer's actual product set and industry. Keep the persona names, genders, and IDs fixed.
+Customize `preferredBrands`, `preferredCategories`, and `purchaseHistory` to reflect the customer's actual product set and industry. `preferredCategories` values must be exact `category` field values from the product index. Keep the persona names, genders, and IDs fixed.
 
 ---
 
