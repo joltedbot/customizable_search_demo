@@ -5,6 +5,7 @@
     "tagline": "Competitive runner, loves performance gear",
     "gender": "female",
     "preferredBrands": ["Nike", "On Running", "Puma", "Oakley"],
+    "preferredCategories": ["running-shoes", "sunglasses", "yoga-mats"],
     "purchaseHistory": ["running shoes", "racing flats", "sport sunglasses", "yoga mat"],
     "clickHistory": ["running shoes", "foam rollers", "water bottles"],
     "season": "summer"
@@ -15,6 +16,7 @@
     "tagline": "Trail runner and outdoor adventurer",
     "gender": "male",
     "preferredBrands": ["TrailTech", "The North Face", "Osprey", "Hydro Flask"],
+    "preferredCategories": ["running-shoes", "backpacks", "water-bottles", "cycling-helmets"],
     "purchaseHistory": ["trail shoes", "backpack", "water bottle", "cycling helmet"],
     "clickHistory": ["hiking backpacks", "trail runners", "sunglasses"],
     "season": "summer"
@@ -25,6 +27,7 @@
     "tagline": "General fitness, building a home gym",
     "gender": "neutral",
     "preferredBrands": ["Nike", "Under Armour", "Adidas", "IronForge"],
+    "preferredCategories": ["dumbbells", "boxing-gloves", "yoga-mats", "foam-rollers"],
     "purchaseHistory": ["dumbbells", "gym backpack", "yoga mat", "foam roller"],
     "clickHistory": ["boxing gloves", "dumbbells", "yoga mats"],
     "season": "summer"
