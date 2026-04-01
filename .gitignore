@@ -6,5 +6,7 @@ node_modules/
 .agents
 .DS_Store
 scripts/data/products-*.json
+!scripts/data/products-banking.json
 scripts/data/personas-*.json
+!scripts/data/personas-banking.json
 sbom.cdx.json

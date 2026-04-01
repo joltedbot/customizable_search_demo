@@ -1,0 +1,35 @@
+[
+  {
+    "id": "alex",
+    "name": "Alex",
+    "tagline": "Young professional building credit and starting to save",
+    "gender": "female",
+    "preferredBrands": ["Your Bank"],
+    "preferredCategories": ["everyday-credit-cards", "everyday-deposits", "everyday-chequing"],
+    "purchaseHistory": ["student credit card", "high-interest savings account", "no-fee chequing"],
+    "clickHistory": ["cashback rewards card", "TFSA", "personal loan"],
+    "season": "summer"
+  },
+  {
+    "id": "marcus",
+    "name": "Marcus",
+    "tagline": "Homeowner with a family, managing a mortgage and investments",
+    "gender": "male",
+    "preferredBrands": ["Your Bank"],
+    "preferredCategories": ["borrowing-mortgages", "saving-investments", "saving-registered"],
+    "purchaseHistory": ["fixed rate mortgage", "RRSP", "premium chequing", "family credit card"],
+    "clickHistory": ["home equity line of credit", "RESP", "managed portfolio"],
+    "season": "summer"
+  },
+  {
+    "id": "sam",
+    "name": "Sam",
+    "tagline": "Small business owner looking for commercial banking solutions",
+    "gender": "neutral",
+    "preferredBrands": ["Your Bank"],
+    "preferredCategories": ["business-banking", "borrowing-lines-of-credit", "saving-gics"],
+    "purchaseHistory": ["business chequing account", "business credit card", "business line of credit"],
+    "clickHistory": ["merchant services", "business GIC", "commercial mortgage"],
+    "season": "summer"
+  }
+]

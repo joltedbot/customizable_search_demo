@@ -32,13 +32,13 @@ Project-specific instructions for the Customizable Search Demo. General workflow
 - `output/{customer-slug}/demo.html` — generated output, gitignored
 
 **Configurable industry labels (in CONFIGURATION section):**
-- `CTA_LABEL` — button text (default: `'Add to Cart'`; insurance: `'Get a Quote'`)
-- `CART_TITLE` — cart/quote drawer title (default: `'Your Cart'`)
-- `CART_EMPTY_MSG` — empty cart message (default: `'Your cart is empty'`)
-- `GENAI_TITLE` — GenAI overlay title (default: `'AI Shopping Assistant'`)
-- `PERSONA_LABEL` — persona switcher label (default: `'Shopping as:'`)
-- `STORE_LABEL` — store/broker link text (default: `'Find a Store'`)
-- `FILTER_CHIPS` — array of filter chip labels (default: price-based; insurance: category-based like `['All', 'Auto', 'Home', 'Life', 'Business']`)
+- `CTA_LABEL` — button text (default: `'Add to Cart'`; insurance: `'Get a Quote'`; banking: `'Learn More'`)
+- `CART_TITLE` — cart/quote drawer title (default: `'Your Cart'`; banking: `'Saved Products'`)
+- `CART_EMPTY_MSG` — empty cart message (default: `'Your cart is empty'`; banking: `'No products saved'`)
+- `GENAI_TITLE` — GenAI overlay title (default: `'AI Shopping Assistant'`; banking: `'AI Banking Advisor'`)
+- `PERSONA_LABEL` — persona switcher label (default: `'Shopping as:'`; banking: `'Browsing as:'`)
+- `STORE_LABEL` — store/broker link text (default: `'Find a Store'`; banking: `'Find a Branch'`)
+- `FILTER_CHIPS` — array of filter chip labels (default: price-based; insurance: category-based like `['All', 'Auto', 'Home', 'Life', 'Business']`; banking: `['All', 'Everyday', 'Borrowing', 'Saving', 'Business']`)
 
 All labels default to retail values. Non-retail industries override them during SETUP.md execution. Price display is automatically hidden when `price` is `null`.
 
@@ -73,9 +73,9 @@ All labels default to retail values. Non-retail industries override them during 
 
 **CORS:** Configured in Kibana with regex `/https?:\/\/localhost(:[0-9]+)?/`
 
-**Dataset:** 46 products — 36 real sporting goods + 10 noise (`is_noise: true`) as the default dataset. Lexical mode searches all products (noise surfaces naturally for broad queries); all other modes filter AWAY from noise. SAs generate custom datasets during SETUP.md from the `image-library/` JSON files. Each customer gets their own `products-{slug}.json` file and ES index `{ES_INDEX}-{slug}`. Non-retail datasets (e.g., `products-icbc.json` for insurance) use `price: null` and `sale: null` — the template automatically hides price displays.
+**Dataset:** 46 products — 36 real sporting goods + 10 noise (`is_noise: true`) as the default dataset. Lexical mode searches all products (noise surfaces naturally for broad queries); all other modes filter AWAY from noise. SAs generate custom datasets during SETUP.md from the `image-library/` JSON files. Each customer gets their own `products-{slug}.json` file and ES index `{ES_INDEX}-{slug}`. Non-retail datasets (e.g., `products-icbc.json` for insurance, `products-banking.json` for financial services) use `price: null` and `sale: null` — the template automatically hides price displays.
 
-**Image library:** 6 pre-curated category sets in `image-library/` (~50 images each). SAs pick a set matching their customer's industry. Images are Pexels CDN links — no local storage, no API keys needed. Extensible: add a new industry by adding a new JSON file. Available sets: consumer-electronics, sporting-goods, clothing-fashion, groceries-food, outdoor-camping, insurance.
+**Image library:** 7 pre-curated category sets in `image-library/` (~50 images each). SAs pick a set matching their customer's industry. Images are Pexels CDN links — no local storage, no API keys needed. Extensible: add a new industry by adding a new JSON file. Available sets: consumer-electronics, sporting-goods, clothing-fashion, groceries-food, outdoor-camping, insurance, financial-services.
 
 **RPI plans:** stored in `.claude/plans/` within the repo.
 

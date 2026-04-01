@@ -254,6 +254,7 @@ Wait for the SA to confirm before proceeding to Step 3.
    - `groceries-food.json` — coffee, bread, cheese, chocolate, pasta, craft beverages, etc.
    - `outdoor-camping.json` — tents, sleeping bags, hiking boots, backpacks, camp stoves, lanterns, etc.
    - `insurance.json` — auto, home, tenant, life, travel, business, farm, and specialty insurance
+   - `financial-services.json` — chequing, savings, credit cards, mortgages, personal loans, GICs, investments, business banking
 
    Each file contains ~50 pre-curated image entries with Pexels CDN URLs, suggested product names, brands, and tags. Ask the SA which set best matches their customer, or recommend the closest one. The SA can mix images across sets if needed.
 
@@ -269,15 +270,15 @@ Now apply each customization below as a **targeted Edit** to the copied file. Ea
 
 For non-retail industries (insurance, financial services, etc.), update these constants:
 
-| Constant | Retail Default | Insurance Example |
-|---|---|---|
-| `CTA_LABEL` | `'Add to Cart'` | `'Get a Quote'` |
-| `CART_TITLE` | `'Your Cart'` | `'Your Quotes'` |
-| `CART_EMPTY_MSG` | `'Your cart is empty'` | `'No quotes saved'` |
-| `GENAI_TITLE` | `'AI Shopping Assistant'` | `'AI Insurance Advisor'` |
-| `PERSONA_LABEL` | `'Shopping as:'` | `'Browsing as:'` |
-| `STORE_LABEL` | `'Find a Store'` | `'Find a Broker'` |
-| `FILTER_CHIPS` | `['All', 'On Sale', 'Under $50', '$50–$150', '$150+']` | `['All', 'Auto', 'Home', 'Life', 'Business']` |
+| Constant | Retail Default | Insurance Example | Banking Example |
+|---|---|---|---|
+| `CTA_LABEL` | `'Add to Cart'` | `'Get a Quote'` | `'Learn More'` |
+| `CART_TITLE` | `'Your Cart'` | `'Your Quotes'` | `'Saved Products'` |
+| `CART_EMPTY_MSG` | `'Your cart is empty'` | `'No quotes saved'` | `'No products saved'` |
+| `GENAI_TITLE` | `'AI Shopping Assistant'` | `'AI Insurance Advisor'` | `'AI Banking Advisor'` |
+| `PERSONA_LABEL` | `'Shopping as:'` | `'Browsing as:'` | `'Browsing as:'` |
+| `STORE_LABEL` | `'Find a Store'` | `'Find a Broker'` | `'Find a Branch'` |
+| `FILTER_CHIPS` | `['All', 'On Sale', 'Under $50', '$50–$150', '$150+']` | `['All', 'Auto', 'Home', 'Life', 'Business']` | `['All', 'Everyday', 'Borrowing', 'Saving', 'Business']` |
 
 For retail customers, **skip this step** — the defaults are already correct.
 
@@ -431,6 +432,7 @@ The most compelling demo story uses the **same query** for lexical and hybrid mo
 | Clothing & Fashion | `'everyday wear'` | Returns noise: fabric bolts, costumes — keyword match on "wear" but wrong category |
 | Groceries & Food | `'kitchen essentials'` | Returns noise: cleaning supplies, garden tools — keyword match on "kitchen" but not food |
 | Insurance | `'coverage options'` | Returns noise: legal services, financial planning — keyword match on "coverage" but not insurance products |
+| Banking / Financial Services | `'account options'` | Returns noise: accounting services, insurance accounts — keyword match on "account" but not banking products |
 
 ---
 
