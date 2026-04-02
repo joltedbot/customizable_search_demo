@@ -395,6 +395,8 @@ Before building product data, the SA must review and approve the images that wil
 
 Once approved, use the selected images for all product data in steps 3h–3l below. **Write product data to match the images** — names, descriptions, and brands should reflect what's shown in each image.
 
+**Brand safety for non-retail industries:** For single-brand industries (insurance, banking, financial services, healthcare), ALL real products must use `CUSTOMER_NAME` as the `brand` — never competitor names. Image library `suggestedBrand` placeholders like "Your Insurance Company" or "Your Bank" must be replaced with the actual customer name. Noise products use generic fictional service names only (never real companies or competitors).
+
 ---
 
 ### 3h — Product Catalog (Homepage Grid)
@@ -516,6 +518,8 @@ In v2 mode, search results come from Elasticsearch — not the template constant
 
 **No-price industries:** Set `"price": null` and `"sale": null` for all products. The template automatically hides price displays, cart totals, and price-based filter chips when prices are null.
 
+**Non-retail brand rule:** For single-brand industries (insurance, banking, financial services), set `"brand"` to `CUSTOMER_NAME` on every real product (`is_noise: false`). Never use competitor company names. Noise products use generic fictional brands only.
+
 2. Include all products from the homepage grid, search modes, and GenAI kits. Also include noise products with `"is_noise": true`.
 3. Real product IDs: 1–50. Noise product IDs: 101+.
 4. Write rich `description` fields — these power semantic search (ELSER). Include use cases, features, materials, and scenarios.
@@ -579,6 +583,7 @@ After completing all edits, read back `output/[CUSTOMER_SLUG]/demo.html` and ver
 - `ES_CONFIG` is populated with the correct ES and Kibana credentials, agent ID, and `[ES_INDEX]-[CUSTOMER_SLUG]` index name
 - No references to the template brand names remain unless intentional
 - All image URLs are valid Pexels CDN links from the approved image set
+- For non-retail demos: every real product in `products-[CUSTOMER_SLUG].json` uses `CUSTOMER_NAME` as the brand (zero competitor names)
 
 If any section was missed or still contains template defaults, apply the missing edit before proceeding.
 

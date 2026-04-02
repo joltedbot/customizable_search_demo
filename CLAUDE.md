@@ -75,6 +75,8 @@ All labels default to retail values. Non-retail industries override them during 
 
 **Dataset:** 46 products — 36 real sporting goods + 10 noise (`is_noise: true`) as the default dataset. Lexical mode searches all products (noise surfaces naturally for broad queries); all other modes filter AWAY from noise. SAs generate custom datasets during SETUP.md from the `image-library/` JSON files. Each customer gets their own `products-{slug}.json` file and ES index `{ES_INDEX}-{slug}`. Non-retail datasets (e.g., `products-icbc.json` for insurance, `products-banking.json` for financial services) use `price: null` and `sale: null` — the template automatically hides price displays.
 
+**Brand safety (non-retail datasets):** Single-brand industries (insurance, banking, financial services) must use ONLY the customer company name as `brand` on all real products. Competitor names in brand fields appear in demo search results and could offend customers or lose deals. Noise products use generic fictional brands (never real companies). Image library files for non-retail use placeholder brands ("Your Insurance Company", "Your Bank") that the AI agent replaces with `CUSTOMER_NAME` during SETUP.md execution. Retail datasets (sporting goods, electronics, fashion) correctly use diverse real brand names.
+
 **Image library:** 7 pre-curated category sets in `image-library/` (~50 images each). SAs pick a set matching their customer's industry. Images are Pexels CDN links — no local storage, no API keys needed. Extensible: add a new industry by adding a new JSON file. Available sets: consumer-electronics, sporting-goods, clothing-fashion, groceries-food, outdoor-camping, insurance, financial-services.
 
 **RPI plans:** stored in `.claude/plans/` within the repo.

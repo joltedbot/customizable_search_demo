@@ -6,7 +6,7 @@
     "category": "auto-insurance",
     "tags": ["auto", "car", "vehicle", "driving", "transportation", "insurance"],
     "suggestedName": "Comprehensive Auto Coverage",
-    "suggestedBrand": "ICBC",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Sports car on a road representing auto insurance coverage.",
     "isNoise": false
   },
@@ -17,7 +17,7 @@
     "category": "auto-insurance",
     "tags": ["auto", "car", "sedan", "parking", "vehicle", "insurance"],
     "suggestedName": "Basic Autoplan Insurance",
-    "suggestedBrand": "ICBC",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Parked sedan in an urban setting representing basic auto coverage.",
     "isNoise": false
   },
@@ -28,7 +28,7 @@
     "category": "auto-insurance",
     "tags": ["auto", "car", "road", "highway", "driving", "safety"],
     "suggestedName": "Collision Protection Plan",
-    "suggestedBrand": "ICBC",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Car driving on a highway representing collision coverage.",
     "isNoise": false
   },
@@ -39,7 +39,7 @@
     "category": "auto-insurance",
     "tags": ["auto", "car", "electric", "modern", "vehicle", "insurance"],
     "suggestedName": "Electric Vehicle Coverage",
-    "suggestedBrand": "Intact",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Modern electric vehicle representing EV insurance options.",
     "isNoise": false
   },
@@ -50,7 +50,7 @@
     "category": "auto-insurance",
     "tags": ["auto", "car", "luxury", "vehicle", "premium", "insurance"],
     "suggestedName": "Premium Auto Shield",
-    "suggestedBrand": "Aviva",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Luxury car showcasing premium auto insurance coverage.",
     "isNoise": false
   },
@@ -61,7 +61,7 @@
     "category": "auto-insurance",
     "tags": ["auto", "car", "SUV", "family", "vehicle", "insurance"],
     "suggestedName": "Family Vehicle Protection",
-    "suggestedBrand": "Wawanesa",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Family SUV representing vehicle protection for families.",
     "isNoise": false
   },
@@ -72,7 +72,7 @@
     "category": "auto-insurance",
     "tags": ["auto", "car", "classic", "vintage", "vehicle", "insurance"],
     "suggestedName": "Third-Party Liability Coverage",
-    "suggestedBrand": "ICBC",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Classic car representing third-party liability insurance.",
     "isNoise": false
   },
@@ -83,7 +83,7 @@
     "category": "auto-insurance",
     "tags": ["auto", "car", "new", "dealership", "vehicle", "insurance"],
     "suggestedName": "New Vehicle Replacement Coverage",
-    "suggestedBrand": "Intact",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Aerial view of car dealership lot representing new vehicle replacement coverage.",
     "isNoise": false
   },
@@ -94,7 +94,7 @@
     "category": "auto-insurance",
     "tags": ["auto", "car", "road", "winter", "driving", "safety"],
     "suggestedName": "Hit-and-Run Protection",
-    "suggestedBrand": "ICBC",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Car on a winter road representing hit-and-run protection.",
     "isNoise": false
   },
@@ -105,7 +105,7 @@
     "category": "auto-insurance",
     "tags": ["auto", "car", "parking", "urban", "commute", "insurance"],
     "suggestedName": "Roadside Assistance Plus",
-    "suggestedBrand": "ICBC",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Car parked in urban setting representing roadside assistance.",
     "isNoise": false
   },
@@ -116,7 +116,7 @@
     "category": "home-insurance",
     "tags": ["home", "house", "property", "residential", "family", "insurance"],
     "suggestedName": "Homeowner Protection Plan",
-    "suggestedBrand": "Wawanesa",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Beautiful family home representing homeowner insurance.",
     "isNoise": false
   },
@@ -127,7 +127,7 @@
     "category": "home-insurance",
     "tags": ["home", "house", "modern", "architecture", "property", "insurance"],
     "suggestedName": "Premium Home Coverage",
-    "suggestedBrand": "Intact",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Modern home exterior representing premium home insurance.",
     "isNoise": false
   },
@@ -138,7 +138,7 @@
     "category": "home-insurance",
     "tags": ["home", "house", "suburban", "neighborhood", "property", "insurance"],
     "suggestedName": "Comprehensive Home Shield",
-    "suggestedBrand": "Wawanesa",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Suburban home in a quiet neighborhood representing comprehensive coverage.",
     "isNoise": false
   },
@@ -149,7 +149,7 @@
     "category": "home-insurance",
     "tags": ["home", "house", "architecture", "property", "residential", "insurance"],
     "suggestedName": "Dwelling Fire Coverage",
-    "suggestedBrand": "Aviva",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Residential property representing dwelling fire insurance.",
     "isNoise": false
   },
@@ -160,7 +160,7 @@
     "category": "home-insurance",
     "tags": ["home", "house", "luxury", "estate", "property", "insurance"],
     "suggestedName": "High-Value Home Protection",
-    "suggestedBrand": "Intact",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Luxury estate representing high-value home insurance.",
     "isNoise": false
   },
@@ -171,7 +171,7 @@
     "category": "home-insurance",
     "tags": ["home", "house", "cottage", "seasonal", "property", "insurance"],
     "suggestedName": "Seasonal Property Coverage",
-    "suggestedBrand": "Wawanesa",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Cottage-style home representing seasonal property insurance.",
     "isNoise": false
   },
@@ -182,7 +182,7 @@
     "category": "home-insurance",
     "tags": ["home", "house", "renovation", "construction", "improvement", "insurance"],
     "suggestedName": "Home Renovation Coverage",
-    "suggestedBrand": "Aviva",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Home renovation project representing renovation insurance.",
     "isNoise": false
   },
@@ -193,7 +193,7 @@
     "category": "home-insurance",
     "tags": ["home", "interior", "living-room", "contents", "property", "insurance"],
     "suggestedName": "Contents Protection Plan",
-    "suggestedBrand": "Wawanesa",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Home interior representing contents insurance coverage.",
     "isNoise": false
   },
@@ -204,7 +204,7 @@
     "category": "tenant-insurance",
     "tags": ["apartment", "rental", "tenant", "urban", "living", "insurance"],
     "suggestedName": "Tenant Protection Basic",
-    "suggestedBrand": "Wawanesa",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "City apartment building representing tenant insurance.",
     "isNoise": false
   },
@@ -215,7 +215,7 @@
     "category": "tenant-insurance",
     "tags": ["apartment", "condo", "urban", "rental", "building", "insurance"],
     "suggestedName": "Condo Unit Coverage",
-    "suggestedBrand": "Intact",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Condominium building representing condo unit insurance.",
     "isNoise": false
   },
@@ -226,7 +226,7 @@
     "category": "tenant-insurance",
     "tags": ["apartment", "interior", "rental", "bedroom", "tenant", "insurance"],
     "suggestedName": "Renter's Contents Coverage",
-    "suggestedBrand": "Aviva",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Apartment bedroom interior representing renter's contents insurance.",
     "isNoise": false
   },
@@ -237,7 +237,7 @@
     "category": "tenant-insurance",
     "tags": ["apartment", "modern", "city", "rental", "living", "insurance"],
     "suggestedName": "Tenant Liability Shield",
-    "suggestedBrand": "Wawanesa",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Modern city apartment representing tenant liability coverage.",
     "isNoise": false
   },
@@ -248,7 +248,7 @@
     "category": "tenant-insurance",
     "tags": ["apartment", "studio", "rental", "compact", "urban", "insurance"],
     "suggestedName": "Student Renter's Plan",
-    "suggestedBrand": "Intact",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Studio apartment representing affordable student renter's insurance.",
     "isNoise": false
   },
@@ -259,7 +259,7 @@
     "category": "life-insurance",
     "tags": ["family", "life", "health", "people", "protection", "insurance"],
     "suggestedName": "Term Life Protection",
-    "suggestedBrand": "Pacific Blue Cross",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Happy family representing term life insurance coverage.",
     "isNoise": false
   },
@@ -270,7 +270,7 @@
     "category": "life-insurance",
     "tags": ["family", "children", "life", "future", "protection", "insurance"],
     "suggestedName": "Whole Life Coverage",
-    "suggestedBrand": "Aviva",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Parent with child representing whole life insurance.",
     "isNoise": false
   },
@@ -281,7 +281,7 @@
     "category": "life-insurance",
     "tags": ["family", "parent", "life", "health", "wellness", "insurance"],
     "suggestedName": "Critical Illness Coverage",
-    "suggestedBrand": "Pacific Blue Cross",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Joyful family portrait with parents holding baby in a sunny outdoor setting.",
     "isNoise": false
   },
@@ -292,7 +292,7 @@
     "category": "life-insurance",
     "tags": ["health", "medical", "wellness", "life", "care", "insurance"],
     "suggestedName": "Health & Dental Benefits",
-    "suggestedBrand": "Pacific Blue Cross",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Close-up of stethoscope on blue background representing health benefits.",
     "isNoise": false
   },
@@ -303,7 +303,7 @@
     "category": "life-insurance",
     "tags": ["senior", "retirement", "life", "elder", "care", "insurance"],
     "suggestedName": "Retirement Life Plan",
-    "suggestedBrand": "Aviva",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Senior couple representing retirement life insurance.",
     "isNoise": false
   },
@@ -314,7 +314,7 @@
     "category": "travel-insurance",
     "tags": ["travel", "airport", "flight", "vacation", "trip", "insurance"],
     "suggestedName": "Single Trip Travel Coverage",
-    "suggestedBrand": "Intact",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Airport terminal representing single trip travel insurance.",
     "isNoise": false
   },
@@ -325,7 +325,7 @@
     "category": "travel-insurance",
     "tags": ["travel", "luggage", "suitcase", "vacation", "trip", "insurance"],
     "suggestedName": "Annual Multi-Trip Plan",
-    "suggestedBrand": "Aviva",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Travel luggage representing annual multi-trip insurance.",
     "isNoise": false
   },
@@ -336,7 +336,7 @@
     "category": "travel-insurance",
     "tags": ["travel", "destination", "landscape", "adventure", "trip", "insurance"],
     "suggestedName": "Adventure Travel Protection",
-    "suggestedBrand": "Intact",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Mountain landscape representing adventure travel insurance.",
     "isNoise": false
   },
@@ -347,7 +347,7 @@
     "category": "travel-insurance",
     "tags": ["travel", "passport", "documents", "international", "trip", "insurance"],
     "suggestedName": "Travel Medical Emergency",
-    "suggestedBrand": "Pacific Blue Cross",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Travel documents and passport representing travel medical coverage.",
     "isNoise": false
   },
@@ -358,7 +358,7 @@
     "category": "travel-insurance",
     "tags": ["travel", "beach", "vacation", "resort", "leisure", "insurance"],
     "suggestedName": "Cancellation & Interruption Plan",
-    "suggestedBrand": "Aviva",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Beach vacation scene representing trip cancellation insurance.",
     "isNoise": false
   },
@@ -369,7 +369,7 @@
     "category": "business-insurance",
     "tags": ["business", "office", "commercial", "workplace", "professional", "insurance"],
     "suggestedName": "Commercial General Liability",
-    "suggestedBrand": "Intact",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Modern office building representing commercial liability insurance.",
     "isNoise": false
   },
@@ -380,7 +380,7 @@
     "category": "business-insurance",
     "tags": ["business", "office", "team", "professional", "workplace", "insurance"],
     "suggestedName": "Professional Liability Coverage",
-    "suggestedBrand": "Aviva",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Office team meeting representing professional liability insurance.",
     "isNoise": false
   },
@@ -391,7 +391,7 @@
     "category": "business-insurance",
     "tags": ["business", "construction", "contractor", "building", "commercial", "insurance"],
     "suggestedName": "Contractor's Insurance Package",
-    "suggestedBrand": "Wawanesa",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Construction site representing contractor's insurance.",
     "isNoise": false
   },
@@ -402,7 +402,7 @@
     "category": "business-insurance",
     "tags": ["business", "storefront", "retail", "shop", "commercial", "insurance"],
     "suggestedName": "Small Business Protection",
-    "suggestedBrand": "Wawanesa",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Retail storefront representing small business insurance.",
     "isNoise": false
   },
@@ -413,7 +413,7 @@
     "category": "business-insurance",
     "tags": ["business", "warehouse", "inventory", "commercial", "storage", "insurance"],
     "suggestedName": "Business Interruption Coverage",
-    "suggestedBrand": "Intact",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Industrial warehouse with storage units representing business interruption coverage.",
     "isNoise": false
   },
@@ -424,7 +424,7 @@
     "category": "farm-insurance",
     "tags": ["farm", "agriculture", "rural", "crop", "field", "insurance"],
     "suggestedName": "Crop & Field Coverage",
-    "suggestedBrand": "Wawanesa",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Agricultural field representing crop insurance.",
     "isNoise": false
   },
@@ -435,7 +435,7 @@
     "category": "farm-insurance",
     "tags": ["farm", "barn", "rural", "agriculture", "livestock", "insurance"],
     "suggestedName": "Farm Building Protection",
-    "suggestedBrand": "Wawanesa",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Red barn on farmland representing farm building insurance.",
     "isNoise": false
   },
@@ -446,7 +446,7 @@
     "category": "farm-insurance",
     "tags": ["farm", "livestock", "cattle", "agriculture", "rural", "insurance"],
     "suggestedName": "Livestock Protection Plan",
-    "suggestedBrand": "Intact",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Cattle on pasture representing livestock insurance.",
     "isNoise": false
   },
@@ -457,7 +457,7 @@
     "category": "farm-insurance",
     "tags": ["farm", "equipment", "tractor", "agriculture", "machinery", "insurance"],
     "suggestedName": "Farm Equipment Coverage",
-    "suggestedBrand": "Aviva",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Farm tractor representing agricultural equipment insurance.",
     "isNoise": false
   },
@@ -468,7 +468,7 @@
     "category": "specialty-insurance",
     "tags": ["motorcycle", "bike", "vehicle", "recreation", "specialty", "insurance"],
     "suggestedName": "Motorcycle Coverage",
-    "suggestedBrand": "ICBC",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Motorcycle representing specialty motorcycle insurance.",
     "isNoise": false
   },
@@ -479,7 +479,7 @@
     "category": "specialty-insurance",
     "tags": ["boat", "marine", "watercraft", "recreation", "specialty", "insurance"],
     "suggestedName": "Watercraft & Marine Coverage",
-    "suggestedBrand": "Intact",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Boat on water representing marine insurance.",
     "isNoise": false
   },
@@ -490,7 +490,7 @@
     "category": "specialty-insurance",
     "tags": ["pet", "dog", "animal", "companion", "specialty", "insurance"],
     "suggestedName": "Pet Health Insurance",
-    "suggestedBrand": "Pacific Blue Cross",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Dogs representing pet health insurance coverage.",
     "isNoise": false
   },
@@ -501,7 +501,7 @@
     "category": "specialty-insurance",
     "tags": ["RV", "camper", "recreational", "travel", "specialty", "insurance"],
     "suggestedName": "RV & Camper Protection",
-    "suggestedBrand": "Aviva",
+    "suggestedBrand": "Your Insurance Company",
     "alt": "Recreational vehicle representing RV insurance.",
     "isNoise": false
   },
