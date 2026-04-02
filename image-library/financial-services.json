@@ -1,13 +1,13 @@
 [
   {
-    "id": "pexels-4968633",
-    "pexelsId": 4968633,
-    "url": "https://images.pexels.com/photos/4968633/pexels-photo-4968633.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "id": "pexels-17235420",
+    "pexelsId": 17235420,
+    "url": "https://images.pexels.com/photos/17235420/pexels-photo-17235420.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
     "category": "everyday-chequing",
     "tags": ["debit", "card", "contactless", "payment", "tap", "banking"],
     "suggestedName": "Everyday Chequing Account",
     "suggestedBrand": "Your Bank",
-    "alt": "Hand using a card for a contactless payment on a terminal.",
+    "alt": "Close-up view of a modern contactless payment terminal for seamless transactions.",
     "isNoise": false
   },
   {
@@ -44,14 +44,14 @@
     "isNoise": false
   },
   {
-    "id": "pexels-5717993",
-    "pexelsId": 5717993,
-    "url": "https://images.pexels.com/photos/5717993/pexels-photo-5717993.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "id": "pexels-6279104",
+    "pexelsId": 6279104,
+    "url": "https://images.pexels.com/photos/6279104/pexels-photo-6279104.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
     "category": "everyday-chequing",
     "tags": ["laptop", "online", "banking", "transaction", "card", "digital"],
     "suggestedName": "Student Chequing Account",
     "suggestedBrand": "Your Bank",
-    "alt": "Close-up of hands using a laptop and holding a card for an online transaction.",
+    "alt": "A woman makes a secure online payment using a laptop and credit card in a cozy setting.",
     "isNoise": false
   },
   {
@@ -506,14 +506,14 @@
     "isNoise": false
   },
   {
-    "id": "pexels-10376294",
-    "pexelsId": 10376294,
-    "url": "https://images.pexels.com/photos/10376294/pexels-photo-10376294.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
+    "id": "pexels-3643926",
+    "pexelsId": 3643926,
+    "url": "https://images.pexels.com/photos/3643926/pexels-photo-3643926.jpeg?auto=compress&cs=tinysrgb&w=400&h=480&fit=crop",
     "category": "business-banking",
     "tags": ["business", "local", "sign", "window", "community", "storefront"],
     "suggestedName": "Merchant Services Account",
     "suggestedBrand": "Your Bank",
-    "alt": "Business sign taped on a window, seen from outside a store.",
+    "alt": "Metal open sign hanging on a shop door, inviting customers in.",
     "isNoise": false
   },
   {

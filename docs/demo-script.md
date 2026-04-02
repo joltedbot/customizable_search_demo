@@ -108,7 +108,7 @@ This query is intentionally vague — there's no strong keyword or category sign
 
 ### What to point out (across all three)
 - "Three people, one query, three different result sets — ranked by *who they are*, not just what they typed"
-- Point out the **"Picked for [Name]"** cross-sell section at the bottom — these are products based on the persona's purchase history and brand affinity, not the search query
+- Point out the **"Picked for [Name]"** cross-sell section at the bottom — these are products based on the persona's brand affinity, category affinity, and purchase history, not the search query
 - "This is what it looks like when search becomes a personal shopper"
 - "Two dimensions of personalization working together: **brand affinity** decides *which* running shoe you see, **category affinity** decides *whether* you see running shoes at all vs. dumbbells or backpacks"
 
