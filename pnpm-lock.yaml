@@ -7,13 +7,17 @@ settings:
 importers:
 
   .:
+    dependencies:
+      libxmljs2:
+        specifier: 0.37.0
+        version: 0.37.0
     devDependencies:
       '@cyclonedx/cyclonedx-npm':
         specifier: ^4.2.1
         version: 4.2.1
       '@elastic/elasticsearch':
-        specifier: ^8.0.0
-        version: 8.19.1
+        specifier: ^9.3.0
+        version: 9.3.4
       serve:
         specifier: ^14.0.0
         version: 14.2.6
@@ -52,13 +56,13 @@ packages:
     engines: {node: '>=20.18.0', npm: '>=9'}
     hasBin: true
 
-  '@elastic/elasticsearch@8.19.1':
-    resolution: {integrity: sha512-+1j9NnQVOX+lbWB8LhCM7IkUmjU05Y4+BmSLfusq0msCsQb1Va+OUKFCoOXjCJqQrcgdRdQCjYYyolQ/npQALQ==}
+  '@elastic/elasticsearch@9.3.4':
+    resolution: {integrity: sha512-Mp14fPEYx+WTfZdcvAaZ9WkLYGHQCbwMx6EP5VCucYdhv4cn/g2sbnMT5HzK+gX3XEpBnnkEK/+WysCKzxuo3A==}
     engines: {node: '>=18'}
 
-  '@elastic/transport@8.10.1':
-    resolution: {integrity: sha512-xo2lPBAJEt81fQRAKa9T/gUq1SPGBHpSnVUXhoSpL996fPZRAfQwFA4BZtEUQL1p8Dezodd3ZN8Wwno+mYyKuw==}
-    engines: {node: '>=18'}
+  '@elastic/transport@9.3.5':
+    resolution: {integrity: sha512-hIMJbt1guqr3/N2zCN45k9hw9o78qcdsO0xietLe+Bfa+JL0YafHTgkWkM1oT3Ht5sGMJaDcJZiYomSMU6CtTA==}
+    engines: {node: '>=20'}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -755,8 +759,8 @@ packages:
   schemes@1.4.0:
     resolution: {integrity: sha512-ImFy9FbCsQlVgnE3TCWmLPCFnVzx0lHL/l+umHplDqAKd0dzFpnS6lFZIpagBlYhKwzVmlV36ec0Y1XTu8JBAQ==}
 
-  secure-json-parse@3.0.2:
-    resolution: {integrity: sha512-H6nS2o8bWfpFEV6U38sOSjS7bTbdgbCGU9wEM6W14P5H0QOsz94KCusifV44GpHDTu2nqZbuDNhTzu+mjDSw1w==}
+  secure-json-parse@4.1.0:
+    resolution: {integrity: sha512-l4KnYfEyqYJxDwlNVyRfO2E4NTHfMKAWdUuA8J0yve2Dz/E/PdBepY03RvyJpssIpRFwJoCD55wA+mEDs6ByWA==}
 
   semver@7.7.4:
     resolution: {integrity: sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==}
@@ -894,9 +898,9 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
-  undici@6.24.1:
-    resolution: {integrity: sha512-sC+b0tB1whOCzbtlx20fx3WgCXwkW627p4EA9uM+/tNNPkSS+eSEld6pAs9nDv7WbY1UUljBMYPtu9BCOrCWKA==}
-    engines: {node: '>=18.17'}
+  undici@7.25.0:
+    resolution: {integrity: sha512-xXnp4kTyor2Zq+J1FfPI6Eq3ew5h6Vl0F/8d9XU5zZQf1tX9s2Su1/3PiMmUANFULpmksxkClamIZcaUqryHsQ==}
+    engines: {node: '>=20.18.1'}
 
   unique-filename@4.0.0:
     resolution: {integrity: sha512-XSnEewXmQ+veP7xX2dS5Q4yZAvO40cBN2MWkJ7D/6sW4Dg6wYBNwM1Vrnz1FhH5AdeLIlUXRI9e28z1YZi71NQ==}
@@ -990,25 +994,25 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@elastic/elasticsearch@8.19.1':
+  '@elastic/elasticsearch@9.3.4':
     dependencies:
-      '@elastic/transport': 8.10.1
+      '@elastic/transport': 9.3.5
       apache-arrow: 21.1.0
       tslib: 2.8.1
     transitivePeerDependencies:
       - '@75lb/nature'
       - supports-color
 
-  '@elastic/transport@8.10.1':
+  '@elastic/transport@9.3.5':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.6.1(@opentelemetry/api@1.9.1)
       debug: 4.4.3
       hpagent: 1.2.0
       ms: 2.1.3
-      secure-json-parse: 3.0.2
+      secure-json-parse: 4.1.0
       tslib: 2.8.1
-      undici: 6.24.1
+      undici: 7.25.0
     transitivePeerDependencies:
       - supports-color
 
@@ -1020,12 +1024,10 @@ snapshots:
       strip-ansi-cjs: strip-ansi@6.0.1
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
-    optional: true
 
   '@isaacs/fs-minipass@4.0.1':
     dependencies:
       minipass: 7.1.3
-    optional: true
 
   '@npmcli/agent@3.0.0':
     dependencies:
@@ -1036,12 +1038,10 @@ snapshots:
       socks-proxy-agent: 8.0.5
     transitivePeerDependencies:
       - supports-color
-    optional: true
 
   '@npmcli/fs@4.0.0':
     dependencies:
       semver: 7.7.4
-    optional: true
 
   '@oozcitak/dom@2.0.2':
     dependencies:
@@ -1086,11 +1086,9 @@ snapshots:
 
   '@zeit/schemas@2.36.0': {}
 
-  abbrev@3.0.1:
-    optional: true
+  abbrev@3.0.1: {}
 
-  agent-base@7.1.4:
-    optional: true
+  agent-base@7.1.4: {}
 
   ajv-formats-draft2019@1.6.1(ajv@8.18.0):
     dependencies:
@@ -1151,20 +1149,17 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  base64-js@1.5.1:
-    optional: true
+  base64-js@1.5.1: {}
 
   bindings@1.5.0:
     dependencies:
       file-uri-to-path: 1.0.0
-    optional: true
 
   bl@4.1.0:
     dependencies:
       buffer: 5.7.1
       inherits: 2.0.4
       readable-stream: 3.6.2
-    optional: true
 
   boxen@7.0.0:
     dependencies:
@@ -1185,13 +1180,11 @@ snapshots:
   brace-expansion@2.0.3:
     dependencies:
       balanced-match: 1.0.2
-    optional: true
 
   buffer@5.7.1:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
-    optional: true
 
   bytes@3.0.0: {}
 
@@ -1211,7 +1204,6 @@ snapshots:
       ssri: 12.0.0
       tar: 7.5.13
       unique-filename: 4.0.0
-    optional: true
 
   camelcase@7.0.1: {}
 
@@ -1226,11 +1218,9 @@ snapshots:
 
   chalk@5.0.1: {}
 
-  chownr@1.1.4:
-    optional: true
+  chownr@1.1.4: {}
 
-  chownr@3.0.0:
-    optional: true
+  chownr@3.0.0: {}
 
   cli-boxes@3.0.0: {}
 
@@ -1302,12 +1292,10 @@ snapshots:
   decompress-response@6.0.0:
     dependencies:
       mimic-response: 3.1.0
-    optional: true
 
   deep-extend@0.6.0: {}
 
-  detect-libc@2.1.2:
-    optional: true
+  detect-libc@2.1.2: {}
 
   discontinuous-range@1.0.0:
     optional: true
@@ -1326,13 +1314,10 @@ snapshots:
   end-of-stream@1.4.5:
     dependencies:
       once: 1.4.0
-    optional: true
 
-  env-paths@2.2.1:
-    optional: true
+  env-paths@2.2.1: {}
 
-  err-code@2.0.3:
-    optional: true
+  err-code@2.0.3: {}
 
   execa@5.1.1:
     dependencies:
@@ -1346,11 +1331,9 @@ snapshots:
       signal-exit: 3.0.7
       strip-final-newline: 2.0.0
 
-  expand-template@2.0.3:
-    optional: true
+  expand-template@2.0.3: {}
 
-  exponential-backoff@3.1.3:
-    optional: true
+  exponential-backoff@3.1.3: {}
 
   extend@3.0.2:
     optional: true
@@ -1362,10 +1345,8 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
       picomatch: 4.0.4
-    optional: true
 
-  file-uri-to-path@1.0.0:
-    optional: true
+  file-uri-to-path@1.0.0: {}
 
   find-replace@5.0.2: {}
 
@@ -1375,20 +1356,16 @@ snapshots:
     dependencies:
       cross-spawn: 7.0.6
       signal-exit: 4.1.0
-    optional: true
 
-  fs-constants@1.0.0:
-    optional: true
+  fs-constants@1.0.0: {}
 
   fs-minipass@3.0.3:
     dependencies:
       minipass: 7.1.3
-    optional: true
 
   get-stream@6.0.1: {}
 
-  github-from-package@0.0.0:
-    optional: true
+  github-from-package@0.0.0: {}
 
   glob@10.5.0:
     dependencies:
@@ -1398,10 +1375,8 @@ snapshots:
       minipass: 7.1.3
       package-json-from-dist: 1.0.1
       path-scurry: 1.11.1
-    optional: true
 
-  graceful-fs@4.2.11:
-    optional: true
+  graceful-fs@4.2.11: {}
 
   has-flag@4.0.0: {}
 
@@ -1411,8 +1386,7 @@ snapshots:
 
   hpagent@1.2.0: {}
 
-  http-cache-semantics@4.2.0:
-    optional: true
+  http-cache-semantics@4.2.0: {}
 
   http-proxy-agent@7.0.2:
     dependencies:
@@ -1420,7 +1394,6 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
-    optional: true
 
   https-proxy-agent@7.0.6:
     dependencies:
@@ -1428,7 +1401,6 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
-    optional: true
 
   human-signals@2.1.0: {}
 
@@ -1437,19 +1409,15 @@ snapshots:
       safer-buffer: 2.1.2
     optional: true
 
-  ieee754@1.2.1:
-    optional: true
+  ieee754@1.2.1: {}
 
-  imurmurhash@0.1.4:
-    optional: true
+  imurmurhash@0.1.4: {}
 
-  inherits@2.0.4:
-    optional: true
+  inherits@2.0.4: {}
 
   ini@1.3.8: {}
 
-  ip-address@10.1.0:
-    optional: true
+  ip-address@10.1.0: {}
 
   is-docker@2.2.1: {}
 
@@ -1465,15 +1433,13 @@ snapshots:
 
   isexe@2.0.0: {}
 
-  isexe@3.1.5:
-    optional: true
+  isexe@3.1.5: {}
 
   jackspeak@3.4.3:
     dependencies:
       '@isaacs/cliui': 8.0.2
     optionalDependencies:
       '@pkgjs/parseargs': 0.11.0
-    optional: true
 
   js-yaml@4.1.1:
     dependencies:
@@ -1491,12 +1457,10 @@ snapshots:
       prebuild-install: 7.1.3
     transitivePeerDependencies:
       - supports-color
-    optional: true
 
   lodash.camelcase@4.3.0: {}
 
-  lru-cache@10.4.3:
-    optional: true
+  lru-cache@10.4.3: {}
 
   lru-cache@11.2.7: {}
 
@@ -1515,7 +1479,6 @@ snapshots:
       ssri: 12.0.0
     transitivePeerDependencies:
       - supports-color
-    optional: true
 
   merge-stream@2.0.0: {}
 
@@ -1529,8 +1492,7 @@ snapshots:
 
   mimic-fn@2.1.0: {}
 
-  mimic-response@3.1.0:
-    optional: true
+  mimic-response@3.1.0: {}
 
   minimatch@3.1.5:
     dependencies:
@@ -1539,14 +1501,12 @@ snapshots:
   minimatch@9.0.9:
     dependencies:
       brace-expansion: 2.0.3
-    optional: true
 
   minimist@1.2.8: {}
 
   minipass-collect@2.0.1:
     dependencies:
       minipass: 7.1.3
-    optional: true
 
   minipass-fetch@4.0.1:
     dependencies:
@@ -1555,38 +1515,30 @@ snapshots:
       minizlib: 3.1.0
     optionalDependencies:
       encoding: 0.1.13
-    optional: true
 
   minipass-flush@1.0.7:
     dependencies:
       minipass: 3.3.6
-    optional: true
 
   minipass-pipeline@1.2.4:
     dependencies:
       minipass: 3.3.6
-    optional: true
 
   minipass-sized@1.0.3:
     dependencies:
       minipass: 3.3.6
-    optional: true
 
   minipass@3.3.6:
     dependencies:
       yallist: 4.0.0
-    optional: true
 
-  minipass@7.1.3:
-    optional: true
+  minipass@7.1.3: {}
 
   minizlib@3.1.0:
     dependencies:
       minipass: 7.1.3
-    optional: true
 
-  mkdirp-classic@0.5.3:
-    optional: true
+  mkdirp-classic@0.5.3: {}
 
   moo@0.5.3:
     optional: true
@@ -1595,11 +1547,9 @@ snapshots:
 
   ms@2.1.3: {}
 
-  nan@2.22.2:
-    optional: true
+  nan@2.22.2: {}
 
-  napi-build-utils@2.0.0:
-    optional: true
+  napi-build-utils@2.0.0: {}
 
   nearley@2.20.1:
     dependencies:
@@ -1611,13 +1561,11 @@ snapshots:
 
   negotiator@0.6.4: {}
 
-  negotiator@1.0.0:
-    optional: true
+  negotiator@1.0.0: {}
 
   node-abi@3.89.0:
     dependencies:
       semver: 7.7.4
-    optional: true
 
   node-gyp@11.5.0:
     dependencies:
@@ -1633,12 +1581,10 @@ snapshots:
       which: 5.0.0
     transitivePeerDependencies:
       - supports-color
-    optional: true
 
   nopt@8.1.0:
     dependencies:
       abbrev: 3.0.1
-    optional: true
 
   normalize-package-data@8.0.0:
     dependencies:
@@ -1655,17 +1601,14 @@ snapshots:
   once@1.4.0:
     dependencies:
       wrappy: 1.0.2
-    optional: true
 
   onetime@5.1.2:
     dependencies:
       mimic-fn: 2.1.0
 
-  p-map@7.0.4:
-    optional: true
+  p-map@7.0.4: {}
 
-  package-json-from-dist@1.0.1:
-    optional: true
+  package-json-from-dist@1.0.1: {}
 
   packageurl-js@2.0.1: {}
 
@@ -1677,12 +1620,10 @@ snapshots:
     dependencies:
       lru-cache: 10.4.3
       minipass: 7.1.3
-    optional: true
 
   path-to-regexp@3.3.0: {}
 
-  picomatch@4.0.4:
-    optional: true
+  picomatch@4.0.4: {}
 
   prebuild-install@7.1.3:
     dependencies:
@@ -1698,22 +1639,18 @@ snapshots:
       simple-get: 4.0.1
       tar-fs: 2.1.4
       tunnel-agent: 0.6.0
-    optional: true
 
-  proc-log@5.0.0:
-    optional: true
+  proc-log@5.0.0: {}
 
   promise-retry@2.0.1:
     dependencies:
       err-code: 2.0.3
       retry: 0.12.0
-    optional: true
 
   pump@3.0.4:
     dependencies:
       end-of-stream: 1.4.5
       once: 1.4.0
-    optional: true
 
   punycode@2.3.1:
     optional: true
@@ -1741,7 +1678,6 @@ snapshots:
       inherits: 2.0.4
       string_decoder: 1.3.0
       util-deprecate: 1.0.2
-    optional: true
 
   registry-auth-token@3.3.2:
     dependencies:
@@ -1757,8 +1693,7 @@ snapshots:
   ret@0.1.15:
     optional: true
 
-  retry@0.12.0:
-    optional: true
+  retry@0.12.0: {}
 
   safe-buffer@5.2.1: {}
 
@@ -1770,7 +1705,7 @@ snapshots:
       extend: 3.0.2
     optional: true
 
-  secure-json-parse@3.0.2: {}
+  secure-json-parse@4.1.0: {}
 
   semver@7.7.4: {}
 
@@ -1808,21 +1743,17 @@ snapshots:
 
   signal-exit@3.0.7: {}
 
-  signal-exit@4.1.0:
-    optional: true
+  signal-exit@4.1.0: {}
 
-  simple-concat@1.0.1:
-    optional: true
+  simple-concat@1.0.1: {}
 
   simple-get@4.0.1:
     dependencies:
       decompress-response: 6.0.0
       once: 1.4.0
       simple-concat: 1.0.1
-    optional: true
 
-  smart-buffer@4.2.0:
-    optional: true
+  smart-buffer@4.2.0: {}
 
   smtp-address-parser@1.1.0:
     dependencies:
@@ -1836,13 +1767,11 @@ snapshots:
       socks: 2.8.7
     transitivePeerDependencies:
       - supports-color
-    optional: true
 
   socks@2.8.7:
     dependencies:
       ip-address: 10.1.0
       smart-buffer: 4.2.0
-    optional: true
 
   spdx-correct@3.2.0:
     dependencies:
@@ -1866,7 +1795,6 @@ snapshots:
   ssri@12.0.0:
     dependencies:
       minipass: 7.1.3
-    optional: true
 
   string-width@4.2.3:
     dependencies:
@@ -1883,7 +1811,6 @@ snapshots:
   string_decoder@1.3.0:
     dependencies:
       safe-buffer: 5.2.1
-    optional: true
 
   strip-ansi@6.0.1:
     dependencies:
@@ -1912,7 +1839,6 @@ snapshots:
       mkdirp-classic: 0.5.3
       pump: 3.0.4
       tar-stream: 2.2.0
-    optional: true
 
   tar-stream@2.2.0:
     dependencies:
@@ -1921,7 +1847,6 @@ snapshots:
       fs-constants: 1.0.0
       inherits: 2.0.4
       readable-stream: 3.6.2
-    optional: true
 
   tar@7.5.13:
     dependencies:
@@ -1930,20 +1855,17 @@ snapshots:
       minipass: 7.1.3
       minizlib: 3.1.0
       yallist: 5.0.0
-    optional: true
 
   tinyglobby@0.2.15:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
-    optional: true
 
   tslib@2.8.1: {}
 
   tunnel-agent@0.6.0:
     dependencies:
       safe-buffer: 5.2.1
-    optional: true
 
   type-fest@2.19.0: {}
 
@@ -1951,17 +1873,15 @@ snapshots:
 
   undici-types@7.16.0: {}
 
-  undici@6.24.1: {}
+  undici@7.25.0: {}
 
   unique-filename@4.0.0:
     dependencies:
       unique-slug: 5.0.0
-    optional: true
 
   unique-slug@5.0.0:
     dependencies:
       imurmurhash: 0.1.4
-    optional: true
 
   update-check@1.5.4:
     dependencies:
@@ -1973,8 +1893,7 @@ snapshots:
       punycode: 2.3.1
     optional: true
 
-  util-deprecate@1.0.2:
-    optional: true
+  util-deprecate@1.0.2: {}
 
   validate-npm-package-license@3.0.4:
     dependencies:
@@ -1990,7 +1909,6 @@ snapshots:
   which@5.0.0:
     dependencies:
       isexe: 3.1.5
-    optional: true
 
   widest-line@4.0.1:
     dependencies:
@@ -2003,7 +1921,6 @@ snapshots:
       ansi-styles: 4.3.0
       string-width: 4.2.3
       strip-ansi: 6.0.1
-    optional: true
 
   wrap-ansi@8.1.0:
     dependencies:
@@ -2011,8 +1928,7 @@ snapshots:
       string-width: 5.1.2
       strip-ansi: 7.2.0
 
-  wrappy@1.0.2:
-    optional: true
+  wrappy@1.0.2: {}
 
   xmlbuilder2@4.0.3:
     dependencies:
@@ -2021,8 +1937,6 @@ snapshots:
       '@oozcitak/util': 10.0.0
       js-yaml: 4.1.1
 
-  yallist@4.0.0:
-    optional: true
+  yallist@4.0.0: {}
 
-  yallist@5.0.0:
-    optional: true
+  yallist@5.0.0: {}

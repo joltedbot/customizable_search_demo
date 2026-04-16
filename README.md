@@ -189,7 +189,7 @@ All commands are run from the repo root. Customer-specific commands use the `--s
 
 ## Search Architecture
 
-The demo uses Elasticsearch Cloud (9.x with ML) for all search modes:
+The demo uses Elasticsearch Cloud (9.3+ with ML) for all search modes:
 
 **Lexical mode** — BM25 on `name`, `brand`, `tags`, `category`, `description` fields, no filtering. Noise products surface naturally for broad queries.
 

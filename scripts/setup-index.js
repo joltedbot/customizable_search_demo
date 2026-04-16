@@ -117,8 +117,8 @@ async function checkConnection(client) {
     ok(`Elasticsearch version: ${info.version.number}`);
 
     const [major, minor] = info.version.number.split('.').map(n => parseInt(n, 10));
-    if (major < 8 || (major === 8 && minor < 15)) {
-      warn(`ES ${info.version.number} detected. semantic_text requires ES 8.15+. Proceed with caution.`);
+    if (major < 9 || (major === 9 && minor < 3)) {
+      warn(`ES ${info.version.number} detected. This project requires ES 9.3+. Proceed with caution.`);
     }
   } catch (err) {
     fatal(`Cannot connect to Elasticsearch: ${err.message}\nCheck ES_URL and ES_API_KEY in .env`);

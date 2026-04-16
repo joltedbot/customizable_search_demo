@@ -12,7 +12,10 @@
   },
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "^4.2.1",
-    "@elastic/elasticsearch": "^8.0.0",
+    "@elastic/elasticsearch": "^9.3.0",
     "serve": "^14.0.0"
+  },
+  "dependencies": {
+    "libxmljs2": "0.37.0"
   }
 }
