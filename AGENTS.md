@@ -146,14 +146,3 @@ Add an entry to Non-Standard Patterns when:
 - You were corrected by the user on a design decision
 
 Do not add general JavaScript or Node advice. Do not paraphrase existing entries.
-
-### Split Threshold
-
-When this file exceeds 150 lines, flag to the user before continuing:
-
-> "AGENTS.md is approaching the split threshold. Recommend extracting
-> `<package-name>` content to `<package-name>/AGENTS.md` before this session."
-
-Do not split autonomously. Wait for confirmation. After a split, root file
-retains only: workspace structure table, commands, and workspace-wide
-constraints. Package-level files are authoritative for that package.
