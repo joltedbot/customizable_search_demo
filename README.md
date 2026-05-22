@@ -22,7 +22,7 @@ Install the following before starting:
 | Requirement | Why | Install |
 |---|---|---|
 | **Node.js 18+** | Runs setup scripts, seeds Elasticsearch, serves the demo locally | [nodejs.org](https://nodejs.org/) or `brew install node` |
-| **npm** | Installs dependencies and runs project scripts | Included with Node.js |
+| **pnpm** | Installs dependencies and runs project scripts | `npm install -g pnpm` or `brew install pnpm` |
 | **Claude Code** or **Gemini CLI** | AI agent that reads `SETUP.md` and generates the branded demo | `npm install -g @anthropic-ai/claude-code` or [Gemini CLI docs](https://github.com/google-gemini/gemini-cli) |
 | **Elastic Cloud deployment** | ES 9.x with ML nodes enabled — hosts the search index, inference endpoints, and Agent Builder | [cloud.elastic.co](https://cloud.elastic.co/) |
 | **Jina Embeddings v5 Text-Small** | Semantic embeddings for hybrid and personalized search | Deployed via Elastic Inference Service in your cluster |
@@ -45,11 +45,11 @@ cd my-customer-demo
 
 # 1. Configure credentials and seed the index
 cp .env.template .env   # fill in ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, KIBANA_URL (+ AGENT_ID if reusing existing agent; exact key JSON in .env.template)
-npm install
-npm run validate        # pre-flight check — fix any ✗ failures before continuing
-npm run setup           # creates ES index, products index, Agent Builder agent + tools
-# For customer-specific index: npm run setup -- --slug <customer-slug>
-# To skip agent creation: npm run setup -- --slug <customer-slug> --skip-agent
+pnpm install
+pnpm run validate       # pre-flight check — fix any ✗ failures before continuing
+pnpm run setup          # creates ES index, products index, Agent Builder agent + tools
+# For customer-specific index: pnpm run setup -- --slug <customer-slug>
+# To skip agent creation: pnpm run setup -- --slug <customer-slug> --skip-agent
 
 # 2. Generate the branded demo (via AI agent)
 claude   # or: gemini
@@ -78,7 +78,7 @@ Open `SETUP.md` and fill in the `## Customer Config` section before running the 
 | `SETUP.md` | AI execution script — run this with your AI agent |
 | `template/index.html` | Base demo template the AI customizes |
 | `image-library/` | Pre-curated Pexels image sets (one JSON per industry) |
-| `package.json` | npm scripts: `validate`, `dev`, `setup`, `reset` (v2 mode) |
+| `package.json` | pnpm scripts: `validate`, `dev`, `setup`, `reset` (v2 mode) |
 | `.env.template` | Credentials template — copy to `.env` and fill in: ES_URL, ES_API_KEY (write), ES_INDEX, ES_API_KEY_READONLY (read — covers ES + Kibana), KIBANA_URL, AGENT_ID (auto-populated). Exact permission JSON for both keys is in the template comments. |
 | `scripts/validate-env.js` | Pre-flight check: validates all `.env` credentials before setup (v2 mode); `--skip-agent` flag to skip Agent Builder checks |
 | `scripts/setup-index.js` | Creates the ES index, deploys Jina Embeddings inference endpoint, seeds products, and auto-creates Agent Builder agent + tools. Supports `--slug {name}` for customer-specific indices and `--skip-agent` to reuse an existing agent (v2 mode) |
@@ -165,25 +165,25 @@ The template includes:
 
 ---
 
-## NPM Commands Reference
+## Commands Reference
 
-All commands are run from the repo root. Customer-specific commands use the `--slug` flag.
+All commands are run from the repo root using pnpm. Customer-specific commands use the `--slug` flag.
 
 | Command | What it does | When to use |
 |---|---|---|
-| `npm install` | Installs project dependencies (`@elastic/elasticsearch`, `serve`) | Once after cloning, or after pulling changes that update `package.json` |
-| `npm run validate` | Pre-flight check — verifies all `.env` credentials, ES connectivity, inference endpoints, and Agent Builder access | Before first `npm run setup`, or after changing `.env` values. Add `-- --skip-agent` to skip Kibana/Agent Builder checks |
-| `npm run setup` | Creates ES product + persona indexes, deploys Jina Embeddings inference endpoint, seeds products, and creates/updates Agent Builder agent + tools | Once per customer to initialize the cluster. Add `-- --slug <name>` for customer-specific indexes, `-- --skip-agent` to skip Agent Builder setup |
-| `npm run reset` | Wipes and reseeds product + persona indexes (does **not** delete the Agent Builder agent/tools) | After editing `products.json` or `products-{slug}.json` to push updated data to ES. Add `-- --slug <name>` for customer-specific indexes |
-| `npm run generate-test` | Injects `.env` credentials into the template and writes `output/test/demo.html` | For local testing — run after `npm run setup` or `npm run reset` to get a working demo without running the AI agent |
-| `npm run dev` | Starts a local web server serving the `output/` directory on `http://localhost:3000` | Whenever you want to view the demo in a browser (works for both test and customer builds) |
-| `npm run sbom` | Generates a CycloneDX SBOM file (`sbom.cdx.json`) listing all project dependencies | For security and compliance audits; output is gitignored |
+| `pnpm install` | Installs project dependencies (`@elastic/elasticsearch`, `serve`) | Once after cloning, or after pulling changes that update `package.json` |
+| `pnpm run validate` | Pre-flight check — verifies all `.env` credentials, ES connectivity, inference endpoints, and Agent Builder access | Before first `pnpm run setup`, or after changing `.env` values. Add `-- --skip-agent` to skip Kibana/Agent Builder checks |
+| `pnpm run setup` | Creates ES product + persona indexes, deploys Jina Embeddings inference endpoint, seeds products, and creates/updates Agent Builder agent + tools | Once per customer to initialize the cluster. Add `-- --slug <name>` for customer-specific indexes, `-- --skip-agent` to skip Agent Builder setup |
+| `pnpm run reset` | Wipes and reseeds product + persona indexes (does **not** delete the Agent Builder agent/tools) | After editing `products.json` or `products-{slug}.json` to push updated data to ES. Add `-- --slug <name>` for customer-specific indexes |
+| `pnpm run generate-test` | Injects `.env` credentials into the template and writes `output/test/demo.html` | For local testing — run after `pnpm run setup` or `pnpm run reset` to get a working demo without running the AI agent |
+| `pnpm dev` | Starts a local web server serving the `output/` directory on `http://localhost:3000` | Whenever you want to view the demo in a browser (works for both test and customer builds) |
+| `pnpm run sbom` | Generates a CycloneDX SBOM file (`sbom.cdx.json`) listing all project dependencies | For security and compliance audits; output is gitignored |
 
 **Typical workflows:**
 
-- **First-time setup:** `npm install` → `npm run validate` → `npm run setup` → run AI agent with `SETUP.md` → `npm run dev`
-- **Updated product data:** Edit `products.json` → `npm run reset` → `npm run generate-test` (for test build) → `npm run dev`
-- **Quick local test (no AI agent):** `npm run generate-test` → `npm run dev` → open `http://localhost:3000/test/demo.html`
+- **First-time setup:** `pnpm install` → `pnpm run validate` → `pnpm run setup` → run AI agent with `SETUP.md` → `pnpm dev`
+- **Updated product data:** Edit `products.json` → `pnpm run reset` → `pnpm run generate-test` (for test build) → `pnpm dev`
+- **Quick local test (no AI agent):** `pnpm run generate-test` → `pnpm dev` → open `http://localhost:3000/test/demo.html`
 
 ---
 
