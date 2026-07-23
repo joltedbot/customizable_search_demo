@@ -8,12 +8,13 @@
     "setup": "node scripts/setup-index.js",
     "reset": "node scripts/setup-index.js --reset",
     "generate-test": "node scripts/generate-test.js",
+    "inject": "node scripts/inject-credentials.js",
     "sbom": "cyclonedx-npm --output-file sbom.cdx.json"
   },
   "devDependencies": {
-    "@cyclonedx/cyclonedx-npm": "^4.2.1",
-    "@elastic/elasticsearch": "^9.3.0",
-    "serve": "^14.0.0"
+    "@cyclonedx/cyclonedx-npm": "^6.0.0",
+    "@elastic/elasticsearch": "^9.4.2",
+    "serve": "^14.2.6"
   },
   "dependencies": {
     "libxmljs2": "0.37.0"

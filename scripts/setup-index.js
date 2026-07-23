@@ -340,11 +340,19 @@ async function seedPersonas(client, indexName, slug) {
   const personasPath = slug
     ? path.join(__dirname, 'data', `personas-${slug}.json`)
     : path.join(__dirname, 'data', 'personas.json');
+  if (!fs.existsSync(personasPath)) {
+    fatal(
+      `Missing personas file: ${personasPath}\n` +
+      `  Create scripts/data/personas-${slug || 'default'}.json before running setup.\n` +
+      `  Use scripts/data/personas-banking.json as a format reference.\n` +
+      `  Required fields: id, name, tagline, gender, preferredBrands, preferredCategories, purchaseHistory, clickHistory, season`
+    );
+  }
   let personas;
   try {
     personas = JSON.parse(fs.readFileSync(personasPath, 'utf8'));
   } catch (err) {
-    fatal(`Cannot read personas file: ${err.message}\n  Path: ${personasPath}`);
+    fatal(`Cannot parse personas file: ${err.message}\n  Path: ${personasPath}`);
   }
 
   const operations = personas.flatMap(p => [
