@@ -230,7 +230,7 @@ async function checkKibana() {
 
   step('Checking Agent Builder agent (AGENT_ID)...');
 
-  const kibanaReadKey = process.env.ES_API_KEY_READONLY;
+  const kibanaReadKey = process.env.KIBANA_API_KEY;
   const agentUrl = new URL(`${kibanaUrl}/api/agent_builder/agents/${agentId}`);
 
   await new Promise((resolve) => {
