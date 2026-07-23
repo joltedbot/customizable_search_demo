@@ -8,6 +8,7 @@
     "setup": "node scripts/setup-index.js",
     "reset": "node scripts/setup-index.js --reset",
     "generate-test": "node scripts/generate-test.js",
+    "inject": "node scripts/inject-credentials.js",
     "sbom": "cyclonedx-npm --output-file sbom.cdx.json"
   },
   "devDependencies": {
