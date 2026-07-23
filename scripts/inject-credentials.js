@@ -69,7 +69,8 @@ fs.writeFileSync(demoPath, html, 'utf8');
 
 const remaining = (html.match(/\{\{[A-Z_]+\}\}/g) || []);
 if (remaining.length) {
-  console.warn(`WARNING: ${remaining.length} unreplaced token(s): ${[...new Set(remaining)].join(', ')}`);
+  const display = [...new Set(remaining)].map(t => /KEY|SECRET|TOKEN|PASSWORD/i.test(t) ? '{{[credential]}}' : t);
+  console.warn(`WARNING: ${remaining.length} unreplaced token(s): ${display.join(', ')}`);
 }
 
 console.log(`\n✓ Credentials injected into output/${slug}/demo.html`);
