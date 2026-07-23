@@ -28,6 +28,9 @@ for (const key of required) {
     console.error(`ERROR: ${key} is not set in .env`); process.exit(1);
   }
 }
+if (!env.KIBANA_API_KEY) {
+  console.warn('WARNING: KIBANA_API_KEY not set in .env — Agent Builder (GenAI mode) will return 403. See README for how to create this key.');
+}
 
 const templatePath = path.join(__dirname, '..', 'template', 'index.html');
 let html = fs.readFileSync(templatePath, 'utf8');
@@ -37,6 +40,7 @@ html = html.replaceAll('{{ES_URL}}',             env.ES_URL);
 html = html.replaceAll('{{ES_API_KEY_READONLY}}', env.ES_API_KEY_READONLY);
 html = html.replaceAll('{{ES_INDEX}}',           env.ES_INDEX || 'demo-products');
 html = html.replaceAll('{{KIBANA_URL}}',         env.KIBANA_URL || '');
+html = html.replaceAll('{{KIBANA_API_KEY}}',     env.KIBANA_API_KEY || '');
 html = html.replaceAll('{{AGENT_ID}}',           env.AGENT_ID || '');
 const outDir = path.join(__dirname, '..', 'output', 'test');
 fs.mkdirSync(outDir, { recursive: true });
