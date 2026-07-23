@@ -13,12 +13,13 @@ ES client: `@elastic/elasticsearch` 9.x — consult the [JS client docs](https:/
 ## Commands
 
 ```
-node scripts/validate-env.js     # Pre-flight — always run before touching cluster or inference
-pnpm dev                         # Serve the frontend locally (output/ on port 3000)
-pnpm run setup -- --slug {name}  # Seed index & Agent (double-dash required for flags)
-pnpm run reset -- --slug {name}  # Wipe and reseed index (Agents/Tools preserved)
-pnpm run generate-test           # Inject .env credentials into template for testing
-pnpm run sbom                    # Generate CycloneDX SBOM for security audits
+node scripts/validate-env.js          # Pre-flight — always run before touching cluster or inference
+pnpm dev                              # Serve the frontend locally (output/ on port 3000)
+pnpm run setup -- --slug {name}       # Seed index & Agent (double-dash required for flags)
+pnpm run reset -- --slug {name}       # Wipe and reseed index (Agents/Tools preserved)
+pnpm run inject -- --slug {name}      # Inject .env credentials into output/{name}/demo.html
+pnpm run generate-test                # Inject .env credentials into template for testing
+pnpm run sbom                         # Generate CycloneDX SBOM for security audits
 ```
 
 ## Elastic Inference Services
@@ -60,13 +61,16 @@ Do not add Jest, Vitest, or any test framework without flagging to the user. The
 - Agent Builder API Headers: All `POST`/`PUT` calls to `{KIBANA_URL}/api/agent_builder/*` require the `kbn-xsrf: true` header in addition to Authorization.
 - Token Syntax: Use `{{ALL_CAPS}}` for credentials in `template/index.html` (replaced by scripts) and `[BRACKET_STYLE]` for AI-facing examples in documentation.
 - Dynamic Header Branding: Use CSS variables `--header-bg`, `--header-text`, and `--header-divider` for customer-specific theming. Child elements (logo, switchers) must use `--header-text` to ensure contrast against the dynamic background.
+- Kibana API Key is a Separate Key: `kibanaApiKey` in ES_CONFIG must be `KIBANA_API_KEY` from `.env` — NOT `ES_API_KEY_READONLY`. The readonly ES key has zero Kibana application privileges and returns 403 on all `/api/agent_builder/*` calls. The Kibana key requires cluster privilege `monitor_inference`, index privileges `read`/`view_index_metadata`, and Kibana app privileges `feature_agentBuilder.read` + `feature_actions.read` on `space:default`. Create it via Dev Tools: `POST /_security/api_key` with a `role_descriptors.applications` block targeting `kibana-.kibana`. This is confirmed by the Elastic docs troubleshooting page for "API calls return 403 Forbidden in Elastic Agent Builder."
+- personas-{slug}.json Must Exist Before Setup: `pnpm run setup -- --slug {slug}` requires `scripts/data/personas-{slug}.json` to exist — the script crashes with ENOENT if it is missing. This file is not auto-generated. Create it before running setup using `scripts/data/personas-banking.json` as the format reference. Fields: id, name, tagline, gender, preferredBrands (use ["CPKC"] or equivalent for non-retail), preferredCategories (use category slugs from products-{slug}.json), purchaseHistory, clickHistory, season.
+- Credential Injection for Customer Demos: `generate-test.js` injects into `output/test/demo.html` only. For customer demos in `output/{slug}/demo.html`, use `pnpm run inject -- --slug {slug}` (`scripts/inject-credentials.js`). Run this after the AI agent generates the demo AND after `pnpm run setup` writes `AGENT_ID` to `.env`. Tokens replaced: `{{ES_URL}}`, `{{ES_API_KEY_READONLY}}`, `{{ES_INDEX}}`, `{{KIBANA_URL}}`, `{{KIBANA_API_KEY}}`, `{{AGENT_ID}}`.
 
 ## Constraints
 
 - No external hosting, CDN, or cloud deployment — laptop-local only
 - Do not add TypeScript — this project is intentionally plain JavaScript
 - Do not add a frontend framework — vanilla HTML/CSS/JS is intentional
-- Do not embed `ES_API_KEY` (write-access) in output HTML; only `ES_API_KEY_READONLY` is safe for browser-side distribution
+- Do not embed `ES_API_KEY` (write-access) in output HTML; `ES_API_KEY_READONLY` is safe for ES queries, and `KIBANA_API_KEY` (Kibana-privileged, no ES write access) is safe for Agent Builder calls — both are acceptable in browser HTML
 - All Elastic documentation queries go through the elastic-docs MCP server, not web search
 - Do not modify `scripts/validate-env.js` without flagging — it is the primary safety check for demo environments
 - Do not add dependencies without flagging to the user first
