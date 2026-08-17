@@ -218,6 +218,96 @@ async function fetchImagesForBatch(rows) {
   return results;
 }
 
+// ─── Document composition & indexing ──────────────────────────────────────────
+
+function composeSemanticText(row) {
+  return [
+    row.title,
+    row.objectName,
+    row.medium,
+    row.culture,
+    row.period,
+    row.dynasty,
+    row.tags ? row.tags.split('|').map(t => t.trim()).join(' ') : '',
+    row.artistDisplayName,
+  ].filter(Boolean).join(' | ');
+}
+
+function composeDoc(row) {
+  function intOrNull(val) {
+    const n = parseInt(val, 10);
+    return isNaN(n) ? null : n;
+  }
+
+  const doc = {
+    object_id:           parseInt(row.objectId, 10),
+    object_number:       row.objectNumber || null,
+    title:               row.title || null,
+    object_name:         row.objectName || null,
+    department:          row.department || null,
+    is_highlight:        row.isHighlight === 'True',
+    is_public_domain:    true,
+    accession_year:      intOrNull(row.accessionYear),
+    gallery_number:      row.galleryNumber || null,
+    culture:             row.culture || null,
+    period:              row.period || null,
+    dynasty:             row.dynasty || null,
+    medium:              row.medium || null,
+    artist_display_name: row.artistDisplayName || null,
+    artist_nationality:  row.artistNationality || null,
+    artist_begin_date:   intOrNull(row.artistBeginDate),
+    artist_end_date:     intOrNull(row.artistEndDate),
+    object_date:         row.objectDate || null,
+    object_begin_date:   intOrNull(row.objectBeginDate),
+    object_end_date:     intOrNull(row.objectEndDate),
+    country:             row.country || null,
+    region:              row.region || null,
+    classification:      row.classification || null,
+    tags:                row.tags ? row.tags.split('|').map(t => t.trim()).filter(Boolean) : [],
+    link_resource:       row.linkResource || null,
+    primary_image:       row.primaryImage || null,
+    semantic:            composeSemanticText(row),
+  };
+
+  // Drop null top-level keys to keep documents clean
+  for (const key of Object.keys(doc)) {
+    if (doc[key] === null) delete doc[key];
+  }
+
+  return doc;
+}
+
+async function bulkIndex(client, docs) {
+  if (docs.length === 0) return;
+
+  const operations = docs.flatMap(doc => [
+    { index: { _index: INDEX_NAME, _id: String(doc.object_id) } },
+    doc,
+  ]);
+
+  const result = await client.bulk({ operations, refresh: false });
+
+  if (result.errors) {
+    const failed = result.items.filter(i => i.index && i.index.error);
+    for (const item of failed) {
+      warn(`Failed to index object_id ${item.index._id}: ${JSON.stringify(item.index.error)}`);
+    }
+  }
+}
+
+function readCheckpoint() {
+  try {
+    const val = parseInt(fs.readFileSync(CHECKPOINT_PATH, 'utf8').trim(), 10);
+    return isNaN(val) ? 0 : val;
+  } catch {
+    return 0;
+  }
+}
+
+function writeCheckpoint(objectId) {
+  fs.writeFileSync(CHECKPOINT_PATH, String(objectId), 'utf8');
+}
+
 // ─── Entry point ─────────────────────────────────────────────────────────────
 
 async function main() {
