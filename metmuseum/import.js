@@ -195,7 +195,9 @@ function fetchImageUrl(objectId) {
     const url = `https://collectionapi.metmuseum.org/public/collection/v1/objects/${objectId}`;
     const req = https.get(url, { headers: { 'Accept': 'application/json' } }, (res) => {
       if (res.statusCode !== 200) {
-        warn(`Met API returned ${res.statusCode} for object ${objectId}`);
+        // 403 is common — image restricted/removed since CSV was published; not an API problem
+        const fn = res.statusCode === 403 ? log : warn;
+        fn(`Met API ${res.statusCode} for object ${objectId}`);
         res.resume();
         resolve('');
         return;
