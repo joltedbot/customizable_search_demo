@@ -304,6 +304,40 @@ async function checkJinaReranker() {
   }
 }
 
+// ─── Check 6: Jina Omni inference endpoint ────────────────────────────────────
+
+async function checkJinaOmni() {
+  step('Checking Jina Omni inference endpoint (JINA_OMNI_INFERENCE_ID)...');
+
+  const omniId = process.env.JINA_OMNI_INFERENCE_ID;
+  if (!omniId || isPlaceholder(omniId)) {
+    info('JINA_OMNI_INFERENCE_ID not set — required only for Terentia Media mode');
+    info('Set this var before running: pnpm run setup -- --slug terentia');
+    return;
+  }
+
+  const url = process.env.ES_URL;
+  const key = process.env.ES_API_KEY;
+  if (isPlaceholder(url) || isPlaceholder(key)) {
+    info('Skipping endpoint check — ES_URL or ES_API_KEY not valid');
+    return;
+  }
+
+  const client = new Client({ node: url, auth: { apiKey: key } });
+
+  try {
+    await client.inference.get({ inference_id: omniId });
+    ok(`Jina Omni endpoint found: ${omniId}`);
+  } catch (e) {
+    if (e?.meta?.statusCode === 404) {
+      fail(`Jina Omni endpoint not found: ${omniId}`);
+      info('Verify the endpoint ID in Kibana: Search → Inference Endpoints');
+    } else {
+      info(`Could not verify Jina Omni endpoint: ${esError(e)}`);
+    }
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -323,6 +357,7 @@ async function main() {
   await checkReadKey();
   await checkKibana();
   await checkJinaReranker();
+  await checkJinaOmni();
 
   console.log('\n──────────────────────────────────────────');
   if (failed === 0) {
