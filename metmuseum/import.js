@@ -184,6 +184,40 @@ async function* streamFilteredRows(fromId = 0) {
   }
 }
 
+// ─── Met API image fetching ──────────────────────────────────────────────────
+
+function fetchImageUrl(objectId) {
+  return new Promise((resolve) => {
+    const url = `https://collectionapi.metmuseum.org/public/collection/v1/objects/${objectId}`;
+    https.get(url, { headers: { 'Accept': 'application/json' } }, (res) => {
+      let data = '';
+      res.on('data', chunk => { data += chunk; });
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          resolve(json.primaryImageSmall || '');
+        } catch {
+          resolve('');
+        }
+      });
+    }).on('error', () => resolve(''));
+  });
+}
+
+async function fetchImagesForBatch(rows) {
+  const results = [];
+  for (let i = 0; i < rows.length; i += MET_API_CONCURRENCY) {
+    const chunk = rows.slice(i, i + MET_API_CONCURRENCY);
+    const images = await Promise.all(chunk.map(row => fetchImageUrl(row.objectId)));
+    for (let j = 0; j < chunk.length; j++) {
+      if (images[j]) {
+        results.push({ ...chunk[j], primaryImage: images[j] });
+      }
+    }
+  }
+  return results;
+}
+
 // ─── Entry point ─────────────────────────────────────────────────────────────
 
 async function main() {
