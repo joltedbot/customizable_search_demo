@@ -96,8 +96,8 @@ async function checkWriteKey() {
     ok(`Elasticsearch version: ${clusterInfo.version.number}`);
 
     const [major, minor] = clusterInfo.version.number.split('.').map(n => parseInt(n, 10));
-    if (major < 9 || (major === 9 && minor < 3)) {
-      fail(`ES ${clusterInfo.version.number} detected. This project requires ES 9.3+`);
+    if (major < 9 || (major === 9 && minor < 5)) {
+      fail(`ES ${clusterInfo.version.number} detected. This project requires ES 9.5+`);
     }
   } catch (e) {
     fail(`Connection failed: ${esError(e)}`);

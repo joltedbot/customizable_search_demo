@@ -33,6 +33,9 @@ const { Client } = require('@elastic/elasticsearch');
 const JINA_EMBEDDINGS_INFERENCE_ID = '.jina-embeddings-v5-text-small';
 const JINA_RERANKER_INFERENCE_ID = '.jina-reranker-v3';
 
+// Loaded from env in main() — used only when slug === 'terentia'
+let JINA_OMNI_INFERENCE_ID = null;
+
 // ─── .env loader (no dotenv dependency) ──────────────────────────────────────
 
 function loadEnv() {
@@ -72,38 +75,43 @@ function fatal(msg) { console.error(`\n✗ ERROR: ${msg}\n`); process.exit(1); }
 
 // ─── Index mapping ────────────────────────────────────────────────────────────
 
-function indexMapping() {
-  return {
-    settings: {
-      number_of_shards: 1,
-      number_of_replicas: 0
-    },
-    mappings: {
-      properties: {
-        id:          { type: 'integer' },
-        name:        { type: 'text', fields: { keyword: { type: 'keyword' } } },
-        brand:       { type: 'text', fields: { keyword: { type: 'keyword' } } },
-        category:    { type: 'keyword' },
-        price:       { type: 'float' },
-        sale:        { type: 'float' },
-        rating:      { type: 'float' },
-        reviews:     { type: 'integer' },
-        badge:       { type: 'keyword' },
-        tags:        { type: 'keyword' },
-        image:       { type: 'keyword', index: false },
-        description: {
-          type: 'text',
-          analyzer: 'english',
-          fields: {
-            semantic: {
-              type: 'semantic_text',
-              inference_id: JINA_EMBEDDINGS_INFERENCE_ID
-            }
-          }
-        },
-        is_noise: { type: 'boolean' }
+function indexMapping(slug) {
+  const props = {
+    id:          { type: 'integer' },
+    name:        { type: 'text', fields: { keyword: { type: 'keyword' } } },
+    brand:       { type: 'text', fields: { keyword: { type: 'keyword' } } },
+    category:    { type: 'keyword' },
+    price:       { type: 'float' },
+    sale:        { type: 'float' },
+    rating:      { type: 'float' },
+    reviews:     { type: 'integer' },
+    badge:       { type: 'keyword' },
+    tags:        { type: 'keyword' },
+    image:       { type: 'keyword', index: false },
+    description: {
+      type: 'text',
+      analyzer: 'english',
+      fields: {
+        semantic: {
+          type: 'semantic_text',
+          inference_id: JINA_EMBEDDINGS_INFERENCE_ID
+        }
       }
-    }
+    },
+    is_noise: { type: 'boolean' }
+  };
+
+  if (slug === 'terentia') {
+    props.media_type       = { type: 'keyword' };
+    props.audio_url        = { type: 'keyword', index: false };
+    props.accession_number = { type: 'keyword' };
+    props.medium           = { type: 'text', fields: { keyword: { type: 'keyword' } } };
+    props.media_content    = { type: 'semantic', inference_id: JINA_OMNI_INFERENCE_ID };
+  }
+
+  return {
+    settings: { number_of_shards: 1, number_of_replicas: 0 },
+    mappings: { properties: props }
   };
 }
 
@@ -117,8 +125,8 @@ async function checkConnection(client) {
     ok(`Elasticsearch version: ${info.version.number}`);
 
     const [major, minor] = info.version.number.split('.').map(n => parseInt(n, 10));
-    if (major < 9 || (major === 9 && minor < 3)) {
-      warn(`ES ${info.version.number} detected. This project requires ES 9.3+. Proceed with caution.`);
+    if (major < 9 || (major === 9 && minor < 5)) {
+      warn(`ES ${info.version.number} detected. This project requires ES 9.5+. Proceed with caution.`);
     }
   } catch (err) {
     fatal(`Cannot connect to Elasticsearch: ${err.message}\nCheck ES_URL and ES_API_KEY in .env`);
@@ -157,6 +165,23 @@ async function checkJinaReranker(client) {
   }
 }
 
+async function checkJinaOmni(client) {
+  if (!JINA_OMNI_INFERENCE_ID) return;
+  step('Checking Jina Omni inference endpoint...');
+  try {
+    await client.inference.get({ inference_id: JINA_OMNI_INFERENCE_ID });
+    ok(`Jina Omni endpoint found: ${JINA_OMNI_INFERENCE_ID}`);
+  } catch (err) {
+    if (err.statusCode === 404) {
+      warn(`Jina Omni endpoint not found: ${JINA_OMNI_INFERENCE_ID}`);
+      warn('Verify this ID in Kibana: Search → Inference Endpoints');
+      warn('Media embedding will fail at index time without this endpoint.');
+    } else {
+      warn(`Could not verify Jina Omni endpoint: ${err.message}`);
+    }
+  }
+}
+
 async function deleteIndex(client, indexName) {
   step(`Deleting index: ${indexName}...`);
   try {
@@ -171,7 +196,7 @@ async function deleteIndex(client, indexName) {
   }
 }
 
-async function createIndex(client, indexName) {
+async function createIndex(client, indexName, slug) {
   step(`Creating index: ${indexName}...`);
   try {
     const exists = await client.indices.exists({ index: indexName });
@@ -184,10 +209,11 @@ async function createIndex(client, indexName) {
   try {
     await client.indices.create({
       index: indexName,
-      body: indexMapping()
+      body: indexMapping(slug)
     });
     ok(`Index created: ${indexName}`);
-    ok('Mappings applied (including semantic_text on description.semantic)');
+    const extraFields = slug === 'terentia' ? ', media_content (semantic), accession_number, medium' : '';
+    ok(`Mappings applied (including semantic_text on description.semantic${extraFields})`);
     return true;
   } catch (err) {
     fatal(`Failed to create index: ${err.message}`);
@@ -634,6 +660,14 @@ async function main() {
   await checkJinaEmbeddings(client);
   await checkJinaReranker(client);
 
+  if (slug === 'terentia') {
+    JINA_OMNI_INFERENCE_ID = process.env.JINA_OMNI_INFERENCE_ID;
+    if (!JINA_OMNI_INFERENCE_ID || JINA_OMNI_INFERENCE_ID.startsWith('your_')) {
+      fatal('JINA_OMNI_INFERENCE_ID is required for --slug terentia. Set it in .env first.');
+    }
+    await checkJinaOmni(client);
+  }
+
   if (isCheckOnly) {
     console.log('\n  Check complete — no changes made.\n');
     return;
@@ -645,7 +679,7 @@ async function main() {
   }
 
   if (!isSeedOnly) {
-    await createIndex(client, esIndex);
+    await createIndex(client, esIndex, slug);
   }
 
   await seedProducts(client, esIndex, productsFile);
