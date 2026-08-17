@@ -223,9 +223,14 @@ function fetchImageUrl(objectId) {
   });
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function fetchImagesForBatch(rows) {
   const results = [];
   for (let i = 0; i < rows.length; i += MET_API_CONCURRENCY) {
+    if (i > 0) await sleep(1000); // 1s between chunks to avoid Met API rate limiting
     const chunk = rows.slice(i, i + MET_API_CONCURRENCY);
     const images = await Promise.all(chunk.map(row => fetchImageUrl(row.objectId)));
     for (let j = 0; j < chunk.length; j++) {
