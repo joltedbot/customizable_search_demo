@@ -220,17 +220,100 @@ async function createIndex(client, indexName, slug) {
   }
 }
 
-async function seedProducts(client, indexName, productsFilePath) {
+function fetchMediaAsDataUrl(url, mediaType, artifactName) {
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    const localPath = path.join(__dirname, '..', url);
+    if (!fs.existsSync(localPath)) {
+      warn(`Local file not found: ${localPath} — skipping media_content for "${artifactName}"`);
+      return Promise.resolve(null);
+    }
+    const data = fs.readFileSync(localPath);
+    const mimeType = mediaType === 'audio' ? 'audio/mpeg' : 'image/jpeg';
+    return Promise.resolve(`data:${mimeType};base64,${data.toString('base64')}`);
+  }
+
+  return new Promise((resolve) => {
+    const transport = url.startsWith('https://') ? https : http;
+    const req = transport.get(url, (res) => {
+      if (res.statusCode === 301 || res.statusCode === 302) {
+        fetchMediaAsDataUrl(res.headers.location, mediaType, artifactName).then(resolve);
+        return;
+      }
+      if (res.statusCode !== 200) {
+        warn(`HTTP ${res.statusCode} downloading media for "${artifactName}" — skipping media_content`);
+        res.resume();
+        resolve(null);
+        return;
+      }
+      const chunks = [];
+      res.on('data', chunk => chunks.push(chunk));
+      res.on('end', () => {
+        const buffer = Buffer.concat(chunks);
+        const kb = Math.round(buffer.length / 1024);
+        if (buffer.length > 1_000_000) {
+          warn(`Media for "${artifactName}" is ${kb} KB — exceeds 1 MB Elastic Cloud limit. Skipping.`);
+          resolve(null);
+          return;
+        }
+        const contentType = res.headers['content-type'] || (mediaType === 'audio' ? 'audio/mpeg' : 'image/jpeg');
+        const mimeType = contentType.split(';')[0].trim();
+        resolve(`data:${mimeType};base64,${buffer.toString('base64')}`);
+      });
+    });
+    req.on('error', (e) => {
+      warn(`Download error for "${artifactName}": ${e.message} — skipping media_content`);
+      resolve(null);
+    });
+    req.setTimeout(30000, () => {
+      warn(`Download timeout for "${artifactName}" — skipping media_content`);
+      req.destroy();
+      resolve(null);
+    });
+  });
+}
+
+async function prepareMediaContent(products) {
+  step('Embedding media content for semantic field (downloading images/audio)...');
+  let embedded = 0;
+  let skipped = 0;
+
+  for (const artifact of products) {
+    if (!artifact.media_type) continue;
+
+    const url = artifact.media_type === 'audio' ? artifact.audio_url : artifact.image;
+    if (!url) {
+      skipped++;
+      continue;
+    }
+
+    const dataUrl = await fetchMediaAsDataUrl(url, artifact.media_type, artifact.name);
+    if (dataUrl) {
+      artifact.media_content = dataUrl;
+      embedded++;
+    } else {
+      skipped++;
+    }
+  }
+
+  ok(`Media embedded: ${embedded} artifact(s)`);
+  if (skipped > 0) warn(`Skipped: ${skipped} artifact(s) (null URL, download failure, or size limit)`);
+}
+
+async function seedProducts(client, indexName, productsFilePath, preProcessedProducts = null) {
   step('Bulk indexing products...');
 
   let products;
-  try {
-    products = JSON.parse(fs.readFileSync(productsFilePath, 'utf8'));
-  } catch (err) {
-    fatal(`Cannot read products file: ${err.message}\n  Path: ${productsFilePath}`);
+  if (preProcessedProducts) {
+    products = preProcessedProducts;
+    log(`Using ${products.length} pre-processed products`);
+  } else {
+    try {
+      products = JSON.parse(fs.readFileSync(productsFilePath, 'utf8'));
+    } catch (err) {
+      fatal(`Cannot read products file: ${err.message}\n  Path: ${productsFilePath}`);
+    }
+    log(`Loaded ${products.length} products from ${productsFilePath}`);
   }
-
-  log(`Loaded ${products.length} products from ${productsFilePath}`);
 
   const operations = products.flatMap(product => [
     { index: { _index: indexName, _id: String(product.id) } },
@@ -682,19 +765,28 @@ async function main() {
     await createIndex(client, esIndex, slug);
   }
 
-  await seedProducts(client, esIndex, productsFile);
+  let productsToIndex = null;
+  if (slug === 'terentia') {
+    const rawProducts = JSON.parse(fs.readFileSync(productsFile, 'utf8'));
+    await prepareMediaContent(rawProducts);
+    productsToIndex = rawProducts;
+  }
+
+  await seedProducts(client, esIndex, productsFile, productsToIndex);
   await verifyIndex(client, esIndex);
 
-  // Persona index
-  if (isReset) {
-    await deletePersonaIndex(client, personaIndex);
-  }
+  // Persona index — skipped for terentia (no personalization in cultural institution demo)
+  if (slug !== 'terentia') {
+    if (isReset) {
+      await deletePersonaIndex(client, personaIndex);
+    }
 
-  if (!isSeedOnly) {
-    await createPersonaIndex(client, personaIndex);
-  }
+    if (!isSeedOnly) {
+      await createPersonaIndex(client, personaIndex);
+    }
 
-  await seedPersonas(client, personaIndex, slug);
+    await seedPersonas(client, personaIndex, slug);
+  }
 
   // Agent Builder setup (Kibana API)
   const kibanaUrl = process.env.KIBANA_URL;
