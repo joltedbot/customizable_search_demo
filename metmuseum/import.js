@@ -2,7 +2,8 @@
 
 /**
  * import.js
- * Indexes the Met Museum open access collection into Elasticsearch.
+ * Indexes Met Museum highlight and timeline works into Elasticsearch.
+ * Filters to public domain objects flagged as Is Highlight or Is Timeline Work (~7,200 records).
  *
  * Usage:
  *   node metmuseum/import.js             — full import (skips if index exists)
@@ -152,9 +153,10 @@ async function* streamFilteredRows(fromId = 0) {
     if (objectId <= fromId) continue;
 
     const isPublicDomain = row['Is Public Domain'] === 'True';
+    const isCurated      = row['Is Highlight'] === 'True' || row['Is Timeline Work'] === 'True';
     const linkResource   = (row['Link Resource'] || '').trim();
 
-    if (!isPublicDomain || !linkResource) continue;
+    if (!isPublicDomain || !isCurated || !linkResource) continue;
 
     yield {
       objectId:          String(objectId),
