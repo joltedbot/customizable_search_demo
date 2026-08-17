@@ -228,6 +228,11 @@ function fetchMediaAsDataUrl(url, mediaType, artifactName) {
       return Promise.resolve(null);
     }
     const data = fs.readFileSync(localPath);
+    const kb = Math.round(data.length / 1024);
+    if (data.length > 1_000_000) {
+      warn(`Local file "${localPath}" is ${kb} KB — exceeds 1 MB Elastic Cloud limit. Skipping.`);
+      return Promise.resolve(null);
+    }
     const mimeType = mediaType === 'audio' ? 'audio/mpeg' : 'image/jpeg';
     return Promise.resolve(`data:${mimeType};base64,${data.toString('base64')}`);
   }
