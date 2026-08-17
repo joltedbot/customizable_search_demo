@@ -68,6 +68,70 @@ const args   = process.argv.slice(2);
 const RESET  = args.includes('--reset');
 const RESUME = args.includes('--resume');
 
+// ─── Index management ─────────────────────────────────────────────────────────
+
+async function deleteIndex(client) {
+  try {
+    await client.indices.delete({ index: INDEX_NAME });
+    ok(`Deleted existing index: ${INDEX_NAME}`);
+  } catch (err) {
+    if (err.statusCode !== 404) throw err;
+  }
+}
+
+async function ensureIndex(client, reset) {
+  step('Setting up index...');
+
+  if (reset) await deleteIndex(client);
+
+  const exists = await client.indices.exists({ index: INDEX_NAME });
+  if (exists) {
+    ok(`Index already exists: ${INDEX_NAME} (use --reset to recreate)`);
+    return;
+  }
+
+  await client.indices.create({
+    index: INDEX_NAME,
+    settings: { number_of_shards: 1, number_of_replicas: 0 },
+    mappings: {
+      properties: {
+        object_id:           { type: 'integer' },
+        object_number:       { type: 'keyword' },
+        title:               { type: 'text' },
+        object_name:         { type: 'keyword' },
+        department:          { type: 'keyword' },
+        is_highlight:        { type: 'boolean' },
+        is_public_domain:    { type: 'boolean' },
+        accession_year:      { type: 'integer' },
+        gallery_number:      { type: 'keyword' },
+        culture:             { type: 'keyword' },
+        period:              { type: 'keyword' },
+        dynasty:             { type: 'keyword' },
+        medium:              { type: 'text' },
+        artist_display_name: { type: 'text' },
+        artist_nationality:  { type: 'keyword' },
+        artist_begin_date:   { type: 'integer' },
+        artist_end_date:     { type: 'integer' },
+        object_date:         { type: 'keyword' },
+        object_begin_date:   { type: 'integer' },
+        object_end_date:     { type: 'integer' },
+        country:             { type: 'keyword' },
+        region:              { type: 'keyword' },
+        classification:      { type: 'keyword' },
+        tags:                { type: 'keyword' },
+        link_resource:       { type: 'keyword', index: false },
+        primary_image:       { type: 'keyword', index: false },
+        semantic: {
+          type: 'semantic_text',
+          inference_id: INFERENCE_ID,
+        },
+      },
+    },
+  });
+
+  ok(`Created index: ${INDEX_NAME}`);
+}
+
 // ─── Entry point ─────────────────────────────────────────────────────────────
 
 async function main() {
@@ -80,6 +144,8 @@ async function main() {
   log('Met Museum open access import');
   log(`Index: ${INDEX_NAME}`);
   log(`Mode: ${RESET ? 'reset' : RESUME ? 'resume' : 'normal'}`);
+
+  await ensureIndex(client, RESET);
 }
 
 main().catch(err => fatal(err.message));
