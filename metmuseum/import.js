@@ -24,6 +24,7 @@ const INDEX_NAME          = 'metmuseum-objects';
 const INFERENCE_ID        = '.jina-embeddings-v5-text-small';
 const CSV_PATH            = path.join(__dirname, 'openaccess', 'MetObjects.csv');
 const CHECKPOINT_PATH     = path.join(__dirname, '.checkpoint');
+const FAILED_PATH         = path.join(__dirname, '.failed');
 const BATCH_SIZE          = 100;
 const MET_API_CONCURRENCY = 10;
 
@@ -147,6 +148,7 @@ async function* streamFilteredRows(fromId = 0) {
   for await (const row of parser) {
     const objectId = parseInt(row['Object ID'], 10);
     if (!objectId) continue;
+    // Met CSV is sorted ascending by Object ID — this invariant is required for --resume correctness
     if (objectId <= fromId) continue;
 
     const isPublicDomain = row['Is Public Domain'] === 'True';
@@ -189,18 +191,31 @@ async function* streamFilteredRows(fromId = 0) {
 function fetchImageUrl(objectId) {
   return new Promise((resolve) => {
     const url = `https://collectionapi.metmuseum.org/public/collection/v1/objects/${objectId}`;
-    https.get(url, { headers: { 'Accept': 'application/json' } }, (res) => {
+    const req = https.get(url, { headers: { 'Accept': 'application/json' } }, (res) => {
+      if (res.statusCode !== 200) {
+        warn(`Met API returned ${res.statusCode} for object ${objectId}`);
+        res.resume();
+        resolve('');
+        return;
+      }
+      res.setEncoding('utf8');
       let data = '';
-      res.on('data', chunk => { data += chunk; });
+      res.on('data', chunk => {
+        if (data.length + chunk.length > 1_000_000) { res.destroy(); resolve(''); return; }
+        data += chunk;
+      });
       res.on('end', () => {
         try {
           const json = JSON.parse(data);
           resolve(json.primaryImageSmall || '');
         } catch {
+          warn(`Met API JSON parse error for object ${objectId}`);
           resolve('');
         }
       });
-    }).on('error', () => resolve(''));
+    });
+    req.setTimeout(10000, () => { req.destroy(); warn(`Met API timeout for object ${objectId}`); resolve(''); });
+    req.on('error', (err) => { warn(`Met API error for object ${objectId}: ${err.message}`); resolve(''); });
   });
 }
 
@@ -278,7 +293,7 @@ function composeDoc(row) {
 }
 
 async function bulkIndex(client, docs) {
-  if (docs.length === 0) return;
+  if (docs.length === 0) return 0;
 
   const operations = docs.flatMap(doc => [
     { index: { _index: INDEX_NAME, _id: String(doc.object_id) } },
@@ -287,12 +302,18 @@ async function bulkIndex(client, docs) {
 
   const result = await client.bulk({ operations, refresh: false });
 
-  if (result.errors) {
-    const failed = result.items.filter(i => i.index && i.index.error);
-    for (const item of failed) {
-      warn(`Failed to index object_id ${item.index._id}: ${JSON.stringify(item.index.error)}`);
-    }
+  const failed = result.errors ? result.items.filter(i => i.index && i.index.error) : [];
+  for (const item of failed) {
+    warn(`Failed to index object_id ${item.index._id}: ${JSON.stringify(item.index.error)}`);
   }
+
+  if (failed.length > 0) {
+    // Append failed IDs to .failed for post-run recovery
+    const failedIds = failed.map(i => i.index._id).join('\n');
+    fs.appendFileSync(FAILED_PATH, failedIds + '\n', 'utf8');
+  }
+
+  return failed.length;
 }
 
 function readCheckpoint() {
@@ -311,6 +332,10 @@ function writeCheckpoint(objectId) {
 // ─── Entry point ─────────────────────────────────────────────────────────────
 
 async function main() {
+  if (!fs.existsSync(CSV_PATH)) {
+    fatal(`CSV not found: ${CSV_PATH}\nRun from the repo root and ensure metmuseum/openaccess/MetObjects.csv exists.`);
+  }
+
   loadEnv();
   const esUrl    = requireEnv('ES_URL');
   const esApiKey = requireEnv('ES_API_KEY');
@@ -336,6 +361,7 @@ async function main() {
   let batch     = [];
   let total     = 0;
   let skipped   = 0;
+  let failed    = 0;
   let lastId    = fromId;
 
   for await (const row of streamFilteredRows(fromId)) {
@@ -346,11 +372,12 @@ async function main() {
       skipped += batch.length - enriched.length;
 
       const docs = enriched.map(composeDoc);
-      await bulkIndex(client, docs);
+      const failCount = await bulkIndex(client, docs);
+      failed += failCount;
 
       lastId = parseInt(batch[batch.length - 1].objectId, 10);
       writeCheckpoint(lastId);
-      total += docs.length;
+      total += docs.length - failCount;
 
       log(`Indexed ${total} objects | last ID: ${lastId} | skipped (no image): ${skipped}`);
       batch = [];
@@ -362,8 +389,9 @@ async function main() {
     const enriched = await fetchImagesForBatch(batch);
     skipped += batch.length - enriched.length;
     const docs = enriched.map(composeDoc);
-    await bulkIndex(client, docs);
-    total += docs.length;
+    const failCount = await bulkIndex(client, docs);
+    failed += failCount;
+    total += docs.length - failCount;
     if (docs.length > 0) {
       lastId = docs[docs.length - 1].object_id;
       writeCheckpoint(lastId);
@@ -373,7 +401,11 @@ async function main() {
   step('Import complete');
   ok(`Total indexed:       ${total}`);
   ok(`Skipped (no image):  ${skipped}`);
+  ok(`Failed (bulk error): ${failed}`);
   ok(`Last Object ID:      ${lastId}`);
 }
 
-main().catch(err => fatal(err.message));
+main().catch(err => {
+  const detail = err.meta?.body ? `\n${JSON.stringify(err.meta.body, null, 2)}` : '';
+  fatal(`${err.message}${detail}\n${err.stack || ''}`);
+});
