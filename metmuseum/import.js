@@ -211,7 +211,7 @@ function fetchImageUrl(objectId) {
       res.on('end', () => {
         try {
           const json = JSON.parse(data);
-          resolve(json.primaryImageSmall || '');
+          resolve(json.primaryImageSmall || json.primaryImage || '');
         } catch {
           warn(`Met API JSON parse error for object ${objectId}`);
           resolve('');
