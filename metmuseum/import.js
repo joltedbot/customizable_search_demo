@@ -318,10 +318,62 @@ async function main() {
   const client = new Client({ node: esUrl, auth: { apiKey: esApiKey } });
 
   log('Met Museum open access import');
-  log(`Index: ${INDEX_NAME}`);
-  log(`Mode: ${RESET ? 'reset' : RESUME ? 'resume' : 'normal'}`);
+  log(`Index:  ${INDEX_NAME}`);
+  log(`Mode:   ${RESET ? 'reset' : RESUME ? 'resume' : 'normal'}`);
+
+  if (RESET && fs.existsSync(CHECKPOINT_PATH)) {
+    fs.unlinkSync(CHECKPOINT_PATH);
+    ok('Cleared checkpoint');
+  }
+
+  const fromId = RESUME ? readCheckpoint() : 0;
+  if (fromId > 0) log(`Resuming from Object ID: ${fromId}`);
 
   await ensureIndex(client, RESET);
+
+  step('Starting import...');
+
+  let batch     = [];
+  let total     = 0;
+  let skipped   = 0;
+  let lastId    = fromId;
+
+  for await (const row of streamFilteredRows(fromId)) {
+    batch.push(row);
+
+    if (batch.length >= BATCH_SIZE) {
+      const enriched = await fetchImagesForBatch(batch);
+      skipped += batch.length - enriched.length;
+
+      const docs = enriched.map(composeDoc);
+      await bulkIndex(client, docs);
+
+      lastId = parseInt(batch[batch.length - 1].objectId, 10);
+      writeCheckpoint(lastId);
+      total += docs.length;
+
+      log(`Indexed ${total} objects | last ID: ${lastId} | skipped (no image): ${skipped}`);
+      batch = [];
+    }
+  }
+
+  // Flush remaining
+  if (batch.length > 0) {
+    const enriched = await fetchImagesForBatch(batch);
+    skipped += batch.length - enriched.length;
+    const docs = enriched.map(composeDoc);
+    await bulkIndex(client, docs);
+    total += docs.length;
+    if (docs.length > 0) {
+      lastId = docs[docs.length - 1].object_id;
+      writeCheckpoint(lastId);
+    }
+  }
+
+  step('Import complete');
+  ok(`Total indexed:       ${total}`);
+  ok(`Skipped (no image):  ${skipped}`);
+  ok(`Last Object ID:      ${lastId}`);
 }
 
 main().catch(err => fatal(err.message));
