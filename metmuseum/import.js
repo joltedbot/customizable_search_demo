@@ -132,6 +132,58 @@ async function ensureIndex(client, reset) {
   ok(`Created index: ${INDEX_NAME}`);
 }
 
+// ─── CSV streaming ────────────────────────────────────────────────────────────
+
+async function* streamFilteredRows(fromId = 0) {
+  const parser = fs.createReadStream(CSV_PATH).pipe(
+    parse({
+      columns: true,
+      bom: true,
+      skip_empty_lines: true,
+      relax_column_count: true,
+    })
+  );
+
+  for await (const row of parser) {
+    const objectId = parseInt(row['Object ID'], 10);
+    if (!objectId) continue;
+    if (objectId <= fromId) continue;
+
+    const isPublicDomain = row['Is Public Domain'] === 'True';
+    const linkResource   = (row['Link Resource'] || '').trim();
+
+    if (!isPublicDomain || !linkResource) continue;
+
+    yield {
+      objectId:          String(objectId),
+      objectNumber:      row['Object Number'] || '',
+      title:             row['Title'] || '',
+      objectName:        row['Object Name'] || '',
+      department:        row['Department'] || '',
+      isHighlight:       row['Is Highlight'] || 'False',
+      isPublicDomain:    row['Is Public Domain'] || 'False',
+      accessionYear:     row['AccessionYear'] || '',
+      galleryNumber:     row['Gallery Number'] || '',
+      culture:           row['Culture'] || '',
+      period:            row['Period'] || '',
+      dynasty:           row['Dynasty'] || '',
+      medium:            row['Medium'] || '',
+      artistDisplayName: row['Artist Display Name'] || '',
+      artistNationality: row['Artist Nationality'] || '',
+      artistBeginDate:   (row['Artist Begin Date'] || '').trim(),
+      artistEndDate:     (row['Artist End Date'] || '').trim(),
+      objectDate:        row['Object Date'] || '',
+      objectBeginDate:   row['Object Begin Date'] || '',
+      objectEndDate:     row['Object End Date'] || '',
+      country:           row['Country'] || '',
+      region:            row['Region'] || '',
+      classification:    row['Classification'] || '',
+      tags:              row['Tags'] || '',
+      linkResource,
+    };
+  }
+}
+
 // ─── Entry point ─────────────────────────────────────────────────────────────
 
 async function main() {
