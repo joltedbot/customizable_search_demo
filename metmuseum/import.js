@@ -27,7 +27,7 @@ const CSV_PATH            = path.join(__dirname, 'openaccess', 'MetObjects.csv')
 const CHECKPOINT_PATH     = path.join(__dirname, '.checkpoint');
 const FAILED_PATH         = path.join(__dirname, '.failed');
 const BATCH_SIZE          = 100;
-const MET_API_CONCURRENCY = 10;
+const MET_API_CONCURRENCY = 1;
 
 // ─── .env loader ─────────────────────────────────────────────────────────────
 
@@ -193,7 +193,7 @@ async function* streamFilteredRows(fromId = 0) {
 function fetchImageUrl(objectId) {
   return new Promise((resolve) => {
     const url = `https://collectionapi.metmuseum.org/public/collection/v1/objects/${objectId}`;
-    const req = https.get(url, { headers: { 'Accept': 'application/json' } }, (res) => {
+    const req = https.get(url, { headers: { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0 (compatible; metmuseum-import/1.0)' } }, (res) => {
       if (res.statusCode !== 200) {
         // 403 is common — image restricted/removed since CSV was published; not an API problem
         const fn = res.statusCode === 403 ? log : warn;
@@ -230,7 +230,7 @@ function sleep(ms) {
 async function fetchImagesForBatch(rows) {
   const results = [];
   for (let i = 0; i < rows.length; i += MET_API_CONCURRENCY) {
-    if (i > 0) await sleep(1000); // 1s between chunks to avoid Met API rate limiting
+    if (i > 0) await sleep(300); // 300ms between requests to avoid Met API rate limiting
     const chunk = rows.slice(i, i + MET_API_CONCURRENCY);
     const images = await Promise.all(chunk.map(row => fetchImageUrl(row.objectId)));
     for (let j = 0; j < chunk.length; j++) {
