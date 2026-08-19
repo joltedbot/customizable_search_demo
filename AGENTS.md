@@ -65,6 +65,14 @@ Do not add Jest, Vitest, or any test framework without flagging to the user. The
 - personas-{slug}.json Must Exist Before Setup: `pnpm run setup -- --slug {slug}` requires `scripts/data/personas-{slug}.json` to exist — the script crashes with ENOENT if it is missing. This file is not auto-generated. Create it before running setup using `scripts/data/personas-banking.json` as the format reference. Fields: id, name, tagline, gender, preferredBrands (use ["CPKC"] or equivalent for non-retail), preferredCategories (use category slugs from products-{slug}.json), purchaseHistory, clickHistory, season.
 - Credential Injection for Customer Demos: `generate-test.js` injects into `output/test/demo.html` only. For customer demos in `output/{slug}/demo.html`, use `pnpm run inject -- --slug {slug}` (`scripts/inject-credentials.js`). Run this after the AI agent generates the demo AND after `pnpm run setup` writes `AGENT_ID` to `.env`. Tokens replaced: `{{ES_URL}}`, `{{ES_API_KEY_READONLY}}`, `{{ES_INDEX}}`, `{{KIBANA_URL}}`, `{{KIBANA_API_KEY}}`, `{{AGENT_ID}}`.
 
+## Met Museum Reference Corpus (metmuseum-objects)
+
+The cluster contains a pre-built index `metmuseum-objects` with ~7,200 public-domain highlight and timeline works from the Met Museum open access CSV. It is a reference corpus — not a demo index — intended for agents to search when building demo content (e.g. selecting artworks for the Terentia DAM demo).
+
+**Searching:** Use the `platform_core_search` or `platform_core_execute_esql` MCP tools against `metmuseum-objects`. Key fields: `object_id` (integer), `title`, `object_name`, `department`, `culture`, `period`, `medium`, `artist_display_name`, `classification`, `tags` (keyword array), `link_resource` (canonical Met URL), `semantic` (semantic_text — use for natural language queries). The `is_highlight` boolean identifies the highest-profile works.
+
+**Image URLs:** The index does not contain image URLs. The Met Museum API rate-limits bulk fetching aggressively (returning empty responses under load). For individual objects, fetch on-demand: `GET https://collectionapi.metmuseum.org/public/collection/v1/objects/{object_id}` returns `primaryImageSmall` and `primaryImage`. This is fine for a handful of selected works; do not attempt to bulk-fetch across the full result set. 403 responses are common for objects whose images were restricted after the CSV was published — treat as "no image available."
+
 ## Constraints
 
 - No external hosting, CDN, or cloud deployment — laptop-local only

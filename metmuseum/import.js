@@ -15,19 +15,17 @@
 
 const fs   = require('fs');
 const path = require('path');
-const https = require('https');
 const { parse } = require('csv-parse');
 const { Client } = require('@elastic/elasticsearch');
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const INDEX_NAME          = 'metmuseum-objects';
-const INFERENCE_ID        = '.jina-embeddings-v5-text-small';
-const CSV_PATH            = path.join(__dirname, 'openaccess', 'MetObjects.csv');
-const CHECKPOINT_PATH     = path.join(__dirname, '.checkpoint');
-const FAILED_PATH         = path.join(__dirname, '.failed');
-const BATCH_SIZE          = 100;
-const MET_API_CONCURRENCY = 1;
+const INDEX_NAME      = 'metmuseum-objects';
+const INFERENCE_ID    = '.jina-embeddings-v5-text-small';
+const CSV_PATH        = path.join(__dirname, 'openaccess', 'MetObjects.csv');
+const CHECKPOINT_PATH = path.join(__dirname, '.checkpoint');
+const FAILED_PATH     = path.join(__dirname, '.failed');
+const BATCH_SIZE      = 500;
 
 // ─── .env loader ─────────────────────────────────────────────────────────────
 
@@ -188,60 +186,6 @@ async function* streamFilteredRows(fromId = 0) {
   }
 }
 
-// ─── Met API image fetching ──────────────────────────────────────────────────
-
-function fetchImageUrl(objectId) {
-  return new Promise((resolve) => {
-    const url = `https://collectionapi.metmuseum.org/public/collection/v1/objects/${objectId}`;
-    const req = https.get(url, { headers: { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0 (compatible; metmuseum-import/1.0)' } }, (res) => {
-      if (res.statusCode !== 200) {
-        // 403 is common — image restricted/removed since CSV was published; not an API problem
-        const fn = res.statusCode === 403 ? log : warn;
-        fn(`Met API ${res.statusCode} for object ${objectId}`);
-        res.resume();
-        resolve('');
-        return;
-      }
-      res.setEncoding('utf8');
-      let data = '';
-      res.on('data', chunk => {
-        if (data.length + chunk.length > 1_000_000) { res.destroy(); resolve(''); return; }
-        data += chunk;
-      });
-      res.on('end', () => {
-        try {
-          const json = JSON.parse(data);
-          resolve(json.primaryImageSmall || json.primaryImage || '');
-        } catch {
-          warn(`Met API JSON parse error for object ${objectId}`);
-          resolve('');
-        }
-      });
-    });
-    req.setTimeout(10000, () => { req.destroy(); warn(`Met API timeout for object ${objectId}`); resolve(''); });
-    req.on('error', (err) => { warn(`Met API error for object ${objectId}: ${err.message}`); resolve(''); });
-  });
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function fetchImagesForBatch(rows) {
-  const results = [];
-  for (let i = 0; i < rows.length; i += MET_API_CONCURRENCY) {
-    if (i > 0) await sleep(300); // 300ms between requests to avoid Met API rate limiting
-    const chunk = rows.slice(i, i + MET_API_CONCURRENCY);
-    const images = await Promise.all(chunk.map(row => fetchImageUrl(row.objectId)));
-    for (let j = 0; j < chunk.length; j++) {
-      if (images[j]) {
-        results.push({ ...chunk[j], primaryImage: images[j] });
-      }
-    }
-  }
-  return results;
-}
-
 // ─── Document composition & indexing ──────────────────────────────────────────
 
 function composeSemanticText(row) {
@@ -289,7 +233,6 @@ function composeDoc(row) {
     classification:      row.classification || null,
     tags:                row.tags ? row.tags.split('|').map(t => t.trim()).filter(Boolean) : [],
     link_resource:       row.linkResource || null,
-    primary_image:       row.primaryImage || null,
     semantic:            composeSemanticText(row),
   };
 
@@ -367,20 +310,16 @@ async function main() {
 
   step('Starting import...');
 
-  let batch     = [];
-  let total     = 0;
-  let skipped   = 0;
-  let failed    = 0;
-  let lastId    = fromId;
+  let batch  = [];
+  let total  = 0;
+  let failed = 0;
+  let lastId = fromId;
 
   for await (const row of streamFilteredRows(fromId)) {
     batch.push(row);
 
     if (batch.length >= BATCH_SIZE) {
-      const enriched = await fetchImagesForBatch(batch);
-      skipped += batch.length - enriched.length;
-
-      const docs = enriched.map(composeDoc);
+      const docs = batch.map(composeDoc);
       const failCount = await bulkIndex(client, docs);
       failed += failCount;
 
@@ -388,16 +327,14 @@ async function main() {
       writeCheckpoint(lastId);
       total += docs.length - failCount;
 
-      log(`Indexed ${total} objects | last ID: ${lastId} | skipped (no image): ${skipped}`);
+      log(`Indexed ${total} objects | last ID: ${lastId}`);
       batch = [];
     }
   }
 
   // Flush remaining
   if (batch.length > 0) {
-    const enriched = await fetchImagesForBatch(batch);
-    skipped += batch.length - enriched.length;
-    const docs = enriched.map(composeDoc);
+    const docs = batch.map(composeDoc);
     const failCount = await bulkIndex(client, docs);
     failed += failCount;
     total += docs.length - failCount;
@@ -409,7 +346,6 @@ async function main() {
 
   step('Import complete');
   ok(`Total indexed:       ${total}`);
-  ok(`Skipped (no image):  ${skipped}`);
   ok(`Failed (bulk error): ${failed}`);
   ok(`Last Object ID:      ${lastId}`);
 }
