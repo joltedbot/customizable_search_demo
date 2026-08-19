@@ -293,7 +293,7 @@ async function prepareMediaContent(products) {
 
     const dataUrl = await fetchMediaAsDataUrl(url, artifact.media_type, artifact.name);
     if (dataUrl) {
-      artifact.media_content = dataUrl;
+      artifact.media_content = { type: artifact.media_type === 'audio' ? 'audio' : 'image', value: dataUrl };
       embedded++;
     } else {
       skipped++;
