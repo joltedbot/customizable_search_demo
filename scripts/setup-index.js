@@ -285,7 +285,13 @@ async function prepareMediaContent(products) {
   for (const artifact of products) {
     if (!artifact.media_type) continue;
 
-    const url = artifact.media_type === 'audio' ? artifact.audio_url : artifact.image;
+    if (artifact.media_type === 'audio') {
+      warn(`Skipping audio embedding for "${artifact.name}" — audio files exceed 1 MB inference limit`);
+      skipped++;
+      continue;
+    }
+
+    const url = artifact.image;
     if (!url) {
       skipped++;
       continue;
