@@ -14,7 +14,7 @@
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "^6.0.0",
     "@elastic/elasticsearch": "^9.4.2",
-    "csv-parse": "^5.5.6",
+    "csv-parse": "^7.0.2",
     "serve": "^14.2.6"
   },
   "dependencies": {
