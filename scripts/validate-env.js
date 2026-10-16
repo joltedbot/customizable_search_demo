@@ -311,8 +311,8 @@ async function checkJinaOmni() {
 
   const omniId = process.env.JINA_OMNI_INFERENCE_ID;
   if (!omniId || isPlaceholder(omniId)) {
-    info('JINA_OMNI_INFERENCE_ID not set — required only for Terentia Media mode');
-    info('Set this var before running: pnpm run setup -- --slug terentia');
+    info('JINA_OMNI_INFERENCE_ID not set — required only for DAM Media mode');
+    info('Set this var before running: pnpm run setup -- --slug <dam-slug>');
     return;
   }
 

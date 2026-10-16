@@ -10,3 +10,4 @@ scripts/data/products-*.json
 scripts/data/personas-*.json
 !scripts/data/personas-banking.json
 sbom.cdx.json
+metmuseum/.museum-checkpoint.json
