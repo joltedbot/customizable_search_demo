@@ -33,14 +33,18 @@ cd "$root"
 blocked=""
 nl='
 '
-for f in $(git diff --cached --name-only --diff-filter=ACMR | tr '\n' ' '); do
-  base=${f##*/}
+staged=$(git -c core.quotepath=off diff --cached --name-only --diff-filter=ACMR)
+while IFS= read -r f; do
+  [ -n "$f" ] || continue
+  # Match case-insensitively (macOS filesystems are case-insensitive)
+  lf=$(printf '%s' "$f" | LC_ALL=C tr 'A-Z' 'a-z')
+  base=${lf##*/}
   why=""
   case "$base" in
     .env.template|.env.example) ;;
     .env|.env.*) why="environment file" ;;
   esac
-  case "$f" in
+  case "$lf" in
     output/*)
       case "$base" in
         config.js) why="generated credentials file" ;;
@@ -52,7 +56,9 @@ for f in $(git diff --cached --name-only --diff-filter=ACMR | tr '\n' ' '); do
   if [ -n "$why" ]; then
     blocked="${blocked}  ${f}  (${why})${nl}"
   fi
-done
+done <<EOF
+$staged
+EOF
 if [ -n "$blocked" ]; then
   echo "pre-commit: blocked, these staged paths must not be committed:" >&2
   printf '%s' "$blocked" >&2

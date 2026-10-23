@@ -4,6 +4,10 @@
 # Fake keys are built at runtime so this file itself contains no key-like literal.
 set -u
 
+# Isolate from any inherited git environment (e.g. when run from a git hook)
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY GIT_COMMON_DIR GIT_CONFIG GIT_PREFIX
+export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
+
 here=$(cd "$(dirname "$0")" && pwd)
 src=$(cd "$here/.." && pwd)
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/guard-test.XXXXXX") || exit 1
@@ -12,11 +16,12 @@ trap 'rm -rf "$tmp"' EXIT
 fails=0
 
 mkdir -p "$tmp/repo/.githooks" || exit 1
-cp "$src/.githooks/pre-commit" "$tmp/repo/.githooks/pre-commit"
-cp "$src/.gitleaks.toml" "$tmp/repo/.gitleaks.toml"
+cp "$src/.githooks/pre-commit" "$tmp/repo/.githooks/pre-commit" || exit 1
+cp "$src/.gitleaks.toml" "$tmp/repo/.gitleaks.toml" || exit 1
 cd "$tmp/repo" || exit 1
 [ "$(pwd -P)" != "$(cd "$src" && pwd -P)" ] || exit 1
 git init -q . || exit 1
+[ "$(git rev-parse --show-toplevel)" = "$(pwd -P)" ] || { echo "temp repo isolation failed"; exit 1; }
 git config user.email test@example.invalid
 git config user.name test
 git config commit.gpgsign false
@@ -48,6 +53,12 @@ check "(d) output/x/demo.config.json blocked"    block output/x/demo.config.json
 check "(e1) .env blocked"                        block .env "ES_URL=http://localhost"
 check "(e2) .env.template passes"                pass  .env.template "ES_URL="
 check "(f) {{ES_API_KEY_READONLY}} placeholder passes" pass tpl.html "apiKey: '{{ES_API_KEY_READONLY}}'"
+check "(j) .ENV blocked"                       block .ENV "ES_URL=x"
+check "(k) Output/x/Config.js blocked"           block Output/x/Config.js "x"
+check "(l) output/My Demo/config.js blocked"     block "output/My Demo/config.js" "x"
+check "(m) output/démo/demo.config.json blocked" block "output/démo/demo.config.json" "{}"
+check "(n) scripts/lib/config.js passes"         pass  scripts/lib/config.js "module.exports = {};"
+check "(o) template/config.js passes"            pass  template/config.js "x"
 check "(h) output/x/foo.local blocked"           block output/x/foo.local "x"
 
 # (g) fail closed without gitleaks: PATH holds only a symlink to git

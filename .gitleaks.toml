@@ -15,7 +15,7 @@ keywords = ["apikey", "api_key"]
 [[rules]]
 id = "elastic-apikey-header"
 description = "Authorization: ApiKey <value>"
-regex = '''ApiKey\s+([A-Za-z0-9+/=_-]{36,})'''
+regex = '''(?i)ApiKey\s+([A-Za-z0-9+/=_-]{36,})'''
 secretGroup = 1
 entropy = 3.0
 keywords = ["apikey"]
