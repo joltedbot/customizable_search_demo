@@ -493,7 +493,7 @@ Update with a short promotional message appropriate to the industry (e.g., "Summ
 
 ### 3o — Product Data for Elasticsearch
 
-**Skip this step if `.env` is missing or empty (mock-only mode).**
+**Skip this step if the user says the demo is mock-only (no cluster).**
 
 In v2 mode, search results come from Elasticsearch — not the template constants. Each customer gets their own product data file and ES index to prevent overwrites.
 
