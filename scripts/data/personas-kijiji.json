@@ -3,7 +3,7 @@
     "id": "alex",
     "name": "Alex",
     "tagline": "First apartment, furnishing on a budget",
-    "gender": "neutral",
+    "gender": "female",
     "preferredBrands": ["IKEA", "West Elm", "Umbra", "Cuisinart"],
     "preferredCategories": ["furniture", "home-decor", "rental-apartments", "kitchen-appliance"],
     "purchaseHistory": ["loveseat", "dining table", "toaster", "wall art"],
