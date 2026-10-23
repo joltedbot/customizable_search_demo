@@ -3,13 +3,15 @@
   "version": "2.0.0",
   "description": "Cloneable Elastic search demo for SA customer presentations",
   "scripts": {
-    "dev": "npx serve output -p 3000",
+    "dev": "pnpm exec serve output -p 3000",
     "validate": "node scripts/validate-env.js",
     "setup": "node scripts/setup-index.js",
     "reset": "node scripts/setup-index.js --reset",
     "generate-test": "node scripts/generate-test.js",
     "inject": "node scripts/inject-credentials.js",
-    "sbom": "cyclonedx-npm --output-file sbom.cdx.json"
+    "sbom": "cyclonedx-npm --output-file sbom.cdx.json",
+    "hooks": "git config core.hooksPath .githooks",
+    "test:guard": "sh .githooks/test-guard.sh"
   },
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "^6.0.0",

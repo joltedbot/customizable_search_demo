@@ -1,0 +1,68 @@
+#!/bin/sh
+# Pre-commit secret guard. Activate once per clone with: pnpm run hooks
+#
+# Blocks a commit when:
+#   1. gitleaks is not installed (fail closed; install with: brew install gitleaks)
+#   2. a staged path is a credentials/config file that must never be tracked:
+#        .env, .env.* (except .env.template / .env.example),
+#        output/**/config.js, output/**/demo.config.json, output/**/*.local
+#   3. gitleaks finds a secret in the staged changes (rules: .gitleaks.toml)
+#
+# Deliberate override (loud, visible in the commit output):
+#   SKIP_SECRET_GUARD=1 git commit ...
+# Messages never print file contents or secret values (gitleaks runs with --redact).
+set -eu
+
+if [ "${SKIP_SECRET_GUARD:-}" = "1" ]; then
+  echo "!!!!------------------------------------------------------------!!!!" >&2
+  echo "WARNING: SKIP_SECRET_GUARD=1 set - secret guard BYPASSED for this commit." >&2
+  echo "!!!!------------------------------------------------------------!!!!" >&2
+  exit 0
+fi
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks is not installed; refusing to commit (fail closed)." >&2
+  echo "  Install it with: brew install gitleaks" >&2
+  exit 1
+fi
+
+root=$(git rev-parse --show-toplevel)
+cd "$root"
+
+# Path rule
+blocked=""
+nl='
+'
+for f in $(git diff --cached --name-only --diff-filter=ACMR | tr '\n' ' '); do
+  base=${f##*/}
+  why=""
+  case "$base" in
+    .env.template|.env.example) ;;
+    .env|.env.*) why="environment file" ;;
+  esac
+  case "$f" in
+    output/*)
+      case "$base" in
+        config.js) why="generated credentials file" ;;
+        demo.config.json) why="per-demo config file" ;;
+        *.local) why="local-only file" ;;
+      esac
+      ;;
+  esac
+  if [ -n "$why" ]; then
+    blocked="${blocked}  ${f}  (${why})${nl}"
+  fi
+done
+if [ -n "$blocked" ]; then
+  echo "pre-commit: blocked, these staged paths must not be committed:" >&2
+  printf '%s' "$blocked" >&2
+  echo "  Unstage with: git restore --staged <path>" >&2
+  exit 1
+fi
+
+# Content rule
+if ! gitleaks git --staged --no-banner --redact -c "$root/.gitleaks.toml"; then
+  echo "pre-commit: gitleaks found possible secrets in staged changes (values redacted)." >&2
+  echo "  Remove them, or bypass deliberately with SKIP_SECRET_GUARD=1." >&2
+  exit 1
+fi
