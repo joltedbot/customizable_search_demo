@@ -54,7 +54,6 @@ Do not add Jest, Vitest, or any test framework without flagging to the user. The
 - Manual .env Parsing: All scripts in scripts/ use a custom loadEnv() function instead of the dotenv package.
 - The Reset + Generate Loop: Changes to product data (products.json) are not reflected until both pnpm run reset (to update the index) and pnpm run generate-test (to update the HTML tokens) are executed.
 - EIS Inference ID Suffixes: All inference IDs must be prefixed with a leading dot (e.g., .jina-reranker-v3).
-- Double-Dash Argument Passing: All custom flags (like --slug) must be preceded by a double-dash when run via pnpm (e.g., pnpm run setup -- --slug icbc).
 - Brand Safety (Non-Retail): Single-brand industries (Banking, Insurance) must use the customer name as `brand` for all real products. Noise products must use fictional brands. Competitor names in brand fields are prohibited.
 - Pexels Image Constraints: Only Pexels CDN links are allowed. Unsplash URLs are prohibited as they go stale. Pexels blocks headless/automated fetches (403); verify IDs manually or via API.
 - Z-Index Layer Stack: header=1000 → autocomplete=2000 → search overlay=3000 → genai overlay=4000 → query viewer=5000.
@@ -68,14 +67,17 @@ Do not add Jest, Vitest, or any test framework without flagging to the user. The
   Do NOT re-run setup for slug `terentia` (it would create differently named objects), and do NOT delay `pnpm run inject -- --slug {slug}` after setup for the same slug.
 - **Output Pages Contain Live Credentials When Copied**: after `pnpm run inject`, `output/{slug}/demo.html` holds real keys, so copying it to start another demo carries them over. — Why the naive alternative is wrong: a copy looks ready to use, but inject only substitutes `{{TOKENS}}`, and setup creates the index as `${ES_INDEX}-${slug}`.
   Do NOT copy an injected page without re-tokenising ES_CONFIG (`{{ES_URL}}`, `{{ES_API_KEY_READONLY}}`, `{{KIBANA_URL}}`, `{{KIBANA_API_KEY}}`, `{{AGENT_ID}}`), setting `index: '{{ES_INDEX}}-<slug>'`, and using `{{ES_URL}} {{KIBANA_URL}}` (not `https:`) in the CSP `connect-src`.
-- **Agent Shell Has No Network**: agent-run shell commands cannot reach the cluster or the Met API (sandbox), so setup, validate-env, and metmuseum fetches fail there. — Why the naive alternative is wrong: retrying or debugging credentials will not help.
-  Do NOT treat a network failure from an agent shell as a config bug; ask the user to run the command via `! <command>`. Also, `validate-env.js` reporting AGENT_ID failed / index not found before a slug's first setup is expected (it checks the base ES_INDEX name).
+- **Agent Shell Has No Network**: agent-run shell commands cannot reach the cluster or the Met API (sandbox), so setup, validate-env, and metmuseum fetches fail there. Exception: Pexels API calls work via `curl` with `PEXELS_API_KEY` from `.env`; Node `fetch` fails with EPERM because it ignores the sandbox proxy. — Why the naive alternative is wrong: retrying or debugging credentials will not help.
+  Do NOT treat a network failure from an agent shell as a config bug; ask the user to run the command via `! <command>`. Do NOT use Node `fetch` for Pexels from the agent shell; use `curl`. Also, `validate-env.js` reporting AGENT_ID failed / index not found before a slug's first setup is expected (it checks the base ES_INDEX name).
 - **Search Overlay Must Be Opened for New Result Paths**: `searchResultsGrid` lives inside `#searchOverlay`. Rendering results into the grid without first calling `searchOverlay.classList.add('open')` produces a populated but invisible grid — the overlay stays closed. — Why the naive alternative is wrong: result-rendering functions look standalone; the overlay open/close contract is implicit and not co-located with the grid write.
   Do NOT write results to `searchResultsGrid` from a new search mode without also opening `#searchOverlay`.
 - **Template Retail Constants Survive a Branding Pass**: `PRODUCTS`, `SUGGESTIONS`, and `FILTER_CHIPS` JS constants in the generated demo are seeded with retail content (e.g., "Nike Running Shoes") — a colour/logo/company-name sweep leaves them untouched, producing retail product names on a non-retail homepage. — Why the naive alternative is wrong: a branding pass naturally targets visual tokens; data constants look like application logic and are easy to miss.
   Do NOT consider a non-retail demo complete after replacing only colours, logos, and company name — sweep and replace all retail content constants.
 - **Query Viewer Requires Explicit Branch per Search Mode**: `buildEsQuery()` in the demo has no fallback-safe dispatch — unhandled modes silently fall through and the query viewer renders the wrong query body (e.g., RRF body for a knn-only mode). — Why the naive alternative is wrong: the search execution path and the query viewer path are separate; adding a mode to one does not add it to the other.
   Do NOT add a new search mode without also adding a matching branch to the query viewer rendering logic.
+
+- **New Slug Files Are Gitignored**: `.gitignore` ignores `scripts/data/products-*.json` and `output/<slug>/`, so a plain `git add` / `git commit` silently omits a new slug's data and `demo.html` — Why the naive alternative is wrong: the commit succeeds and looks complete; banking and cpkc are tracked only because they were force-added.
+  Do NOT assume new slug data or demo files were committed without `git add -f` on them.
 
 ## Met Museum Source Data
 
