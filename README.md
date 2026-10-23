@@ -178,8 +178,8 @@ All commands are run from the repo root using pnpm. Customer-specific commands u
 |---|---|---|
 | `pnpm install` | Installs project dependencies (`@elastic/elasticsearch`, `serve`) | Once after cloning, or after pulling changes that update `package.json` |
 | `pnpm run validate` | Pre-flight check — verifies `.env` credentials, the write key (Keychain or `ES_API_KEY` env var), ES connectivity, inference endpoints, and Agent Builder access | Before first `pnpm run setup`, or after changing credentials. Add `-- --slug <name>` to check that demo's index and agent, `-- --skip-agent` to skip Kibana/Agent Builder checks |
-| `pnpm run setup` | Creates ES product + persona indexes, deploys Jina Embeddings inference endpoint, seeds products, and creates/updates Agent Builder agent + tools | Once per customer to initialize the cluster. Add `-- --slug <name>` for customer-specific indexes, `-- --skip-agent` to skip Agent Builder setup |
-| `pnpm run reset` | Wipes and reseeds product + persona indexes (does **not** delete the Agent Builder agent/tools) | After editing `products.json` or `products-{slug}.json` to push updated data to ES. Add `-- --slug <name>` for customer-specific indexes |
+| `pnpm run setup -- --slug <name>` | Creates ES product + persona indexes, deploys Jina Embeddings inference endpoint, seeds products, and creates/updates Agent Builder agent + tools | Once per customer to initialize the cluster (`--slug` is required). Add `-- --skip-agent` to skip Agent Builder setup |
+| `pnpm run reset -- --slug <name>` | Wipes and reseeds product + persona indexes (does **not** delete the Agent Builder agent/tools) | After editing `products.json` or `products-{slug}.json` to push updated data to ES (`--slug` is required) |
 | `pnpm run inject` | Writes the gitignored `output/<slug>/config.js` (browser credentials from `.env` plus ids from `demo.config.json`) | After `pnpm run setup -- --slug <name>` and whenever a key is rotated. Use `-- --slug <name>` or `-- --all` |
 | `pnpm run generate-test` | Copies the template to `output/test/demo.html` and writes the gitignored `output/test/config.js` from `.env` | For local testing — run after `pnpm run setup` or `pnpm run reset` to get a working demo without running the AI agent |
 | `pnpm run hooks` | Sets `core.hooksPath` to `.githooks` to enable the pre-commit secret guard | Once per clone (needs `brew install gitleaks`); see [`SECRETS.md`](SECRETS.md) |
@@ -190,7 +190,7 @@ All commands are run from the repo root using pnpm. Customer-specific commands u
 **Typical workflows:**
 
 - **First-time setup:** `pnpm install` → `pnpm run hooks` → `pnpm run validate -- --slug <name>` → `pnpm run setup -- --slug <name>` → run AI agent with `SETUP.md` → `pnpm run inject -- --slug <name>` → `pnpm dev`
-- **Updated product data:** Edit `products.json` → `pnpm run reset` → `pnpm run generate-test` (for test build) → `pnpm dev`
+- **Updated product data:** Edit `products.json` → `pnpm run reset -- --slug <name>` → `pnpm run generate-test` (for test build) → `pnpm dev`
 - **Quick local test (no AI agent):** `pnpm run generate-test` → `pnpm dev` → open `http://localhost:3000/test/demo.html`
 
 ---

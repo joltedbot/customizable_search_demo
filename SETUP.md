@@ -44,7 +44,7 @@ DEMO_NARRATIVE:
 
 The demo runs against a real Elasticsearch cluster with semantic search and live AI responses. Complete these pre-steps before proceeding to Step 1.
 
-**Prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed as an inference endpoint, Jina Reranker v3 (`.jina-reranker-v3`) deployed in Kibana ML Trained Models, two API keys (exact JSON provided below), Kibana CORS enabled for localhost origins, and an LLM connector configured in Kibana (GenAI Settings → Default AI Connector).
+**Prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed as an inference endpoint, Jina Reranker v3 (`.jina-reranker-v3`) deployed in Kibana ML Trained Models, three API keys (write, read-only, and Kibana; exact JSON provided below), Kibana CORS enabled for localhost origins, and an LLM connector configured in Kibana (GenAI Settings → Default AI Connector).
 
 ### v2-A — Configure credentials
 
@@ -61,6 +61,7 @@ Fill in `.env` — you need **two browser-facing API keys** (read-only ES key an
 - Per-demo ids are not kept in `.env`: `pnpm run setup` writes `output/<slug>/demo.config.json` (index, tool, and agent ids; gitignored, per demo).
 
 **`ES_API_KEY` — write key, used only by `pnpm run setup`. Never baked into HTML and not stored in `.env`.**
+The `"*"` index pattern in this role is a deliberate exception: the write key never leaves your machine (Keychain), unlike the browser keys.
 Store it once in the macOS Keychain (the command prompts for the value; add `-U` to update):
 ```bash
 security add-generic-password -s customizable-search-demo -a ES_API_KEY -w

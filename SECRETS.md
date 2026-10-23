@@ -10,7 +10,7 @@ How credentials are stored, used, rotated, and kept out of git in this repo.
 | Read-only ES key `ES_API_KEY_READONLY`, `KIBANA_API_KEY` | Yes (reach the browser) | `.env`, then generated into `output/<slug>/config.js` | Never |
 | `ES_URL`, `KIBANA_URL`, `ES_INDEX`, `JINA_OMNI_INFERENCE_ID` | No, but deployment-specific | `.env` | Never (`.env`); `.env.template` holds placeholders only |
 | Index, tool, and agent ids | No (identifiers, kept private anyway) | `output/<slug>/demo.config.json` | Never |
-| `output/<slug>/demo.html` | No credentials inside | `output/<slug>/` | Yes, safe to commit |
+| `output/<slug>/demo.html` | No credentials inside | `output/<slug>/` | Yes, safe to commit once migrated to the `config.js` model |
 
 `ES_API_KEY` entries in `.env` are ignored with a warning. Nothing per-demo is written to `.env`.
 
@@ -35,18 +35,18 @@ pnpm run inject -- --slug <name>     # writes output/<name>/config.js
 pnpm dev
 ```
 
-- `demo.html` loads credentials from `config.js` through a `<script>` tag and contains none itself, so it is always safe to commit.
+- `demo.html` loads credentials from `config.js` through a `<script>` tag and contains none itself, so a page in this model is safe to commit. This applies only to pages already migrated (run `migrate-demo.js`, then `inject`, first; an old page may still hold inline keys).
 - `config.js` and `demo.config.json` are gitignored and blocked by the pre-commit guard. Never commit them.
-- `output/<slug>/` is gitignored, so committing a new demo page needs `git add -f output/<slug>/demo.html`. Do not force-add anything else under `output/`.
+- `output/<slug>/` is gitignored, so committing a new demo page needs `git add -f output/<slug>/demo.html`. The same migrated-page caveat applies. Do not force-add anything else under `output/`.
 
 ## 4. Rotating a key
 
 1. Create the new key in Kibana (Stack Management, API Keys) or with `POST /_security/api_key`, with an `expiration`.
 2. Edit `.env` (browser keys) or update the Keychain entry with `-U` (write key).
 3. Regenerate pages: `pnpm run inject -- --all`.
-4. Invalidate the old key: `DELETE /_security/api_key` with the old key's id in the request body (`{"ids": ["<old key id>"]}`).
+4. Invalidate the old key, typically with `DELETE /_security/api_key` and the old key's id in the request body (`{"ids": ["<old key id>"]}`), or from Kibana.
 
-To change a key's role or expiry without issuing a new key, use `PUT /_security/api_key/{id}`. The caller must be the key's owner for both operations (or have the needed `manage_*` privileges).
+To change a key's role or expiry without issuing a new key, `PUT /_security/api_key/{id}` typically works, and the caller is typically the key's owner. These API details were not verified against live docs here; confirm them against the current Elastic documentation before relying on them.
 
 ## 5. Least-privilege keys and expiry
 
@@ -96,5 +96,5 @@ The reference project `support_bundle_visualizer` uses secretlint plus an untrac
 
 1. Invalidate it immediately (`DELETE /_security/api_key`, or Kibana, API Keys, Invalidate).
 2. Rotate: create a replacement and run section 4.
-3. Check whether it reached git: `git log -S"<first characters of the key>" --all` and `gitleaks git --no-banner --redact -c .gitleaks.toml`.
+3. Check whether it reached git: `gitleaks git --no-banner --redact -c .gitleaks.toml`. Do not paste key fragments into shell commands (they land in shell history).
 4. Rewrite history only if the repo owner decides to. Invalidation is what makes the leak harmless.
