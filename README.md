@@ -43,22 +43,23 @@ Install the following before starting:
 git clone <repo-url> my-customer-demo
 cd my-customer-demo
 
-# 1. Configure credentials and seed the index
+# 1. Configure and validate credentials
 cp .env.template .env   # fill in ES_URL, ES_INDEX, ES_API_KEY_READONLY, KIBANA_URL, KIBANA_API_KEY (exact key JSON in .env.template)
 security add-generic-password -s customizable-search-demo -a ES_API_KEY -w   # write key goes in the Keychain, not .env (prompts for the value)
-pnpm install
-pnpm run hooks          # one-time: enable the pre-commit secret guard (needs: brew install gitleaks)
-pnpm run validate -- --slug <customer-slug>   # pre-flight check — fix any ✗ failures before continuing
-pnpm run setup -- --slug <customer-slug>      # creates ES indexes, Agent Builder agent + tools, writes output/<slug>/demo.config.json
-# To skip agent creation: pnpm run setup -- --slug <customer-slug> --skip-agent
+pnpm install            # also enables the pre-commit secret guard ("prepare" script; needs: brew install gitleaks)
+pnpm run hooks          # same activation, if install ran before the hook existed
+pnpm run validate -- --slug <customer-slug>   # pre-flight check — fix any ✗ failures (index/agent "not found" is expected before setup)
 
 # 2. Generate the branded demo (via AI agent)
 claude   # or: gemini
 # → "Please read SETUP.md and follow the instructions."
+# Writes output/<slug>/demo.html and scripts/data/products-<slug>.json (step 3o)
 
-# 3. Serve and open
+# 3. Seed the index, inject credentials, serve
+pnpm run setup -- --slug <customer-slug>    # needs scripts/data/products-<slug>.json; creates ES indexes, Agent Builder agent + tools, writes output/<slug>/demo.config.json
+# To skip agent creation: pnpm run setup -- --slug <customer-slug> --skip-agent
 pnpm run inject -- --slug <customer-slug>   # writes the gitignored output/<slug>/config.js with the browser credentials
-pnpm dev
+pnpm dev                                    # serves output/ on 127.0.0.1:3000 only (loopback)
 open http://localhost:3000/<customer-slug>/demo.html
 ```
 
@@ -181,17 +182,17 @@ All commands are run from the repo root using pnpm. Customer-specific commands u
 | `pnpm run setup -- --slug <name>` | Creates ES product + persona indexes, deploys Jina Embeddings inference endpoint, seeds products, and creates/updates Agent Builder agent + tools | Once per customer to initialize the cluster (`--slug` is required). Add `-- --skip-agent` to skip Agent Builder setup |
 | `pnpm run reset -- --slug <name>` | Wipes and reseeds product + persona indexes (does **not** delete the Agent Builder agent/tools) | After editing `products.json` or `products-{slug}.json` to push updated data to ES (`--slug` is required) |
 | `pnpm run inject` | Writes the gitignored `output/<slug>/config.js` (browser credentials from `.env` plus ids from `demo.config.json`) | After `pnpm run setup -- --slug <name>` and whenever a key is rotated. Use `-- --slug <name>` or `-- --all` |
-| `pnpm run generate-test` | Copies the template to `output/test/demo.html` and writes the gitignored `output/test/config.js` from `.env` | For local testing — run after `pnpm run setup` or `pnpm run reset` to get a working demo without running the AI agent |
-| `pnpm run hooks` | Sets `core.hooksPath` to `.githooks` to enable the pre-commit secret guard | Once per clone (needs `brew install gitleaks`); see [`SECRETS.md`](SECRETS.md) |
+| `pnpm run generate-test -- --slug <name>` | Copies the template to `output/test/demo.html` and writes the gitignored `output/test/config.js` from `.env`, using the index and agent id in `output/<name>/demo.config.json` | For local testing — run after `pnpm run setup -- --slug <name>` to get a working demo without running the AI agent (`--slug` is required) |
+| `pnpm run hooks` | Sets `core.hooksPath` to `.githooks` to enable the pre-commit secret guard (`pnpm install` does the same via the `prepare` script) | Once per clone (needs `brew install gitleaks`); see [`SECRETS.md`](SECRETS.md) |
 | `pnpm run test:guard` | Self-test of the pre-commit guard in a temp repo | After enabling the hook, or after editing `.githooks/` or `.gitleaks.toml` |
-| `pnpm dev` | Starts a local web server serving the `output/` directory on `http://localhost:3000` | Whenever you want to view the demo in a browser (works for both test and customer builds) |
+| `pnpm dev` | Starts a local web server serving the `output/` directory on `http://localhost:3000`, bound to 127.0.0.1 only (not reachable from the network; settings in `serve.json`) | Whenever you want to view the demo in a browser (works for both test and customer builds) |
 | `pnpm run sbom` | Generates a CycloneDX SBOM file (`sbom.cdx.json`) listing all project dependencies | For security and compliance audits; output is gitignored |
 
 **Typical workflows:**
 
-- **First-time setup:** `pnpm install` → `pnpm run hooks` → `pnpm run validate -- --slug <name>` → `pnpm run setup -- --slug <name>` → run AI agent with `SETUP.md` → `pnpm run inject -- --slug <name>` → `pnpm dev`
-- **Updated product data:** Edit `products.json` → `pnpm run reset -- --slug <name>` → `pnpm run generate-test` (for test build) → `pnpm dev`
-- **Quick local test (no AI agent):** `pnpm run generate-test` → `pnpm dev` → open `http://localhost:3000/test/demo.html`
+- **First-time setup:** `pnpm install` → `pnpm run hooks` → `pnpm run validate -- --slug <name>` → run AI agent with `SETUP.md` (writes `scripts/data/products-<name>.json`) → `pnpm run setup -- --slug <name>` → `pnpm run inject -- --slug <name>` → `pnpm dev`
+- **Updated product data:** Edit `products-<name>.json` → `pnpm run reset -- --slug <name>` → `pnpm run generate-test -- --slug <name>` (for test build) → `pnpm dev`
+- **Quick local test (no AI agent):** `pnpm run setup -- --slug <name>` (once; needs `scripts/data/products-<name>.json`) → `pnpm run generate-test -- --slug <name>` → `pnpm dev` → open `http://localhost:3000/test/demo.html`
 
 ---
 

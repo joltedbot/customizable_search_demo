@@ -61,6 +61,7 @@ Fill in `.env` — you need **two browser-facing API keys** (read-only ES key an
 - Per-demo ids are not kept in `.env`: `pnpm run setup` writes `output/<slug>/demo.config.json` (index, tool, and agent ids; gitignored, per demo).
 
 **`ES_API_KEY` — write key, used only by `pnpm run setup`. Never baked into HTML and not stored in `.env`.**
+
 The `"*"` index pattern in this role is a deliberate exception: the write key never leaves your machine (Keychain), unlike the browser keys.
 Store it once in the macOS Keychain (the command prompts for the value; add `-U` to update):
 ```bash
@@ -112,7 +113,7 @@ Create it the same way (with an expiration), with this JSON:
 }
 ```
 
-### v2-B — Validate credentials and seed the index
+### v2-B — Validate credentials
 
 ```bash
 pnpm install
@@ -121,13 +122,7 @@ pnpm run validate -- --slug [CUSTOMER_SLUG]
 
 This checks that all `.env` values are set, the write key is found (Keychain or `ES_API_KEY` env var), the cluster is reachable, the API keys work, and Kibana is reachable. Before the slug's first setup, an index or agent "not found" result is expected. Fix any `✗` failures before continuing.
 
-```bash
-pnpm run setup -- --slug [CUSTOMER_SLUG]
-```
-
-This creates the index, enables ELSER semantic embeddings, bulk-loads the product dataset, and auto-creates the Agent Builder agent + tools via the Kibana API. Confirm the output shows `✓ All [N] products indexed successfully` and `✓ Agent Builder setup complete`. Setup writes `output/[CUSTOMER_SLUG]/demo.config.json` (index, tool, and agent ids; gitignored, per demo). Run `pnpm run setup -- --slug {name} --skip-agent` to skip agent creation and use an existing agent.
-
-Then the user runs `pnpm run inject -- --slug [CUSTOMER_SLUG]` (user-run; writes `output/[CUSTOMER_SLUG]/config.js`, which holds the credentials the page loads).
+Do not run `pnpm run setup` yet: it needs `scripts/data/products-[CUSTOMER_SLUG].json`, which is written in step 3o. Setup and inject run after 3o.
 
 ### v2-C — Configure CORS (Elasticsearch)
 
@@ -545,15 +540,18 @@ In v2 mode, search results come from Elasticsearch — not the template constant
 2. Include all products from the homepage grid, search modes, and GenAI kits. Also include noise products with `"is_noise": true`.
 3. Real product IDs: 1–50. Noise product IDs: 101+.
 4. Write rich `description` fields — these power semantic search (ELSER). Include use cases, features, materials, and scenarios.
-5. Reseed the Elasticsearch index:
+5. Seed the Elasticsearch index and create the agent (the user runs these; the agent shell has no cluster access):
 
 ```bash
-pnpm run reset -- --slug [CUSTOMER_SLUG]
+pnpm run setup -- --slug [CUSTOMER_SLUG]
+pnpm run inject -- --slug [CUSTOMER_SLUG]
 ```
 
-The `--slug` flag reads from `products-[CUSTOMER_SLUG].json` and creates index `{ES_INDEX}-[CUSTOMER_SLUG]` (where `ES_INDEX` is the base prefix from `.env`; the full name is recorded in `demo.config.json`). This keeps each customer's data isolated.
+`setup` reads `products-[CUSTOMER_SLUG].json`, creates index `{ES_INDEX}-[CUSTOMER_SLUG]` (where `ES_INDEX` is the base prefix from `.env`; the full name is recorded in `demo.config.json`), enables semantic embeddings, bulk-loads the products, and creates the Agent Builder agent + tools via the Kibana API. This keeps each customer's data isolated. It writes `output/[CUSTOMER_SLUG]/demo.config.json` (index, tool, and agent ids; gitignored, per demo). Add `--skip-agent` to skip agent creation and use an existing agent. Confirm the output shows `✓ All [N] products indexed successfully`.
 
-Confirm output shows `✓ All [N] products indexed successfully`.
+`inject` then writes `output/[CUSTOMER_SLUG]/config.js` (gitignored), which holds the credentials the page loads.
+
+To push later edits of the product file to an existing index, use `pnpm run reset -- --slug [CUSTOMER_SLUG]`.
 
 ---
 
