@@ -1548,6 +1548,7 @@ const ES_CONFIG = {
 // ============================================================
 
 // CUSTOMIZE: Industry-specific labels (defaults are retail)
+const fmtPrice = n => '$' + Number(n).toLocaleString('en-CA', { minimumFractionDigits: Number.isInteger(Number(n)) ? 0 : 2, maximumFractionDigits: 2 });
 const CTA_LABEL = 'Contact seller';
 const CART_TITLE = 'Saved Ads';
 const CART_EMPTY_MSG = 'No saved ads yet';
@@ -1943,8 +1944,8 @@ function renderProduct(p) {
         <div class="product-brand">${escapeHtml(p.brand)}</div>
         <div class="product-name">${escapeHtml(p.name)}</div>
         ${hasPrice ? `<div class="product-price">
-          <span class="price-current">$${displayPrice.toFixed(2)}</span>
-          ${hasSale ? `<span class="price-original">$${p.price.toFixed(2)}</span><span class="price-sale">Save $${(p.price - p.sale).toFixed(2)}</span>` : ''}
+          <span class="price-current">${fmtPrice(displayPrice)}</span>
+          ${hasSale ? `<span class="price-original">${fmtPrice(p.price)}</span><span class="price-sale">Save ${fmtPrice(p.price - p.sale)}</span>` : ''}
         </div>` : ''}
         <div class="product-rating">
           <span class="stars">${'★'.repeat(Math.round(p.rating))}${'☆'.repeat(5 - Math.round(p.rating))}</span>
@@ -1964,7 +1965,7 @@ function renderGenAIProduct(p, index) {
       <div class="genai-product-info">
         <div class="genai-product-name">${escapeHtml(p.name)}</div>
         <div class="genai-product-brand">${escapeHtml(p.brand)}</div>
-        ${hasPrice ? `<div class="genai-product-price">$${p.price.toFixed(2)}</div>` : ''}
+        ${hasPrice ? `<div class="genai-product-price">${fmtPrice(p.price)}</div>` : ''}
         <button class="genai-product-cart-btn" data-product-index="${index}">${escapeHtml(CTA_LABEL)}</button>
       </div>
     </div>`;
@@ -2695,7 +2696,7 @@ function renderGenAIProducts(products) {
 
   const totalPrice = products.reduce((sum, p) => sum + (p.price || 0), 0);
   addAllBtn.textContent = totalPrice > 0
-    ? `${CTA_LABEL} — all ${products.length} — $${totalPrice.toFixed(2)}`
+    ? `${CTA_LABEL} — all ${products.length} — ${fmtPrice(totalPrice)}`
     : `${CTA_LABEL} — all ${products.length}`;
   addAllBtn.style.display = 'block';
   addAllBtn.style.background = '';
@@ -2929,7 +2930,7 @@ function renderCartDrawer() {
     if (p.price != null && p.price > 0) {
       const price = document.createElement('div');
       price.className = 'cart-item-price';
-      price.textContent = `$${Number(p.price).toFixed(2)}`;
+      price.textContent = fmtPrice(Number(p.price));
       info.appendChild(price);
     }
     item.appendChild(img);
@@ -2938,7 +2939,7 @@ function renderCartDrawer() {
   });
   const total = cartItems.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
   if (total > 0) {
-    document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+    document.getElementById('cartTotal').textContent = fmtPrice(total);
   } else {
     document.getElementById('cartTotal').textContent = '';
   }
@@ -3052,7 +3053,7 @@ function buildAutoComplete(q) {
         nameEl.innerHTML = highlight(p.name, trimmed);
         const priceEl = document.createElement('div');
         priceEl.className = 'price';
-        priceEl.textContent = `$${(p.sale ?? p.price).toFixed(2)}`;
+        priceEl.textContent = fmtPrice(p.sale ?? p.price);
         info.appendChild(nameEl);
         info.appendChild(priceEl);
         el.appendChild(img);
