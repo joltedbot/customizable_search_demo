@@ -175,7 +175,7 @@ function main() {
     slugs = fs.existsSync(out)
       ? fs.readdirSync(out, { withFileTypes: true }).filter(e => e.isDirectory() && e.name !== 'test').map(e => e.name).sort()
       : [];
-  } else if (si !== -1 && args[si + 1]) {
+  } else if (si !== -1 && args[si + 1] && !args[si + 1].startsWith('--')) {
     slugs = [args[si + 1]];
   } else {
     console.error('Usage: node scripts/migrate-demo.js (--slug <name> | --all) [--apply]');
@@ -183,7 +183,15 @@ function main() {
   }
 
   log(apply ? 'APPLY mode' : 'DRY RUN (no files written; add --apply to migrate)');
-  const results = slugs.map(s => migrate(s, apply));
+  // One bad dir must not abort the rest; any error still exits nonzero.
+  const results = slugs.map(s => {
+    try {
+      return migrate(s, apply);
+    } catch (err) {
+      log(`[${s}] ERROR: ${err.message}; remaining steps skipped for this demo`);
+      return 'failed';
+    }
+  });
   if (results.includes('failed')) process.exit(1);
 }
 

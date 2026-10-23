@@ -82,6 +82,15 @@ function deriveNames(slug, esIndexBase = 'demo-products') {
 
 const NAME_FIELDS = ['indexName', 'personaIndex', 'toolId', 'agentId'];
 
+// Index/tool/agent names reach URLs and index APIs: no wildcards, slashes, '?', or
+// leading '_' (e.g. _all). The ES_INDEX prefix is not enforced (custom names exist).
+const NAME_RE = /^[a-z0-9][a-z0-9._-]*$/;
+function assertName(field, value) {
+  if (typeof value !== 'string' || !NAME_RE.test(value)) {
+    throw new Error(`invalid ${field} ${JSON.stringify(value)}: use lowercase letters, digits, '.', '_' and '-' (no wildcards or slashes)`);
+  }
+}
+
 // Slugs become directory names and index/id suffixes, so keep them path-safe.
 function assertSlug(slug) {
   if (typeof slug !== 'string' || !/^[a-z0-9][a-z0-9-]*$/.test(slug)) {
@@ -100,8 +109,9 @@ function readDemoConfig(slug) {
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf8'));
-  } catch (err) {
-    throw new Error(`Invalid JSON in ${p}: ${err.message}`);
+  } catch (_) {
+    // No parser detail: it can quote file content (e.g. if the path is a symlink to .env).
+    throw new Error(`Invalid JSON in ${p}`);
   }
 }
 
@@ -109,8 +119,10 @@ function writeDemoConfig(slug, obj) {
   const p = demoConfigPath(slug);
   fs.mkdirSync(demoDir(slug), { recursive: true });
   const merged = { ...(readDemoConfig(slug) || {}), ...obj };
+  // Replace rather than follow a pre-existing file (symlink or loose permissions).
+  fs.rmSync(p, { force: true });
   fs.writeFileSync(p, JSON.stringify(merged, null, 2) + '\n', { mode: 0o600 });
-  fs.chmodSync(p, 0o600); // mode above is ignored when the file already exists
+  fs.chmodSync(p, 0o600);
   return merged;
 }
 
@@ -119,9 +131,13 @@ function resolveNames(slug, esIndexBase) {
   const cfg = readDemoConfig(slug);
   if (cfg) {
     for (const f of NAME_FIELDS) {
-      if (typeof cfg[f] === 'string' && cfg[f]) names[f] = cfg[f];
+      if (cfg[f] === undefined || cfg[f] === null || cfg[f] === '') continue;
+      assertName(f, cfg[f]);
+      names[f] = cfg[f];
     }
   }
+  // Derived names must pass too (ES_INDEX comes from .env).
+  for (const f of NAME_FIELDS) assertName(f, names[f]);
   return names;
 }
 

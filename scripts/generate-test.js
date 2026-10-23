@@ -2,17 +2,34 @@
 /**
  * generate-test.js
  * Copies the template to output/test/demo.html and writes output/test/config.js
- * (gitignored, holds the .env credentials) for testing ES integration.
+ * (gitignored, holds the .env credentials) for testing ES integration. Index and
+ * agent id come from output/<slug>/demo.config.json, written by setup.
+ *
+ * Usage: node scripts/generate-test.js --slug <name>
  */
 
 const fs = require('fs');
 const path = require('path');
-const { ROOT, loadEnv } = require('./lib/config');
-const { buildConfigJs } = require('./inject-credentials');
+const { ROOT, loadEnv, readDemoConfig, resolveNames } = require('./lib/config');
+const { writeConfigFile } = require('./inject-credentials');
+
+const args = process.argv.slice(2);
+const slugIdx = args.indexOf('--slug');
+const slug = slugIdx !== -1 && args[slugIdx + 1] && !args[slugIdx + 1].startsWith('--') ? args[slugIdx + 1] : null;
+if (!slug) {
+  console.error('ERROR: --slug <name> is required (the demo whose index and agent the test page uses)');
+  console.error('  Usage: pnpm run generate-test -- --slug <name>');
+  process.exit(1);
+}
 
 let env;
+let names;
 try {
   env = loadEnv();
+  if (!readDemoConfig(slug)) {
+    throw new Error(`output/${slug}/demo.config.json not found. Run setup first: pnpm run setup -- --slug ${slug}`);
+  }
+  names = resolveNames(slug, env.ES_INDEX);
 } catch (err) {
   console.error(`ERROR: ${err.message}`); process.exit(1);
 }
@@ -27,19 +44,16 @@ if (!env.KIBANA_API_KEY) {
   console.warn('WARNING: KIBANA_API_KEY not set in .env — Agent Builder (GenAI mode) will return 403. See README for how to create this key.');
 }
 
-const index = env.ES_INDEX || 'demo-products';
-
 const templatePath = path.join(ROOT, 'template', 'index.html');
 const outDir = path.join(ROOT, 'output', 'test');
 fs.mkdirSync(outDir, { recursive: true });
 fs.copyFileSync(templatePath, path.join(outDir, 'demo.html'));
 
-const configPath = path.join(outDir, 'config.js');
-fs.writeFileSync(configPath, buildConfigJs(env, { index, agentId: '' }), { mode: 0o600 });
-fs.chmodSync(configPath, 0o600);
+writeConfigFile(path.join(outDir, 'config.js'), env, { index: names.indexName, agentId: names.agentId });
 
 console.log(`\n✓ Generated: output/test/demo.html and output/test/config.js`);
 console.log(`  ES_URL:   ${env.ES_URL}`);
-console.log(`  ES_INDEX: ${index}`);
+console.log(`  index:    ${names.indexName} (slug: ${slug})`);
+console.log(`  agentId:  ${names.agentId}`);
 console.log(`\n  Run: pnpm dev`);
 console.log(`  Open: http://localhost:3000/test/demo.html\n`);
