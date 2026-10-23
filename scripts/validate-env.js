@@ -19,6 +19,7 @@ const fs      = require('fs');
 const path    = require('path');
 const http    = require('http');
 const https   = require('https');
+const { execFileSync } = require('child_process');
 const { Client } = require('@elastic/elasticsearch');
 const { ROOT, loadEnv, getWriteKey, resolveNames } = require('./lib/config');
 
@@ -44,6 +45,7 @@ function step(msg) { console.log(`\n▶ ${msg}`); }
 function ok(msg)   { console.log(`  ✓ ${msg}`); passed++; }
 function fail(msg) { console.log(`  ✗ ${msg}`); failed++; }
 function info(msg) { console.log(`  · ${msg}`); }
+function warn(msg) { console.log(`  ⚠ ${msg}`); } // not counted as a failure
 
 function isPlaceholder(val) {
   return !val || val.startsWith('your_') || val.includes('your-deployment') || val.includes('your-inference');
@@ -341,6 +343,18 @@ async function checkJinaOmni() {
   }
 }
 
+// ─── Pre-commit guard (warning only) ─────────────────────────────────────────
+
+function checkHooksPath() {
+  let hooksPath = '';
+  try {
+    hooksPath = execFileSync('git', ['config', 'core.hooksPath'], { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch (_) { /* unset or not a git checkout */ }
+  if (hooksPath !== '.githooks') {
+    warn('Pre-commit secret guard is not enabled (git core.hooksPath is not .githooks). Fix: pnpm run hooks');
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -355,6 +369,7 @@ async function main() {
   }
   loadEnv();
   info('.env loaded');
+  checkHooksPath();
 
   WRITE_KEY = getWriteKey();
   if (SLUG) {

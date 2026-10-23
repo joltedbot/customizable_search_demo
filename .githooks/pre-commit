@@ -1,11 +1,13 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Pre-commit secret guard. Activate once per clone with: pnpm run hooks
+# (pnpm install also runs it via the "prepare" script).
 #
 # Blocks a commit when:
 #   1. gitleaks is not installed (fail closed; install with: brew install gitleaks)
 #   2. a staged path is a credentials/config file that must never be tracked:
-#        .env, .env.* (except .env.template / .env.example),
-#        output/**/config.js, output/**/demo.config.json, output/**/*.local
+#        .env, .env.* (except .env.template / .env.example), .envrc,
+#        output/**/config.js, output/**/demo.config.json, output/**/*.local,
+#        output/**/*.pre-migrate
 #   3. gitleaks finds a secret in the staged changes (rules: .gitleaks.toml)
 #
 # Deliberate override (loud, visible in the commit output):
@@ -29,12 +31,15 @@ fi
 root=$(git rev-parse --show-toplevel)
 cd "$root"
 
-# Path rule
+# Path rule. Paths are read NUL-delimited so quotes, tabs and newlines in names match.
+# Listed into a temp file first so a git failure aborts the hook (set -e, fail closed).
+staged=$(mktemp "${TMPDIR:-/tmp}/pre-commit.XXXXXX")
+trap 'rm -f "$staged"' EXIT
+git diff --cached -z --name-only --diff-filter=ACMR > "$staged"
 blocked=""
 nl='
 '
-staged=$(git -c core.quotepath=off diff --cached --name-only --diff-filter=ACMR)
-while IFS= read -r f; do
+while IFS= read -r -d '' f; do
   [ -n "$f" ] || continue
   # Match case-insensitively (macOS filesystems are case-insensitive)
   lf=$(printf '%s' "$f" | LC_ALL=C tr 'A-Z' 'a-z')
@@ -42,7 +47,7 @@ while IFS= read -r f; do
   why=""
   case "$base" in
     .env.template|.env.example) ;;
-    .env|.env.*) why="environment file" ;;
+    .env|.env.*|.envrc) why="environment file" ;;
   esac
   case "$lf" in
     output/*)
@@ -50,15 +55,14 @@ while IFS= read -r f; do
         config.js) why="generated credentials file" ;;
         demo.config.json) why="per-demo config file" ;;
         *.local) why="local-only file" ;;
+        *.pre-migrate) why="pre-migration backup (may hold live keys)" ;;
       esac
       ;;
   esac
   if [ -n "$why" ]; then
     blocked="${blocked}  ${f}  (${why})${nl}"
   fi
-done <<EOF
-$staged
-EOF
+done < "$staged"
 if [ -n "$blocked" ]; then
   echo "pre-commit: blocked, these staged paths must not be committed:" >&2
   printf '%s' "$blocked" >&2

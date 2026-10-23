@@ -1,6 +1,8 @@
 output/*
 docs/
 .env
+.env.*
+!.env.template
 node_modules/
 .claude
 .agents

@@ -21,10 +21,7 @@ entropy = 3.0
 keywords = ["apikey"]
 
 [allowlist]
-description = "Template placeholders and documentation"
+description = "Template placeholders"
 regexes = ['''\{\{[A-Z_]+\}\}''']
-# test-guard.sh builds its fake keys at runtime, so it needs no entry here.
-paths = [
-  '''(^|/)\.env\.template$''',
-  '''(^|/)SECRETS\.md$''',
-]
+# No path allowlist: .env.template and docs are scanned too (their placeholders are
+# short or low-entropy). test-guard.sh builds its fake keys at runtime.
