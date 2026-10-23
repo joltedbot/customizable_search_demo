@@ -70,6 +70,7 @@ function isDamSlug(slug) { return DAM_SLUGS.has(slug); }
 // DAM slugs avoid retail wording ("shopping", "product") in Kibana-visible IDs.
 function deriveNames(slug, esIndexBase = 'demo-products') {
   if (!slug) throw new Error('deriveNames: slug is required');
+  assertSlug(slug);
   const dam = isDamSlug(slug);
   return {
     indexName: `${esIndexBase}-${slug}`,
@@ -81,7 +82,17 @@ function deriveNames(slug, esIndexBase = 'demo-products') {
 
 const NAME_FIELDS = ['indexName', 'personaIndex', 'toolId', 'agentId'];
 
-function demoDir(slug) { return path.join(ROOT, 'output', slug); }
+// Slugs become directory names and index/id suffixes, so keep them path-safe.
+function assertSlug(slug) {
+  if (typeof slug !== 'string' || !/^[a-z0-9][a-z0-9-]*$/.test(slug)) {
+    throw new Error(`invalid slug ${JSON.stringify(slug)}: use lowercase letters, digits and '-'`);
+  }
+}
+
+function demoDir(slug) {
+  assertSlug(slug);
+  return path.join(ROOT, 'output', slug);
+}
 function demoConfigPath(slug) { return path.join(demoDir(slug), 'demo.config.json'); }
 
 function readDemoConfig(slug) {
@@ -137,15 +148,19 @@ function hasTokenRun(tokens, slugTokens) {
 
 function foreignSlugRefs(slug, names) {
   const refs = [];
-  // Skip the slug itself and slugs that are a token run inside it (best-buy in best-buy-canada).
   const own = String(slug).split('-');
-  const others = knownSlugs().filter(s => s !== slug && !hasTokenRun(own, s.split('-')));
+  const others = knownSlugs().filter(s => s !== slug);
   for (const field of NAME_FIELDS) {
     const value = names && names[field];
     if (typeof value !== 'string') continue;
     const tokens = value.split('-');
+    const hasOwn = hasTokenRun(tokens, own);
     for (const otherSlug of others) {
-      if (hasTokenRun(tokens, otherSlug.split('-'))) refs.push({ field, value, otherSlug });
+      const otherTokens = otherSlug.split('-');
+      // A value carrying the own slug (best-buy-canada) legitimately contains a shorter
+      // slug nested in it (best-buy); the reverse direction still flags.
+      if (hasOwn && hasTokenRun(own, otherTokens)) continue;
+      if (hasTokenRun(tokens, otherTokens)) refs.push({ field, value, otherSlug });
     }
   }
   return refs;
