@@ -27,7 +27,7 @@ Install the following before starting:
 | **Elastic Cloud deployment** | ES 9.x with ML nodes enabled — hosts the search index, inference endpoints, and Agent Builder | [cloud.elastic.co](https://cloud.elastic.co/) |
 | **Jina Embeddings v5 Text-Small** | Semantic embeddings for hybrid and personalized search | Deployed via Elastic Inference Service in your cluster |
 | **Jina Reranker v3** | ML cross-encoder reranking for personalized search | Deployed via Elastic Inference Service in your cluster |
-| **Two Elasticsearch API keys** | Write key (setup only) + read-only key (baked into demo HTML) — exact JSON permissions are in `.env.template` | Created in Kibana → Stack Management → API Keys |
+| **Three Elasticsearch/Kibana API keys** | Write key (setup only, kept in the macOS Keychain, never in `.env`) + read-only ES key + Kibana key (both written to the gitignored `config.js`) — exact JSON permissions are in `.env.template` | Created in Kibana → Stack Management → API Keys; see [`SECRETS.md`](SECRETS.md) |
 | **Kibana CORS enabled** | Allows `localhost` to call ES and Agent Builder APIs | See `SETUP.md` → Elasticsearch Setup for the regex pattern |
 | **LLM connector in Kibana** | Powers the GenAI chat mode via Agent Builder | Configured in Kibana → Stack Management → Connectors |
 
@@ -44,11 +44,12 @@ git clone <repo-url> my-customer-demo
 cd my-customer-demo
 
 # 1. Configure credentials and seed the index
-cp .env.template .env   # fill in ES_URL, ES_API_KEY, ES_INDEX, ES_API_KEY_READONLY, KIBANA_URL (+ AGENT_ID if reusing existing agent; exact key JSON in .env.template)
+cp .env.template .env   # fill in ES_URL, ES_INDEX, ES_API_KEY_READONLY, KIBANA_URL, KIBANA_API_KEY (exact key JSON in .env.template)
+security add-generic-password -s customizable-search-demo -a ES_API_KEY -w   # write key goes in the Keychain, not .env (prompts for the value)
 pnpm install
-pnpm run validate       # pre-flight check — fix any ✗ failures before continuing
-pnpm run setup          # creates ES index, products index, Agent Builder agent + tools
-# For customer-specific index: pnpm run setup -- --slug <customer-slug>
+pnpm run hooks          # one-time: enable the pre-commit secret guard (needs: brew install gitleaks)
+pnpm run validate -- --slug <customer-slug>   # pre-flight check — fix any ✗ failures before continuing
+pnpm run setup -- --slug <customer-slug>      # creates ES indexes, Agent Builder agent + tools, writes output/<slug>/demo.config.json
 # To skip agent creation: pnpm run setup -- --slug <customer-slug> --skip-agent
 
 # 2. Generate the branded demo (via AI agent)
@@ -56,11 +57,12 @@ claude   # or: gemini
 # → "Please read SETUP.md and follow the instructions."
 
 # 3. Serve and open
-npm run dev
+pnpm run inject -- --slug <customer-slug>   # writes the gitignored output/<slug>/config.js with the browser credentials
+pnpm dev
 open http://localhost:3000/<customer-slug>/demo.html
 ```
 
-See `SETUP.md` → **Elasticsearch Setup** section for CORS configuration and API key setup details.
+See `SETUP.md` → **Elasticsearch Setup** section for CORS configuration and API key setup details, and [`SECRETS.md`](SECRETS.md) for how credentials are stored, rotated, and kept out of git.
 
 ---
 
@@ -78,10 +80,13 @@ Open `SETUP.md` and fill in the `## Customer Config` section before running the 
 | `SETUP.md` | AI execution script — run this with your AI agent |
 | `template/index.html` | Base demo template the AI customizes |
 | `image-library/` | Pre-curated Pexels image sets (one JSON per industry) |
-| `package.json` | pnpm scripts: `validate`, `dev`, `setup`, `reset` (v2 mode) |
-| `.env.template` | Credentials template — copy to `.env` and fill in: ES_URL, ES_API_KEY (write), ES_INDEX, ES_API_KEY_READONLY (read — covers ES + Kibana), KIBANA_URL, AGENT_ID (auto-populated). Exact permission JSON for both keys is in the template comments. |
-| `scripts/validate-env.js` | Pre-flight check: validates all `.env` credentials before setup (v2 mode); `--skip-agent` flag to skip Agent Builder checks |
-| `scripts/setup-index.js` | Creates the ES index, deploys Jina Embeddings inference endpoint, seeds products, and auto-creates Agent Builder agent + tools. Supports `--slug {name}` for customer-specific indices and `--skip-agent` to reuse an existing agent (v2 mode) |
+| `package.json` | pnpm scripts: `validate`, `dev`, `setup`, `reset`, `inject`, `generate-test`, `hooks`, `test:guard` |
+| `SECRETS.md` | Secrets handling: where each key lives, rotation, least-privilege keys, the pre-commit guard, migrating existing demos |
+| `.githooks/`, `.gitleaks.toml` | Tracked pre-commit secret guard (path rule + gitleaks); enable with `pnpm run hooks` |
+| `.env.template` | Credentials template — copy to `.env` and fill in: ES_URL, ES_INDEX (base prefix), ES_API_KEY_READONLY (read-only ES key), KIBANA_URL, KIBANA_API_KEY. The write key `ES_API_KEY` is NOT stored in `.env` (macOS Keychain or env var). Per-demo ids live in `output/<slug>/demo.config.json`. Exact permission JSON for each key is in the template comments. |
+| `scripts/validate-env.js` | Pre-flight check: validates `.env` credentials and the write key before setup; `--slug <name>` checks that demo's index and agent; `--skip-agent` skips Agent Builder checks |
+| `scripts/setup-index.js` | Creates the ES index, deploys Jina Embeddings inference endpoint, seeds products, and auto-creates Agent Builder agent + tools. Supports `--slug {name}` for customer-specific indices and `--skip-agent` to reuse an existing agent (v2 mode); writes `output/{name}/demo.config.json` |
+| `scripts/inject-credentials.js` | Writes `output/<slug>/config.js` (gitignored) from `.env` + `demo.config.json`; `--slug <name>` or `--all` |
 | `scripts/data/products.json` | 46-product sporting goods base dataset (v2 mode); customer-specific data in `products-{slug}.json` (gitignored) |
 | `scripts/data/personas.json` | 3 persona documents (Alex, Marcus, Sam) seeded into `demo-personas` ES index for Agent Builder to reference (v2 mode) |
 | `docs/genai-boundary-tests.md` | Manual test checklist with 35 prompts to verify the Agent Builder agent rejects off-topic queries and only assists with product search |
@@ -161,7 +166,7 @@ When the audience asks "what else can I search for?", these work well for live d
 The template includes:
 - **Content-Security-Policy header** — restricts inline scripts, external resources, and enforces HTTPS for Elasticsearch and Kibana connections
 - **XSS protection** — all user-facing product data (name, brand, badge) is HTML-escaped before rendering to prevent injection attacks
-- **Read-only credentials in browser** — only `ES_API_KEY_READONLY` (read-only, scoped to index) and `KIBANA_API_KEY` are exposed in the generated demo; the write key (`ES_API_KEY`) is used only server-side during setup and never baked into output HTML
+- **Read-only credentials in browser** — only `ES_API_KEY_READONLY` (read-only, scoped to `demo-*` indices) and `KIBANA_API_KEY` reach the browser, via the gitignored `output/<slug>/config.js`; `demo.html` holds no credentials. The write key (`ES_API_KEY`) lives in the macOS Keychain, is used only by setup, and never appears in output. See [`SECRETS.md`](SECRETS.md)
 
 ---
 
@@ -172,16 +177,19 @@ All commands are run from the repo root using pnpm. Customer-specific commands u
 | Command | What it does | When to use |
 |---|---|---|
 | `pnpm install` | Installs project dependencies (`@elastic/elasticsearch`, `serve`) | Once after cloning, or after pulling changes that update `package.json` |
-| `pnpm run validate` | Pre-flight check — verifies all `.env` credentials, ES connectivity, inference endpoints, and Agent Builder access | Before first `pnpm run setup`, or after changing `.env` values. Add `-- --skip-agent` to skip Kibana/Agent Builder checks |
+| `pnpm run validate` | Pre-flight check — verifies `.env` credentials, the write key (Keychain or `ES_API_KEY` env var), ES connectivity, inference endpoints, and Agent Builder access | Before first `pnpm run setup`, or after changing credentials. Add `-- --slug <name>` to check that demo's index and agent, `-- --skip-agent` to skip Kibana/Agent Builder checks |
 | `pnpm run setup` | Creates ES product + persona indexes, deploys Jina Embeddings inference endpoint, seeds products, and creates/updates Agent Builder agent + tools | Once per customer to initialize the cluster. Add `-- --slug <name>` for customer-specific indexes, `-- --skip-agent` to skip Agent Builder setup |
 | `pnpm run reset` | Wipes and reseeds product + persona indexes (does **not** delete the Agent Builder agent/tools) | After editing `products.json` or `products-{slug}.json` to push updated data to ES. Add `-- --slug <name>` for customer-specific indexes |
-| `pnpm run generate-test` | Injects `.env` credentials into the template and writes `output/test/demo.html` | For local testing — run after `pnpm run setup` or `pnpm run reset` to get a working demo without running the AI agent |
+| `pnpm run inject` | Writes the gitignored `output/<slug>/config.js` (browser credentials from `.env` plus ids from `demo.config.json`) | After `pnpm run setup -- --slug <name>` and whenever a key is rotated. Use `-- --slug <name>` or `-- --all` |
+| `pnpm run generate-test` | Copies the template to `output/test/demo.html` and writes the gitignored `output/test/config.js` from `.env` | For local testing — run after `pnpm run setup` or `pnpm run reset` to get a working demo without running the AI agent |
+| `pnpm run hooks` | Sets `core.hooksPath` to `.githooks` to enable the pre-commit secret guard | Once per clone (needs `brew install gitleaks`); see [`SECRETS.md`](SECRETS.md) |
+| `pnpm run test:guard` | Self-test of the pre-commit guard in a temp repo | After enabling the hook, or after editing `.githooks/` or `.gitleaks.toml` |
 | `pnpm dev` | Starts a local web server serving the `output/` directory on `http://localhost:3000` | Whenever you want to view the demo in a browser (works for both test and customer builds) |
 | `pnpm run sbom` | Generates a CycloneDX SBOM file (`sbom.cdx.json`) listing all project dependencies | For security and compliance audits; output is gitignored |
 
 **Typical workflows:**
 
-- **First-time setup:** `pnpm install` → `pnpm run validate` → `pnpm run setup` → run AI agent with `SETUP.md` → `pnpm dev`
+- **First-time setup:** `pnpm install` → `pnpm run hooks` → `pnpm run validate -- --slug <name>` → `pnpm run setup -- --slug <name>` → run AI agent with `SETUP.md` → `pnpm run inject -- --slug <name>` → `pnpm dev`
 - **Updated product data:** Edit `products.json` → `pnpm run reset` → `pnpm run generate-test` (for test build) → `pnpm dev`
 - **Quick local test (no AI agent):** `pnpm run generate-test` → `pnpm dev` → open `http://localhost:3000/test/demo.html`
 

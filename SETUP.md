@@ -52,14 +52,20 @@ The demo runs against a real Elasticsearch cluster with semantic search and live
 cp .env.template .env
 ```
 
-Fill in `.env` — you need exactly **two API keys** and a Kibana URL:
+Fill in `.env` — you need **two browser-facing API keys** (read-only ES key and Kibana key) plus the two URLs. The write key is not stored in `.env` (see below). Full guidance: `SECRETS.md`.
 
 - `ES_URL` — your Cloud deployment URL
-- `ES_INDEX` — leave as `demo-products` or choose your own name
+- `ES_INDEX` — base prefix for index names; leave as `demo-products` (each demo's index is `<ES_INDEX>-<slug>`)
 - `KIBANA_URL` — your Kibana URL (e.g., `https://cloud-deployment-id.kb.us-central1.gcp.cloud.es.io`)
+- `ES_API_KEY_READONLY` and `KIBANA_API_KEY` — the two browser-facing keys (JSON below)
 - Per-demo ids are not kept in `.env`: `pnpm run setup` writes `output/<slug>/demo.config.json` (index, tool, and agent ids; gitignored, per demo).
 
-**`ES_API_KEY` — write key, used only by `pnpm run setup`. Never baked into HTML.**
+**`ES_API_KEY` — write key, used only by `pnpm run setup`. Never baked into HTML and not stored in `.env`.**
+Store it once in the macOS Keychain (the command prompts for the value; add `-U` to update):
+```bash
+security add-generic-password -s customizable-search-demo -a ES_API_KEY -w
+```
+On non-macOS or CI, export the `ES_API_KEY` environment variable instead.
 Create in Kibana: Stack Management → API Keys → Create API key, paste this JSON into "Restrict privileges":
 ```json
 {
@@ -75,17 +81,31 @@ Create in Kibana: Stack Management → API Keys → Create API key, paste this J
 }
 ```
 
-**`ES_API_KEY_READONLY` — read-only key, baked into the demo HTML for ES queries and Agent Builder conversations.**
-Create in Kibana: Stack Management → API Keys → Create API key, paste this JSON into "Restrict privileges":
+**`ES_API_KEY_READONLY` — read-only key for ES queries; `pnpm run inject` writes it to the gitignored `output/<slug>/config.js`.**
+Create in Kibana: Stack Management → API Keys → Create API key (set an expiration, e.g. 30d), paste this JSON into "Restrict privileges":
 ```json
 {
   "demo-readonly": {
     "cluster": ["monitor_inference"],
     "indices": [
-      { "names": ["*"], "privileges": ["read", "view_index_metadata"] }
+      { "names": ["demo-*"], "privileges": ["read", "view_index_metadata"] }
+    ]
+  }
+}
+```
+The `names` pattern must cover every demo index (add a pattern per custom index name; never `*`).
+
+**`KIBANA_API_KEY` — Kibana key for Agent Builder conversations; also written to `config.js`.**
+Create it the same way (with an expiration), with this JSON:
+```json
+{
+  "demo-kibana": {
+    "cluster": ["monitor_inference"],
+    "indices": [
+      { "names": ["demo-*"], "privileges": ["read", "view_index_metadata"] }
     ],
     "applications": [
-      { "application": "kibana-.kibana", "privileges": ["feature_agentBuilder.read", "feature_actions.read"], "resources": ["*"] }
+      { "application": "kibana-.kibana", "privileges": ["feature_agentBuilder.read", "feature_actions.read"], "resources": ["space:default"] }
     ]
   }
 }
@@ -95,10 +115,10 @@ Create in Kibana: Stack Management → API Keys → Create API key, paste this J
 
 ```bash
 pnpm install
-pnpm run validate
+pnpm run validate -- --slug [CUSTOMER_SLUG]
 ```
 
-This checks that all `.env` values are set, the cluster is reachable, both API keys work, and Kibana is reachable. Fix any `✗` failures before continuing.
+This checks that all `.env` values are set, the write key is found (Keychain or `ES_API_KEY` env var), the cluster is reachable, the API keys work, and Kibana is reachable. Before the slug's first setup, an index or agent "not found" result is expected. Fix any `✗` failures before continuing.
 
 ```bash
 pnpm run setup -- --slug [CUSTOMER_SLUG]
