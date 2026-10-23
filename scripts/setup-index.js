@@ -6,20 +6,22 @@
  * and bulk-indexes the product dataset.
  *
  * Usage:
- *   node scripts/setup-index.js                        — full setup (skip if index exists)
- *   node scripts/setup-index.js --reset                — delete + recreate indexes, re-seed
- *   node scripts/setup-index.js --seed-only            — skip index creation, just bulk index
- *   node scripts/setup-index.js --check                — verify cluster + ELSER, no writes
- *   node scripts/setup-index.js --slug sportchek       — use products-sportchek.json and index suffix -sportchek
- *   node scripts/setup-index.js --reset --slug mec     — delete + recreate customer-specific indexes
- *   node scripts/setup-index.js --skip-agent           — skip Agent Builder setup even if Kibana creds are set
+ *   node scripts/setup-index.js --slug sportchek               — full setup (skip if index exists)
+ *   node scripts/setup-index.js --slug mec --reset             — delete + recreate customer-specific indexes, re-seed
+ *   node scripts/setup-index.js --slug mec --seed-only         — skip index creation, just bulk index
+ *   node scripts/setup-index.js --slug mec --check             — verify cluster + inference endpoints, no writes
+ *   node scripts/setup-index.js --slug mec --skip-agent        — skip Agent Builder setup even if Kibana creds are set
+ *   node scripts/setup-index.js --slug mec --allow-foreign-slug — proceed even if a resolved name references another demo's slug
  *
- * The --slug flag:
- *   - Reads product data from scripts/data/products-{slug}.json instead of products.json
- *   - Reads persona data from scripts/data/personas-{slug}.json instead of personas.json
+ * The --slug flag is REQUIRED for every mode:
+ *   - Reads product data from scripts/data/products-{slug}.json
+ *   - Reads persona data from scripts/data/personas-{slug}.json
  *   - Appends -{slug} to index names (e.g. demo-products → demo-products-sportchek, demo-personas → demo-personas-sportchek)
  *   - Agent Builder tools/agent IDs are also suffixed
- *   - Without --slug, behaviour is unchanged (uses products.json and base index names)
+ *   - Resolved names are saved to output/{slug}/demo.config.json (nothing is written to .env)
+ *
+ * The write key (ES_API_KEY) is read from the macOS Keychain, then the ES_API_KEY
+ * environment variable — never from .env.
  */
 
 const fs = require('fs');
@@ -27,27 +29,14 @@ const path = require('path');
 const http = require('http');
 const https = require('https');
 const { Client } = require('@elastic/elasticsearch');
+const {
+  loadEnv, getWriteKey, resolveNames, foreignSlugRefs, writeDemoConfig, isDamSlug
+} = require('./lib/config');
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
 const JINA_EMBEDDINGS_INFERENCE_ID = '.jina-embeddings-v5-text-small';
 const JINA_RERANKER_INFERENCE_ID = '.jina-reranker-v3';
-
-// DAM (digital asset management) slugs share identical behaviour: media_content
-// semantic field, no persona index. Add new DAM slugs here.
-const DAM_SLUGS = new Set(['terentia', 'museum']);
-function isDamSlug(slug) { return DAM_SLUGS.has(slug); }
-
-// Agent Builder IDs — shared by createAgentTools and createAgent so they cannot drift.
-// DAM slugs avoid retail wording ("shopping", "product") in Kibana-visible IDs.
-function toolIdFor(slug) {
-  const suffix = slug ? `-${slug}` : '';
-  return isDamSlug(slug) ? `demo-collection-search${suffix}` : `demo-product-search${suffix}`;
-}
-function agentIdFor(slug) {
-  const suffix = slug ? `-${slug}` : '';
-  return isDamSlug(slug) ? `demo-search-assistant${suffix}` : `demo-shopping-assistant${suffix}`;
-}
 
 // Documents per bulk request (image-bearing docs are large)
 const BULK_BATCH_SIZE = 25;
@@ -55,26 +44,7 @@ const BULK_BATCH_SIZE = 25;
 // Loaded from env in main() — used only for DAM slugs
 let JINA_OMNI_INFERENCE_ID = null;
 
-// ─── .env loader (no dotenv dependency) ──────────────────────────────────────
-
-function loadEnv() {
-  const envPath = path.join(__dirname, '..', '.env');
-  if (!fs.existsSync(envPath)) {
-    fatal('.env file not found. Copy .env.template to .env and fill in your credentials.');
-  }
-  const lines = fs.readFileSync(envPath, 'utf8').split('\n');
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const eqIdx = trimmed.indexOf('=');
-    if (eqIdx === -1) continue;
-    const key = trimmed.slice(0, eqIdx).trim();
-    const val = trimmed.slice(eqIdx + 1).trim();
-    if (key && val && !process.env[key]) {
-      process.env[key] = val;
-    }
-  }
-}
+// ─── Env helpers ─────────────────────────────────────────────────────────────
 
 function requireEnv(key) {
   const val = process.env[key];
@@ -148,7 +118,7 @@ async function checkConnection(client) {
       warn(`ES ${info.version.number} detected. This project requires ES 9.5+. Proceed with caution.`);
     }
   } catch (err) {
-    fatal(`Cannot connect to Elasticsearch: ${err.message}\nCheck ES_URL and ES_API_KEY in .env`);
+    fatal(`Cannot connect to Elasticsearch: ${err.message}\nCheck ES_URL in .env and the ES_API_KEY write key (Keychain or env var)`);
   }
 }
 
@@ -608,14 +578,14 @@ function kibanaRequest(method, urlPath, body, kibanaUrl, kibanaApiKey) {
   });
 }
 
-async function createAgentTools(kibanaUrl, kibanaApiKey, productIndex, personaIndex, slug) {
+async function createAgentTools(kibanaUrl, kibanaApiKey, productIndex, personaIndex, slug, toolId) {
   step('Creating Agent Builder tools...');
 
   // Persona search tool removed: persona context is pre-injected into the query input,
   // so a separate tool call is redundant and adds latency.
   const tools = [
     {
-      id: toolIdFor(slug),
+      id: toolId,
       type: 'index_search',
       description: isDamSlug(slug)
         ? 'Search the collection for artworks matching queries'
@@ -680,10 +650,8 @@ function damAgentInstructions(toolId) {
   ].join('\n');
 }
 
-async function createAgent(kibanaUrl, kibanaApiKey, toolIds, slug) {
+async function createAgent(kibanaUrl, kibanaApiKey, toolIds, slug, agentId) {
   step('Creating Agent Builder agent...');
-
-  const agentId = agentIdFor(slug);
 
   // Check if agent exists — update if so, create if not
   let exists = false;
@@ -745,20 +713,6 @@ async function createAgent(kibanaUrl, kibanaApiKey, toolIds, slug) {
   }
 }
 
-function writeAgentIdToEnv(agentId) {
-  const envPath = path.join(__dirname, '..', '.env');
-  let content = fs.readFileSync(envPath, 'utf8');
-
-  if (content.match(/^AGENT_ID=.*$/m)) {
-    content = content.replace(/^AGENT_ID=.*$/m, `AGENT_ID=${agentId}`);
-  } else {
-    content = content.trimEnd() + `\nAGENT_ID=${agentId}\n`;
-  }
-
-  fs.writeFileSync(envPath, content, 'utf8');
-  ok(`AGENT_ID=${agentId} written to .env`);
-}
-
 function printSummary(indexName) {
   console.log('\n' + '─'.repeat(60));
   console.log('  Setup complete!');
@@ -779,7 +733,7 @@ function printSummary(indexName) {
      Privileges: index — ${indexName} → read, view_index_metadata
 
   3. Run the demo:
-     npm run dev
+     pnpm dev
      Then open http://localhost:3000
 
   Note: Jina embeddings are generated asynchronously after indexing.
@@ -797,17 +751,21 @@ async function main() {
   const isCheckOnly = args.includes('--check');
   const skipAgent = args.includes('--skip-agent');
 
-  // Parse --slug <value>
+  // Parse --slug <value> (required for every mode)
   const slugIdx = args.indexOf('--slug');
   const slug = slugIdx !== -1 && args[slugIdx + 1] ? args[slugIdx + 1] : null;
+  if (!slug) {
+    fatal(
+      '--slug is required.\n' +
+      '  Usage: node scripts/setup-index.js --slug <name> [--reset | --seed-only | --check] [--skip-agent] [--allow-foreign-slug]\n' +
+      '  Example: pnpm run setup -- --slug sportchek'
+    );
+  }
 
-  // Derive products file and index name from slug
-  const productsFile = slug
-    ? path.join(__dirname, 'data', `products-${slug}.json`)
-    : path.join(__dirname, 'data', 'products.json');
+  // Derive products file from slug
+  const productsFile = path.join(__dirname, 'data', `products-${slug}.json`);
 
   const baseIndex = 'demo-products';
-  const basePersonaIndex = 'demo-personas';
 
   console.log('\n━━━ Elastic Search Demo — Index Setup ━━━');
   if (isReset)    console.log('  Mode: RESET (delete + recreate + seed)');
@@ -816,17 +774,47 @@ async function main() {
   if (skipAgent)  console.log('  Agent: SKIP (--skip-agent)');
   if (slug)       console.log(`  Slug: ${slug}`);
 
-  loadEnv();
+  try {
+    loadEnv();
+  } catch (err) {
+    fatal(err.message);
+  }
 
   const esUrl   = requireEnv('ES_URL');
-  const apiKey  = requireEnv('ES_API_KEY');
+  const apiKey  = getWriteKey();
+  if (!apiKey) {
+    fatal(
+      'ES_API_KEY (write key) not found. It is no longer read from .env.\n' +
+      '  Store it once in the macOS Keychain (prompts for the key):\n' +
+      '    security add-generic-password -s customizable-search-demo -a ES_API_KEY -w\n' +
+      '  or export ES_API_KEY in your shell.'
+    );
+  }
   const esIndexBase = process.env.ES_INDEX || baseIndex;
-  const esIndex = slug ? `${esIndexBase}-${slug}` : esIndexBase;
-  const personaIndex = slug ? `${basePersonaIndex}-${slug}` : basePersonaIndex;
+  let names;
+  try {
+    names = resolveNames(slug, esIndexBase);
+  } catch (err) {
+    fatal(err.message);
+  }
+  const { indexName: esIndex, personaIndex, toolId, agentId } = names;
 
   log(`ES_URL:          ${esUrl}`);
-  log(`ES_INDEX:        ${esIndex}${slug ? ` (base: ${esIndexBase}, slug: ${slug})` : ''}`);
+  log(`ES_INDEX:        ${esIndex} (base: ${esIndexBase}, slug: ${slug})`);
   log(`PERSONA_INDEX:   ${personaIndex}`);
+  log(`TOOL_ID:         ${toolId}`);
+  log(`AGENT_ID:        ${agentId}`);
+
+  const foreign = foreignSlugRefs(slug, names);
+  if (foreign.length > 0) {
+    for (const r of foreign) {
+      warn(`WARNING: ${r.field} "${r.value}" references another demo's slug "${r.otherSlug}"`);
+    }
+    if (!args.includes('--allow-foreign-slug')) {
+      fatal(`Resolved names for "${slug}" reference other demos (see warnings above). Check output/${slug}/demo.config.json, or pass --allow-foreign-slug to proceed.`);
+    }
+    warn('Proceeding because --allow-foreign-slug was passed.');
+  }
 
   const client = new Client({
     node: esUrl,
@@ -884,17 +872,21 @@ async function main() {
 
   // Agent Builder setup (Kibana API)
   const kibanaUrl = process.env.KIBANA_URL;
-  const kibanaApiKey = process.env.ES_API_KEY;
+  const kibanaApiKey = apiKey;
+  const demoConfig = { slug, indexName: esIndex, personaIndex, toolId, agentId };
 
   if (skipAgent) {
     log('Agent Builder setup skipped (--skip-agent)');
+    writeDemoConfig(slug, demoConfig);
+    ok(`demo.config.json written to output/${slug}/`);
   } else if (!kibanaUrl || kibanaUrl.includes('your-deployment') || !kibanaApiKey || kibanaApiKey.startsWith('your_')) {
     warn('KIBANA_URL or ES_API_KEY not set — skipping Agent Builder setup.');
-    warn('GenAI mode will not work until Kibana credentials are configured and npm run setup is re-run.');
+    warn('GenAI mode will not work until Kibana credentials are configured and pnpm run setup is re-run.');
   } else {
-    const toolIds = await createAgentTools(kibanaUrl, kibanaApiKey, esIndex, personaIndex, slug);
-    const agentId = await createAgent(kibanaUrl, kibanaApiKey, toolIds, slug);
-    writeAgentIdToEnv(agentId);
+    const toolIds = await createAgentTools(kibanaUrl, kibanaApiKey, esIndex, personaIndex, slug, toolId);
+    await createAgent(kibanaUrl, kibanaApiKey, toolIds, slug, agentId);
+    writeDemoConfig(slug, demoConfig);
+    ok(`demo.config.json written to output/${slug}/`);
   }
 
   printSummary(esIndex);
