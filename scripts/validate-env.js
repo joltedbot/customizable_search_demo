@@ -21,14 +21,19 @@ const http    = require('http');
 const https   = require('https');
 const { execFileSync } = require('child_process');
 const { Client } = require('@elastic/elasticsearch');
-const { ROOT, loadEnv, getWriteKey, resolveNames } = require('./lib/config');
+const { ROOT, loadEnv, parseSlug, getWriteKey, resolveNames } = require('./lib/config');
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const SKIP_AGENT = process.argv.includes('--skip-agent');
 
-const slugIdx = process.argv.indexOf('--slug');
-const SLUG = slugIdx !== -1 && process.argv[slugIdx + 1] ? process.argv[slugIdx + 1] : null;
+let SLUG = null;
+try {
+  SLUG = parseSlug(process.argv.slice(2));
+} catch (e) {
+  console.error(`\n✗ ERROR: ${e.message}\n  Usage: node scripts/validate-env.js [--slug <name>] [--skip-agent]\n`);
+  process.exit(1);
+}
 
 const WRITE_KEY_HINT = 'store it once with: security add-generic-password -s customizable-search-demo -a ES_API_KEY -w (or export ES_API_KEY)';
 
@@ -58,20 +63,17 @@ function esError(e) {
 // ─── Check 1: env var presence ────────────────────────────────────────────────
 
 function checkEnvVars() {
-  step('Checking .env variables...');
-  const required = ['ES_URL', 'ES_API_KEY', 'ES_API_KEY_READONLY', 'KIBANA_URL'];
-  for (const key of required) {
-    const val = key === 'ES_API_KEY' ? WRITE_KEY : process.env[key];
-    if (key === 'ES_API_KEY' && !val) {
-      fail(`ES_API_KEY is missing — ${WRITE_KEY_HINT}`);
-    } else if (!val) {
-      fail(`${key} is missing`);
-    } else if (isPlaceholder(val)) {
-      fail(`${key} still has a placeholder value`);
-    } else {
-      ok(`${key} is set`);
-    }
+  step('Checking credentials...');
+  const check = (key, val, missingMsg) => {
+    if (!val) fail(missingMsg);
+    else if (isPlaceholder(val)) fail(`${key} still has a placeholder value`);
+    else ok(`${key} is set`);
+  };
+  for (const key of ['ES_URL', 'ES_API_KEY_READONLY', 'KIBANA_URL']) {
+    check(key, process.env[key], `${key} is missing`);
   }
+  // The write key is not in .env: Keychain, then the ES_API_KEY env var.
+  check('ES_API_KEY', WRITE_KEY, `ES_API_KEY is missing — ${WRITE_KEY_HINT}`);
   const index = checkedIndex();
   info(`Index = "${index}" (${NAMES ? `slug "${SLUG}"` : process.env.ES_INDEX ? 'ES_INDEX from .env' : 'default ES_INDEX'})`);
 }

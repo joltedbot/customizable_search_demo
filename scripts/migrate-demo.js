@@ -19,7 +19,7 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  ROOT, deriveNames, demoDir, demoConfigPath, readDemoConfig, writeDemoConfig, foreignSlugRefs,
+  ROOT, parseSlug, deriveNames, demoDir, demoConfigPath, readDemoConfig, writeDemoConfig, foreignSlugRefs,
 } = require('./lib/config');
 
 const log = (m) => console.log(m);
@@ -168,15 +168,18 @@ function migrate(slug, apply) {
 function main() {
   const args = process.argv.slice(2);
   const apply = args.includes('--apply');
-  const si = args.indexOf('--slug');
+  let slug = null;
+  try {
+    slug = parseSlug(args);
+  } catch (_) { /* usage below */ }
   let slugs;
   if (args.includes('--all')) {
     const out = path.join(ROOT, 'output');
     slugs = fs.existsSync(out)
       ? fs.readdirSync(out, { withFileTypes: true }).filter(e => e.isDirectory() && e.name !== 'test').map(e => e.name).sort()
       : [];
-  } else if (si !== -1 && args[si + 1] && !args[si + 1].startsWith('--')) {
-    slugs = [args[si + 1]];
+  } else if (slug) {
+    slugs = [slug];
   } else {
     console.error('Usage: node scripts/migrate-demo.js (--slug <name> | --all) [--apply]');
     process.exit(2);

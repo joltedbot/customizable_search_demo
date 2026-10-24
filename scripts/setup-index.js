@@ -30,7 +30,7 @@ const http = require('http');
 const https = require('https');
 const { Client } = require('@elastic/elasticsearch');
 const {
-  loadEnv, getWriteKey, resolveNames, foreignSlugRefs, writeDemoConfig, isDamSlug
+  loadEnv, parseSlug, getWriteKey, resolveNames, foreignSlugRefs, writeDemoConfig, isDamSlug
 } = require('./lib/config');
 
 // ─── Config ──────────────────────────────────────────────────────────────────
@@ -713,7 +713,7 @@ async function createAgent(kibanaUrl, kibanaApiKey, toolIds, slug, agentId) {
   }
 }
 
-function printSummary(indexName) {
+function printSummary(indexName, slug) {
   console.log('\n' + '─'.repeat(60));
   console.log('  Setup complete!');
   console.log('─'.repeat(60));
@@ -728,13 +728,14 @@ function printSummary(indexName) {
        http.cors.allow-origin: ["http://localhost:3000"]
        http.cors.enabled: true
 
-  2. Create a READ-ONLY API key for the demo HTML:
-     Kibana → Stack Management → API Keys → Create API key
-     Privileges: index — ${indexName} → read, view_index_metadata
+  2. Create the two browser keys (see .env.template):
+     a READ-ONLY ES key (ES_API_KEY_READONLY) and a separate Kibana key
+     (KIBANA_API_KEY) — the read-only key gets 403 on Agent Builder calls.
 
   3. Run the demo:
+     pnpm run inject -- --slug ${slug}
      pnpm dev
-     Then open http://localhost:3000
+     Then open http://localhost:3000/${slug}/demo.html
 
   Note: Jina embeddings are generated asynchronously after indexing.
   Hybrid and Personalized search modes will improve as embeddings complete.
@@ -752,8 +753,10 @@ async function main() {
   const skipAgent = args.includes('--skip-agent');
 
   // Parse --slug <value> (required for every mode)
-  const slugIdx = args.indexOf('--slug');
-  const slug = slugIdx !== -1 && args[slugIdx + 1] ? args[slugIdx + 1] : null;
+  let slug = null;
+  try {
+    slug = parseSlug(args);
+  } catch (_) { /* reported below with usage */ }
   if (!slug) {
     fatal(
       '--slug is required.\n' +
@@ -891,7 +894,7 @@ async function main() {
     ok(`demo.config.json updated with agent id ${finalAgentId}`);
   }
 
-  printSummary(esIndex);
+  printSummary(esIndex, slug);
 }
 
 main().catch(err => {

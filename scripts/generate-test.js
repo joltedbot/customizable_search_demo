@@ -10,22 +10,24 @@
 
 const fs = require('fs');
 const path = require('path');
-const { ROOT, loadEnv, readDemoConfig, resolveNames } = require('./lib/config');
+const { ROOT, loadEnv, parseSlug, readDemoConfig, resolveNames } = require('./lib/config');
 const { writeConfigFile } = require('./inject-credentials');
 
 const args = process.argv.slice(2);
-const slugIdx = args.indexOf('--slug');
-const slug = slugIdx !== -1 && args[slugIdx + 1] && !args[slugIdx + 1].startsWith('--') ? args[slugIdx + 1] : null;
+let slug = null;
+try {
+  slug = parseSlug(args);
+} catch (_) { /* reported below with usage */ }
 if (!slug) {
   console.error('ERROR: --slug <name> is required (the demo whose index and agent the test page uses)');
   console.error('  Usage: pnpm run generate-test -- --slug <name>');
   process.exit(1);
 }
 
-let env;
+const env = process.env; // loadEnv fills it from .env without overriding shell exports
 let names;
 try {
-  env = loadEnv();
+  loadEnv();
   if (!readDemoConfig(slug)) {
     throw new Error(`output/${slug}/demo.config.json not found. Run setup first: pnpm run setup -- --slug ${slug}`);
   }

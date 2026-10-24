@@ -44,6 +44,18 @@ function loadEnv({ required = true } = {}) {
   return parsed;
 }
 
+// ─── Arguments ───────────────────────────────────────────────────────────────
+
+// Value after --slug, or null when the flag is absent. A missing value or a
+// following flag (--slug --reset) throws so callers can print their own usage.
+function parseSlug(args) {
+  const i = args.indexOf('--slug');
+  if (i === -1) return null;
+  const value = args[i + 1];
+  if (!value || value.startsWith('--')) throw new Error('--slug requires a value (e.g. --slug <name>)');
+  return value;
+}
+
 // ─── Write key ───────────────────────────────────────────────────────────────
 
 function getWriteKey() {
@@ -115,14 +127,25 @@ function readDemoConfig(slug) {
   }
 }
 
+// Writes a 0600 temp file beside `p` and renames it over `p`: a failed write keeps any
+// existing file, and rename replaces a symlink at `p` rather than writing through it.
+function writeFileAtomic(p, content) {
+  const tmp = `${p}.${process.pid}.tmp`;
+  try {
+    fs.writeFileSync(tmp, content, { mode: 0o600, flag: 'wx' });
+    fs.chmodSync(tmp, 0o600);
+    fs.renameSync(tmp, p);
+  } catch (err) {
+    fs.rmSync(tmp, { force: true });
+    throw err;
+  }
+}
+
 function writeDemoConfig(slug, obj) {
   const p = demoConfigPath(slug);
   fs.mkdirSync(demoDir(slug), { recursive: true });
   const merged = { ...(readDemoConfig(slug) || {}), ...obj };
-  // Replace rather than follow a pre-existing file (symlink or loose permissions).
-  fs.rmSync(p, { force: true });
-  fs.writeFileSync(p, JSON.stringify(merged, null, 2) + '\n', { mode: 0o600 });
-  fs.chmodSync(p, 0o600);
+  writeFileAtomic(p, JSON.stringify(merged, null, 2) + '\n');
   return merged;
 }
 
@@ -185,6 +208,8 @@ function foreignSlugRefs(slug, names) {
 module.exports = {
   ROOT,
   loadEnv,
+  parseSlug,
+  writeFileAtomic,
   getWriteKey,
   DAM_SLUGS,
   isDamSlug,
