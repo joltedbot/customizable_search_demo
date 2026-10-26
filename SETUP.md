@@ -44,7 +44,7 @@ DEMO_NARRATIVE:
 
 The demo runs against a real Elasticsearch cluster with semantic search and live AI responses. Complete these pre-steps before proceeding to Step 1.
 
-**Prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed as an inference endpoint, Jina Reranker v3 (`.jina-reranker-v3`) deployed in Kibana ML Trained Models, two API keys (exact JSON provided below), Kibana CORS enabled for localhost origins, and an LLM connector configured in Kibana (GenAI Settings → Default AI Connector).
+**Prerequisites:** Node.js 18+, Elastic Cloud deployment (ES 9.x with ML), ELSER v2 deployed as an inference endpoint, Jina Reranker v3 (`.jina-reranker-v3`) deployed in Kibana ML Trained Models, three API keys (write, read-only, and Kibana; exact JSON provided below), Kibana CORS enabled for localhost origins, and an LLM connector configured in Kibana (GenAI Settings → Default AI Connector).
 
 ### v2-A — Configure credentials
 
@@ -52,14 +52,22 @@ The demo runs against a real Elasticsearch cluster with semantic search and live
 cp .env.template .env
 ```
 
-Fill in `.env` — you need exactly **two API keys** and a Kibana URL:
+Fill in `.env` — you need **two browser-facing API keys** (read-only ES key and Kibana key) plus the two URLs. The write key is not stored in `.env` (see below). Full guidance: `SECRETS.md`.
 
 - `ES_URL` — your Cloud deployment URL
-- `ES_INDEX` — leave as `demo-products` or choose your own name
+- `ES_INDEX` — base prefix for index names; leave as `demo-products` (each demo's index is `<ES_INDEX>-<slug>`)
 - `KIBANA_URL` — your Kibana URL (e.g., `https://cloud-deployment-id.kb.us-central1.gcp.cloud.es.io`)
-- `AGENT_ID` — leave blank; auto-written by `npm run setup` after agent creation
+- `ES_API_KEY_READONLY` and `KIBANA_API_KEY` — the two browser-facing keys (JSON below)
+- Per-demo ids are not kept in `.env`: `pnpm run setup` writes `output/<slug>/demo.config.json` (index, tool, and agent ids; gitignored, per demo).
 
-**`ES_API_KEY` — write key, used only by `npm run setup`. Never baked into HTML.**
+**`ES_API_KEY` — write key, used only by `pnpm run setup`. Never baked into HTML and not stored in `.env`.**
+
+The `"*"` index pattern in this role is a deliberate exception: the write key never leaves your machine (Keychain), unlike the browser keys.
+Store it once in the macOS Keychain (the command prompts for the value; add `-U` to update):
+```bash
+security add-generic-password -s customizable-search-demo -a ES_API_KEY -w
+```
+On non-macOS or CI, export the `ES_API_KEY` environment variable instead.
 Create in Kibana: Stack Management → API Keys → Create API key, paste this JSON into "Restrict privileges":
 ```json
 {
@@ -75,36 +83,46 @@ Create in Kibana: Stack Management → API Keys → Create API key, paste this J
 }
 ```
 
-**`ES_API_KEY_READONLY` — read-only key, baked into the demo HTML for ES queries and Agent Builder conversations.**
-Create in Kibana: Stack Management → API Keys → Create API key, paste this JSON into "Restrict privileges":
+**`ES_API_KEY_READONLY` — read-only key for ES queries; `pnpm run inject` writes it to the gitignored `output/<slug>/config.js`.**
+Create in Kibana: Stack Management → API Keys → Create API key (set an expiration, e.g. 30d), paste this JSON into "Restrict privileges":
 ```json
 {
   "demo-readonly": {
     "cluster": ["monitor_inference"],
     "indices": [
-      { "names": ["*"], "privileges": ["read", "view_index_metadata"] }
+      { "names": ["demo-*"], "privileges": ["read", "view_index_metadata"] }
+    ]
+  }
+}
+```
+The `names` pattern must cover every demo index (add a pattern per custom index name; never `*`).
+
+**`KIBANA_API_KEY` — Kibana key for Agent Builder conversations; also written to `config.js`.**
+Create it the same way (with an expiration), with this JSON:
+```json
+{
+  "demo-kibana": {
+    "cluster": ["monitor_inference"],
+    "indices": [
+      { "names": ["demo-*"], "privileges": ["read", "view_index_metadata"] }
     ],
     "applications": [
-      { "application": "kibana-.kibana", "privileges": ["feature_agentBuilder.read", "feature_actions.read"], "resources": ["*"] }
+      { "application": "kibana-.kibana", "privileges": ["feature_agentBuilder.read", "feature_actions.read"], "resources": ["space:default"] }
     ]
   }
 }
 ```
 
-### v2-B — Validate credentials and seed the index
+### v2-B — Validate credentials
 
 ```bash
-npm install
-npm run validate
+pnpm install
+pnpm run validate -- --slug [CUSTOMER_SLUG]
 ```
 
-This checks that all `.env` values are set, the cluster is reachable, both API keys work, and Kibana is reachable. Fix any `✗` failures before continuing.
+This checks that all `.env` values are set, the write key is found (Keychain or `ES_API_KEY` env var), the cluster is reachable, the API keys work, and Kibana is reachable. Before the slug's first setup, an index or agent "not found" result is expected. Fix any `✗` failures before continuing.
 
-```bash
-npm run setup
-```
-
-This creates the index, enables ELSER semantic embeddings, bulk-loads the product dataset, and auto-creates the Agent Builder agent + tools via the Kibana API. Confirm the output shows `✓ All [N] products indexed successfully` and `✓ Agent Builder setup complete`. The `AGENT_ID` will be auto-written to `.env`. Run `npm run setup -- --slug {name} --skip-agent` to skip agent creation and use an existing agent.
+Do not run `pnpm run setup` yet: it needs `scripts/data/products-[CUSTOMER_SLUG].json`, which is written in step 3o. Setup and inject run after 3o.
 
 ### v2-C — Configure CORS (Elasticsearch)
 
@@ -120,12 +138,11 @@ http.cors.allow-headers: "X-Requested-With, Content-Type, Content-Length, Author
 
 In Kibana: **Stack Management → Advanced Settings**, search for `csp.strict` and set to `false` to allow Agent Builder API access from localhost demo URLs. Alternatively, verify your Kibana deployment allows CORS from localhost origins.
 
-### Pre-step E — Note for Step 3
+### Pre-step E — Credentials are not yours to handle
 
-During Step 3, you (the AI agent) will inject the credentials into the output file. Before proceeding to Step 1, read `.env` and store the following values for use in step 3p:
-- `ES_URL`, `ES_API_KEY_READONLY`, `ES_INDEX`, `KIBANA_URL`, `AGENT_ID`
+You (the AI agent) never read `.env` or `output/*/config.js` and never write credentials into any file you produce. Credentials reach the page through `config.js`, generated by `pnpm run inject -- --slug [CUSTOMER_SLUG]`, which the user runs after setup.
 
-Note: `ES_INDEX` is a base name. The actual index will be `{ES_INDEX}-{CUSTOMER_SLUG}` (e.g., if `ES_INDEX=demo-products` and `CUSTOMER_SLUG=acme-sports`, the index is `demo-products-acme-sports`).
+Note: `ES_INDEX` in `.env` is a base prefix. The actual index is `{ES_INDEX}-{CUSTOMER_SLUG}` (e.g., `demo-products-acme-sports`), recorded in `demo.config.json`.
 
 ---
 
@@ -492,7 +509,7 @@ Update with a short promotional message appropriate to the industry (e.g., "Summ
 
 ### 3o — Product Data for Elasticsearch
 
-**Skip this step if `.env` is missing or empty (mock-only mode).**
+**Skip this step if the user says the demo is mock-only (no cluster).**
 
 In v2 mode, search results come from Elasticsearch — not the template constants. Each customer gets their own product data file and ES index to prevent overwrites.
 
@@ -523,38 +540,24 @@ In v2 mode, search results come from Elasticsearch — not the template constant
 2. Include all products from the homepage grid, search modes, and GenAI kits. Also include noise products with `"is_noise": true`.
 3. Real product IDs: 1–50. Noise product IDs: 101+.
 4. Write rich `description` fields — these power semantic search (ELSER). Include use cases, features, materials, and scenarios.
-5. Reseed the Elasticsearch index:
+5. Seed the Elasticsearch index and create the agent (the user runs these; the agent shell has no cluster access):
 
 ```bash
-npm run reset -- --slug [CUSTOMER_SLUG]
+pnpm run setup -- --slug [CUSTOMER_SLUG]
+pnpm run inject -- --slug [CUSTOMER_SLUG]
 ```
 
-The `--slug` flag reads from `products-[CUSTOMER_SLUG].json` and creates index `{ES_INDEX}-[CUSTOMER_SLUG]` (where `ES_INDEX` is the base name from `.env`). This keeps each customer's data isolated.
+`setup` reads `products-[CUSTOMER_SLUG].json`, creates index `{ES_INDEX}-[CUSTOMER_SLUG]` (where `ES_INDEX` is the base prefix from `.env`; the full name is recorded in `demo.config.json`), enables semantic embeddings, bulk-loads the products, and creates the Agent Builder agent + tools via the Kibana API. This keeps each customer's data isolated. It writes `output/[CUSTOMER_SLUG]/demo.config.json` (index, tool, and agent ids; gitignored, per demo). Add `--skip-agent` to skip agent creation and use an existing agent. Confirm the output shows `✓ All [N] products indexed successfully`.
 
-Confirm output shows `✓ All [N] products indexed successfully`.
+`inject` then writes `output/[CUSTOMER_SLUG]/config.js` (gitignored), which holds the credentials the page loads.
+
+To push later edits of the product file to an existing index, use `pnpm run reset -- --slug [CUSTOMER_SLUG]`.
 
 ---
 
-### 3p — Credential Injection
+### 3p — Credentials (do not touch)
 
-**Edit target:** the `ES_CONFIG` block near the top of the `<script>` section in `output/[CUSTOMER_SLUG]/demo.html`.
-
-Replace each `{{token}}` with the value read from `.env` in step v2-E:
-
-```js
-const ES_CONFIG = {
-  url:              '[ES_URL]',
-  apiKey:           '[ES_API_KEY_READONLY]',
-  index:            '[ES_INDEX]-[CUSTOMER_SLUG]',
-  kibanaUrl:        '[KIBANA_URL]',
-  kibanaApiKey:     '[KIBANA_API_KEY_READONLY]',
-  agentId:          '[AGENT_ID]'
-};
-```
-
-The `index` value is computed as `{ES_INDEX}-{CUSTOMER_SLUG}` — the base name from `.env` plus the customer slug. This matches the index created by the `npm run reset -- --slug [CUSTOMER_SLUG]` command in step 3o.
-
-The `kibanaUrl`, `kibanaApiKey`, and `agentId` are required for GenAI mode — the demo will fail without them.
+**Do nothing to the `ES_CONFIG` block.** The generated `demo.html` keeps the `<script src="config.js"></script>` tag and the empty-fallback `const ES_CONFIG = window.ES_CONFIG || {...};` line exactly as in the template. You never touch credentials. They arrive via `pnpm run inject -- --slug [CUSTOMER_SLUG]`, run by the user after setup, which writes `output/[CUSTOMER_SLUG]/config.js`.
 
 ---
 
@@ -580,7 +583,7 @@ After completing all edits, read back `output/[CUSTOMER_SLUG]/demo.html` and ver
 - `const PERSONAS` uses Alex, Marcus, and Sam with customized `preferredBrands` and `purchaseHistory`
 - `const PRODUCTS` contains customer-specific products (not the template's trail running defaults)
 - `DEMO_QUERIES` contains all four customized query strings: `lexical`, `hybrid`, `personalized`, `genai`
-- `ES_CONFIG` is populated with the correct ES and Kibana credentials, agent ID, and `[ES_INDEX]-[CUSTOMER_SLUG]` index name
+- The `<script src="config.js"></script>` tag and the empty-fallback `ES_CONFIG` line are unchanged from the template, and no credentials appear anywhere in the file
 - No references to the template brand names remain unless intentional
 - All image URLs are valid Pexels CDN links from the approved image set
 - For non-retail demos: every real product in `products-[CUSTOMER_SLUG].json` uses `CUSTOMER_NAME` as the brand (zero competitor names)
@@ -591,9 +594,9 @@ If any section was missed or still contains template defaults, apply the missing
 
 ## Post-Setup: Agent Customization (Optional)
 
-After `npm run setup` creates the Agent Builder agent, SAs can customize the agent's behavior in Kibana:
+After `pnpm run setup` creates the Agent Builder agent, SAs can customize the agent's behavior in Kibana:
 
-1. Open **Kibana → Standalone Agents → {AGENT_ID}**
+1. Open **Kibana → Standalone Agents → {agentId from `output/[CUSTOMER_SLUG]/demo.config.json`}**
 2. Edit the agent's **System Prompt** to match the customer's brand voice and product expertise
 3. Add or remove **Tools** as needed (the setup creates default search and product-retrieval tools)
 4. Adjust the **LLM Connector** if a different model is preferred
@@ -609,9 +612,9 @@ After writing the file, print:
 
 ```
 ✅ Demo generated: output/[CUSTOMER_SLUG]/demo.html
-✅ Agent Builder agent created (ID: [AGENT_ID]) — customize in Kibana if needed
+✅ Agent Builder agent created (ID: [agentId from demo.config.json]) — customize in Kibana if needed
 
-Run `npm run dev` and open http://localhost:3000/[CUSTOMER_SLUG]/demo.html
+Run `pnpm run inject -- --slug [CUSTOMER_SLUG]` (writes the gitignored config.js with credentials), then `pnpm run dev` and open http://localhost:3000/[CUSTOMER_SLUG]/demo.html
 
 DEMO CHEAT SHEET — queries to type during your presentation:
   1. Lexical:     "[DEMO_QUERIES.lexical]"       → bad results, wrong category
@@ -633,8 +636,9 @@ In GenAI mode, try follow-up questions to demonstrate multi-turn conversation.
 - **Do not invent image URLs** — use only URLs from the `image-library/*.json` files or URLs manually provided by the SA. If no image matches well, reuse the closest category match
 - **Images drive product data** — write product names, descriptions, and brands to match the SA-approved images, not the reverse
 - **Content safety is mandatory** — always ask the SA to review images before including them in the demo
-- **Keep all JavaScript logic intact** — only replace the data constants (`PERSONAS`, `PRODUCTS`, `GENAI_KITS`, `DEMO_QUERIES`, `SUGGESTIONS`) and the `ES_CONFIG` credential block
+- **Never read `.env` or `output/*/config.js`, never write credentials into any file you produce.**
+- **Keep all JavaScript logic intact** — only replace the data constants (`PERSONAS`, `PRODUCTS`, `GENAI_KITS`, `DEMO_QUERIES`, `SUGGESTIONS`); leave the `config.js` script tag and `ES_CONFIG` line untouched
 - **Keep all CSS intact** — only change the `:root` color values and hero slide background gradients
 - **Keep all HTML structure intact** — only replace text content and the logo element
-- **ES mode (required):** the demo must be served via `npm run dev` (localhost:3000) — direct `file://` opening will cause CORS errors on ES queries
-- **All credentials are mandatory** — if any `.env` value is missing, the setup cannot proceed
+- **ES mode (required):** the demo must be served via `pnpm run dev` (localhost:3000) — direct `file://` opening will cause CORS errors on ES queries
+- **All credentials are mandatory** — if any `.env` value is missing, the setup cannot proceed (the user resolves this; you do not read `.env`)

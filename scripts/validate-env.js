@@ -3,11 +3,14 @@
 /**
  * validate-env.js
  * Pre-flight check: validates that .env credentials are correctly configured
- * before running `npm run setup`.
+ * before running `pnpm run setup`.
  *
  * Usage:
- *   node scripts/validate-env.js              — full check including Agent Builder
- *   node scripts/validate-env.js --skip-agent — skip Kibana/Agent Builder check
+ *   node scripts/validate-env.js                  — full check (base ES_INDEX; agent check skipped without --slug)
+ *   node scripts/validate-env.js --slug <name>    — check that demo's index and Agent Builder agent
+ *   node scripts/validate-env.js --skip-agent     — skip Kibana/Agent Builder check
+ *
+ * The write key (ES_API_KEY) comes from the macOS Keychain, then the ES_API_KEY env var.
  */
 
 'use strict';
@@ -16,28 +19,27 @@ const fs      = require('fs');
 const path    = require('path');
 const http    = require('http');
 const https   = require('https');
+const { execFileSync } = require('child_process');
 const { Client } = require('@elastic/elasticsearch');
+const { ROOT, loadEnv, parseSlug, getWriteKey, resolveNames } = require('./lib/config');
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const SKIP_AGENT = process.argv.includes('--skip-agent');
 
-// ─── .env loader (no dotenv dependency) ──────────────────────────────────────
-
-function loadEnv() {
-  const envPath = path.join(__dirname, '..', '.env');
-  if (!fs.existsSync(envPath)) return false;
-  for (const line of fs.readFileSync(envPath, 'utf8').split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const eq = trimmed.indexOf('=');
-    if (eq === -1) continue;
-    const key = trimmed.slice(0, eq).trim();
-    const val = trimmed.slice(eq + 1).trim();
-    if (key && val && !process.env[key]) process.env[key] = val;
-  }
-  return true;
+let SLUG = null;
+try {
+  SLUG = parseSlug(process.argv.slice(2));
+} catch (e) {
+  console.error(`\n✗ ERROR: ${e.message}\n  Usage: node scripts/validate-env.js [--slug <name>] [--skip-agent]\n`);
+  process.exit(1);
 }
+
+const WRITE_KEY_HINT = 'store it once with: security add-generic-password -s customizable-search-demo -a ES_API_KEY -w (or export ES_API_KEY)';
+
+// Resolved in main() once .env is loaded; the write key is never read from .env.
+let WRITE_KEY = null;
+let NAMES = null; // per-demo names when --slug is given
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -48,6 +50,7 @@ function step(msg) { console.log(`\n▶ ${msg}`); }
 function ok(msg)   { console.log(`  ✓ ${msg}`); passed++; }
 function fail(msg) { console.log(`  ✗ ${msg}`); failed++; }
 function info(msg) { console.log(`  · ${msg}`); }
+function warn(msg) { console.log(`  ⚠ ${msg}`); } // not counted as a failure
 
 function isPlaceholder(val) {
   return !val || val.startsWith('your_') || val.includes('your-deployment') || val.includes('your-inference');
@@ -60,20 +63,24 @@ function esError(e) {
 // ─── Check 1: env var presence ────────────────────────────────────────────────
 
 function checkEnvVars() {
-  step('Checking .env variables...');
-  const required = ['ES_URL', 'ES_API_KEY', 'ES_API_KEY_READONLY', 'KIBANA_URL'];
-  for (const key of required) {
-    const val = process.env[key];
-    if (!val) {
-      fail(`${key} is missing`);
-    } else if (isPlaceholder(val)) {
-      fail(`${key} still has a placeholder value`);
-    } else {
-      ok(`${key} is set`);
-    }
+  step('Checking credentials...');
+  const check = (key, val, missingMsg) => {
+    if (!val) fail(missingMsg);
+    else if (isPlaceholder(val)) fail(`${key} still has a placeholder value`);
+    else ok(`${key} is set`);
+  };
+  for (const key of ['ES_URL', 'ES_API_KEY_READONLY', 'KIBANA_URL']) {
+    check(key, process.env[key], `${key} is missing`);
   }
-  const index = process.env.ES_INDEX || 'demo-products';
-  info(`ES_INDEX = "${index}" (${process.env.ES_INDEX ? 'from .env' : 'using default'})`);
+  // The write key is not in .env: Keychain, then the ES_API_KEY env var.
+  check('ES_API_KEY', WRITE_KEY, `ES_API_KEY is missing — ${WRITE_KEY_HINT}`);
+  const index = checkedIndex();
+  info(`Index = "${index}" (${NAMES ? `slug "${SLUG}"` : process.env.ES_INDEX ? 'ES_INDEX from .env' : 'default ES_INDEX'})`);
+}
+
+// Index to check: the slug's resolved index, or the base ES_INDEX without --slug.
+function checkedIndex() {
+  return NAMES ? NAMES.indexName : (process.env.ES_INDEX || 'demo-products');
 }
 
 // ─── Check 2: write key ───────────────────────────────────────────────────────
@@ -82,7 +89,7 @@ async function checkWriteKey() {
   step('Checking write API key (ES_API_KEY)...');
 
   const url = process.env.ES_URL;
-  const key = process.env.ES_API_KEY;
+  const key = WRITE_KEY;
   if (isPlaceholder(url) || isPlaceholder(key)) {
     fail('Skipping — ES_URL or ES_API_KEY not valid');
     return;
@@ -105,13 +112,13 @@ async function checkWriteKey() {
   }
 
   // Check if the index already exists (informational only)
-  const index = process.env.ES_INDEX || 'demo-products';
+  const index = checkedIndex();
   try {
     const exists = await client.indices.exists({ index });
     if (exists) {
       info(`Index "${index}" already exists — setup has been run previously`);
     } else {
-      info(`Index "${index}" not found — run "npm run setup" after this check passes`);
+      info(`Index "${index}" not found — run "pnpm run setup -- --slug <name>" after this check passes`);
     }
   } catch (e) {
     info(`Could not check index status: ${esError(e)}`);
@@ -131,7 +138,7 @@ async function checkReadKey() {
   }
 
   const client = new Client({ node: url, auth: { apiKey: key } });
-  const index = process.env.ES_INDEX || 'demo-products';
+  const index = checkedIndex();
   try {
     await client.search({ index, body: { query: { match_all: {} }, size: 1 } });
     ok(`Read access to "${index}" confirmed`);
@@ -151,14 +158,14 @@ async function checkReadKey() {
 async function checkKibana() {
   if (SKIP_AGENT) {
     step('Agent Builder check skipped (--skip-agent)');
-    info('Skipping KIBANA_URL and AGENT_ID validation');
+    info('Skipping KIBANA_URL and agent validation');
     return;
   }
 
   step('Checking Kibana reachability (KIBANA_URL)...');
 
   const kibanaUrl = process.env.KIBANA_URL;
-  const kibanaKey = process.env.ES_API_KEY;
+  const kibanaKey = WRITE_KEY;
 
   if (isPlaceholder(kibanaUrl) || isPlaceholder(kibanaKey)) {
     fail('Skipping — KIBANA_URL or ES_API_KEY not valid');
@@ -221,14 +228,14 @@ async function checkKibana() {
 
   if (!reachable) return;
 
-  // Check agent if AGENT_ID is set
-  const agentId = process.env.AGENT_ID;
-  if (!agentId) {
-    info('AGENT_ID not set — will be auto-populated by npm run setup');
+  // The agent id is per demo, so it can only be checked with --slug
+  if (!NAMES) {
+    info('No --slug: skipping agent check');
     return;
   }
+  const agentId = NAMES.agentId;
 
-  step('Checking Agent Builder agent (AGENT_ID)...');
+  step(`Checking Agent Builder agent (${agentId})...`);
 
   const kibanaReadKey = process.env.KIBANA_API_KEY;
   const agentUrl = new URL(`${kibanaUrl}/api/agent_builder/agents/${agentId}`);
@@ -254,7 +261,7 @@ async function checkKibana() {
         if (res.statusCode === 200) {
           ok(`Agent found: ${agentId}`);
         } else if (res.statusCode === 404) {
-          fail(`Agent not found: ${agentId} — run npm run setup or check AGENT_ID`);
+          fail(`Agent not found: ${agentId} — run pnpm run setup -- --slug ${SLUG}`);
         } else {
           fail(`Agent check returned ${res.statusCode}: ${data.slice(0, 200)}`);
         }
@@ -283,7 +290,7 @@ async function checkJinaReranker() {
   step('Checking Jina reranker inference endpoint...');
 
   const url = process.env.ES_URL;
-  const key = process.env.ES_API_KEY;
+  const key = WRITE_KEY;
   if (isPlaceholder(url) || isPlaceholder(key)) {
     info('Skipping — ES_URL or ES_API_KEY not valid');
     return;
@@ -317,7 +324,7 @@ async function checkJinaOmni() {
   }
 
   const url = process.env.ES_URL;
-  const key = process.env.ES_API_KEY;
+  const key = WRITE_KEY;
   if (isPlaceholder(url) || isPlaceholder(key)) {
     info('Skipping endpoint check — ES_URL or ES_API_KEY not valid');
     return;
@@ -338,6 +345,18 @@ async function checkJinaOmni() {
   }
 }
 
+// ─── Pre-commit guard (warning only) ─────────────────────────────────────────
+
+function checkHooksPath() {
+  let hooksPath = '';
+  try {
+    hooksPath = execFileSync('git', ['config', 'core.hooksPath'], { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch (_) { /* unset or not a git checkout */ }
+  if (hooksPath !== '.githooks') {
+    warn('Pre-commit secret guard is not enabled (git core.hooksPath is not .githooks). Fix: pnpm run hooks');
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -345,12 +364,25 @@ async function main() {
   console.log('  Elastic Search Demo — .env Validator');
   console.log('══════════════════════════════════════════');
 
-  if (!loadEnv()) {
+  if (!fs.existsSync(path.join(ROOT, '.env'))) {
     console.log('\n✗ ERROR: .env file not found.');
     console.log('  Copy .env.template to .env and fill in your credentials.\n');
     process.exit(1);
   }
+  loadEnv();
   info('.env loaded');
+  checkHooksPath();
+
+  WRITE_KEY = getWriteKey();
+  if (SLUG) {
+    try {
+      NAMES = resolveNames(SLUG, process.env.ES_INDEX);
+    } catch (e) {
+      console.log(`\n✗ ERROR: ${e.message}\n`);
+      process.exit(1);
+    }
+    info(`Slug: ${SLUG} (index ${NAMES.indexName}, agent ${NAMES.agentId})`);
+  }
 
   checkEnvVars();
   await checkWriteKey();
@@ -361,10 +393,10 @@ async function main() {
 
   console.log('\n──────────────────────────────────────────');
   if (failed === 0) {
-    console.log(`  ✓ All ${passed} checks passed — ready to run "npm run setup"\n`);
+    console.log(`  ✓ All ${passed} checks passed — ready to run "pnpm run setup"\n`);
     process.exit(0);
   } else {
-    console.log(`  ${passed} passed, ${failed} failed — fix the issues above before running "npm run setup"\n`);
+    console.log(`  ${passed} passed, ${failed} failed — fix the issues above before running "pnpm run setup"\n`);
     process.exit(1);
   }
 }

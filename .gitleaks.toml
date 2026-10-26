@@ -1,0 +1,27 @@
+title = "customizable-search-demo secret rules"
+
+[extend]
+useDefault = true
+
+# Elastic API keys have no stable prefix, so anchor on the assignment keyword.
+[[rules]]
+id = "elastic-api-key-assignment"
+description = "Elastic/Kibana API key assigned to a key-like name"
+regex = '''(?i)(?:apiKey|api_key|ES_API_KEY[A-Z_]*|KIBANA_API_KEY)['"]?\s*[:=]\s*['"]?([A-Za-z0-9+/_=-]{36,})['"]?'''
+secretGroup = 1
+entropy = 3.0
+keywords = ["apikey", "api_key"]
+
+[[rules]]
+id = "elastic-apikey-header"
+description = "Authorization: ApiKey <value>"
+regex = '''(?i)ApiKey\s+([A-Za-z0-9+/=_-]{36,})'''
+secretGroup = 1
+entropy = 3.0
+keywords = ["apikey"]
+
+[allowlist]
+description = "Template placeholders"
+regexes = ['''\{\{[A-Z_]+\}\}''']
+# No path allowlist: .env.template and docs are scanned too (their placeholders are
+# short or low-entropy). test-guard.sh builds its fake keys at runtime.

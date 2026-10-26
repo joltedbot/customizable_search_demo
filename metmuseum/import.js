@@ -17,6 +17,7 @@ const fs   = require('fs');
 const path = require('path');
 const { parse } = require('csv-parse');
 const { Client } = require('@elastic/elasticsearch');
+const { loadEnv, getWriteKey } = require('../scripts/lib/config');
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -27,24 +28,7 @@ const CHECKPOINT_PATH = path.join(__dirname, '.checkpoint');
 const FAILED_PATH     = path.join(__dirname, '.failed');
 const BATCH_SIZE      = 500;
 
-// ─── .env loader ─────────────────────────────────────────────────────────────
-
-function loadEnv() {
-  const envPath = path.join(__dirname, '..', '.env');
-  if (!fs.existsSync(envPath)) {
-    fatal('.env file not found. Copy .env.template to .env and fill in your credentials.');
-  }
-  const lines = fs.readFileSync(envPath, 'utf8').split('\n');
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const eqIdx = trimmed.indexOf('=');
-    if (eqIdx === -1) continue;
-    const key = trimmed.slice(0, eqIdx).trim();
-    const val = trimmed.slice(eqIdx + 1).trim();
-    if (key && val && !process.env[key]) process.env[key] = val;
-  }
-}
+// ─── Env (loader and write key: scripts/lib/config.js) ──────────────────────
 
 function requireEnv(key) {
   const val = process.env[key];
@@ -288,9 +272,21 @@ async function main() {
     fatal(`CSV not found: ${CSV_PATH}\nRun from the repo root and ensure metmuseum/openaccess/MetObjects.csv exists.`);
   }
 
-  loadEnv();
+  try {
+    loadEnv();
+  } catch (err) {
+    fatal(err.message);
+  }
   const esUrl    = requireEnv('ES_URL');
-  const esApiKey = requireEnv('ES_API_KEY');
+  const esApiKey = getWriteKey();
+  if (!esApiKey) {
+    fatal(
+      'ES_API_KEY (write key) not found. It is no longer read from .env.\n' +
+      '  Store it once in the macOS Keychain (prompts for the key):\n' +
+      '    security add-generic-password -s customizable-search-demo -a ES_API_KEY -w\n' +
+      '  or export ES_API_KEY in your shell.'
+    );
+  }
 
   const client = new Client({ node: esUrl, auth: { apiKey: esApiKey } });
 

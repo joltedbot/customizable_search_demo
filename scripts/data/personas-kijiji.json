@@ -1,0 +1,35 @@
+[
+  {
+    "id": "alex",
+    "name": "Alex",
+    "tagline": "First apartment, furnishing on a budget",
+    "gender": "female",
+    "preferredBrands": ["IKEA", "West Elm", "Umbra", "Cuisinart"],
+    "preferredCategories": ["furniture", "home-decor", "rental-apartments", "kitchen-appliance"],
+    "purchaseHistory": ["loveseat", "dining table", "toaster", "wall art"],
+    "clickHistory": ["one bedroom rentals", "sofas", "vases", "electric kettle"],
+    "season": "fall"
+  },
+  {
+    "id": "marcus",
+    "name": "Marcus",
+    "tagline": "Family man shopping for a used truck and outdoor gear",
+    "gender": "male",
+    "preferredBrands": ["Ford", "Toyota", "MSR", "The North Face"],
+    "preferredCategories": ["pickup-trucks", "used-cars", "tents", "camping-chairs"],
+    "purchaseHistory": ["camp chairs", "family tent", "sleeping bag", "roof rack"],
+    "clickHistory": ["crew cab trucks", "towing pickups", "family SUVs", "camping tents"],
+    "season": "fall"
+  },
+  {
+    "id": "sam",
+    "name": "Sam",
+    "tagline": "Hobbyist and reseller hunting for deals",
+    "gender": "neutral",
+    "preferredBrands": ["Sony", "Nike", "Bose", "Wilson"],
+    "preferredCategories": ["headphones", "sneakers", "tennis-rackets"],
+    "purchaseHistory": ["sneakers", "leather jacket", "headphones", "tennis racket"],
+    "clickHistory": ["noise cancelling headphones", "vintage jackets", "Nike sneakers", "bluetooth speakers"],
+    "season": "fall"
+  }
+]

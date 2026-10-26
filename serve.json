@@ -1,0 +1,4 @@
+{
+  "directoryListing": false,
+  "unlisted": ["*.pre-migrate", "demo.config.json", ".*"]
+}
